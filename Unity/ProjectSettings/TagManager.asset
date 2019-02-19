@@ -13,7 +13,7 @@ TagManager:
   - UI
   - 
   - 
-  - 
+  - PostProcessing
   - 
   - 
   - 
@@ -40,4 +40,16 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Grass
+    uniqueID: 177827025
+    locked: 0
+  - name: Road
+    uniqueID: 3648394899
+    locked: 0
+  - name: Walkable
+    uniqueID: 1535382983
+    locked: 0
+  - name: Building
+    uniqueID: 2363452849
     locked: 0
