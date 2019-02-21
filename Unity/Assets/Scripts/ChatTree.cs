@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ChatTree
 {
-    public ClassTree()
+    public ChatTree()
     {
 
     }
