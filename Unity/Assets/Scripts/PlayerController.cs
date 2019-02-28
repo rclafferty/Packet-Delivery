@@ -20,7 +20,22 @@ public class PlayerController : MonoBehaviour
         float xMovement = Input.GetAxis("Horizontal");
         float yMovement = Input.GetAxis("Vertical");
 
+        float speedModifier = 1;
+        bool activateSpeedModifier = false;
+
+#if UNITY_EDITOR
+        // Debugging the game only
+        activateSpeedModifier = Input.GetKey(KeyCode.LeftShift);
+#endif
+
+        if (activateSpeedModifier)
+        {
+#if UNITY_EDITOR
+            speedModifier = 5;
+#endif
+        }
+
         // Move
-        thisRigidbody.velocity = new Vector2(xMovement * SPEED, yMovement * SPEED);
+        thisRigidbody.velocity = new Vector2(xMovement * SPEED * speedModifier, yMovement * SPEED * speedModifier);
     }
 }
