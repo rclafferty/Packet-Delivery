@@ -30,16 +30,27 @@ public class LevelManager : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// Load level by index
+    /// </summary>
+    /// <param name="index"></param>
     public void LoadLevel(int index)
     {
         SceneManager.LoadScene(index);
     }
 
+    /// <summary>
+    /// Load level by name
+    /// </summary>
+    /// <param name="name"></param>
     public void LoadLevel(string name)
     {
         SceneManager.LoadScene(name);
     }
-
+    
+    /// <summary>
+    /// Quit the game
+    /// </summary>
     public void QuitGame()
     {
 #if UNITY_EDITOR
