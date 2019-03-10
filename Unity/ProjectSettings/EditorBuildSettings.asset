@@ -12,6 +12,15 @@ EditorBuildSettings:
     path: Assets/Scenes/title.unity
     guid: e56d06049365de148887219832ace9dc
   - enabled: 1
+    path: Assets/Scenes/styleTitle.unity
+    guid: d5f3e8128c3eab14bace67b2a0b0b777
+  - enabled: 1
     path: Assets/Scenes/town.unity
     guid: 4d1f4dc7d1e6b4a47b4ee00d4a75ff5f
+  - enabled: 1
+    path: Assets/Scenes/centralLookupAgency.unity
+    guid: 511dd3d681870564b8e9ec17ff2a646c
+  - enabled: 1
+    path: Assets/Scenes/office.unity
+    guid: 064c910a3a6e0524bbfba7e3f1ee907d
   m_configObjects: {}

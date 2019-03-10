@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ChatManager : MonoBehaviour
 {
+    EventSystem eventSystem;
+
     Text chatText;
 
     Button option1Button;
@@ -31,6 +34,8 @@ public class ChatManager : MonoBehaviour
 
         option2Button = GameObject.Find("Option2Button").GetComponent<Button>();
         option2Text = GameObject.Find("Option2Text").GetComponent<Text>();
+
+        eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
 
         // TODO: Get start text
         string startChatText = TEST_CHAT;
@@ -69,6 +74,8 @@ public class ChatManager : MonoBehaviour
         chatText.text = " ";
         option1Text.text = " ";
         option2Text.text = " ";
+
+        eventSystem.SetSelectedGameObject(null);
     }
 
     IEnumerator WriteText(string chat, string option1, string option2)
@@ -91,13 +98,14 @@ public class ChatManager : MonoBehaviour
         if (string.IsNullOrEmpty(option2))
         {
             // Disable the button
-            option2Button.enabled = false;
+            //option2Button.enabled = false;
+            option2Button.gameObject.SetActive(false);
         }
         // if there are two options
         else
         {
             // Make sure the button is enabled
-            option2Button.enabled = true;
+            option2Button.gameObject.SetActive(true);
 
             for (int i = 0; i < option2.Length; i++)
             {

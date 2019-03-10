@@ -20,7 +20,7 @@ public class CentralLookupAgencyTransition : MonoBehaviour
     {
         if (collision.name == "Player")
         {
-            GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel(0);
+            GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("centralLookupAgency");
         }
     }
 }
