@@ -6,7 +6,11 @@ using UnityEngine.UI;
 
 public class ChatManager : MonoBehaviour
 {
+    static ChatManager instance = null;
+
     EventSystem eventSystem;
+
+    string currentTarget;
 
     Text chatText;
 
@@ -27,6 +31,19 @@ public class ChatManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        currentTarget = "";
+
         chatText = GameObject.Find("ChatText").GetComponent<Text>();
 
         option1Button = GameObject.Find("Option1Button").GetComponent<Button>();
