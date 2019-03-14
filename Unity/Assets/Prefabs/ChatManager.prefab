@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 580854362150100373}
-  - component: {fileID: 7340785916586061775}
+  - component: {fileID: 4037577356037745118}
+  - component: {fileID: 5621462414845249663}
   m_Layer: 0
   m_Name: ChatManager
   m_TagString: Untagged
@@ -31,7 +32,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7340785916586061775
+--- !u!114 &4037577356037745118
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,6 +41,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 2698441112740837597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9874bac01d74024882de270b7d2f76c, type: 3}
+  m_Script: {fileID: 11500000, guid: 86030a6114112264d88edf4117ca1f73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5621462414845249663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2698441112740837597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74d0f4d5d29100d449a57a2cfa459f23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

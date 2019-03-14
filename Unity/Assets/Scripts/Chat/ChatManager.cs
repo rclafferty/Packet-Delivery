@@ -8,6 +8,8 @@ public class ChatManager : MonoBehaviour
 {
     static ChatManager instance = null;
 
+    GameplayManager gameplayManager;
+
     EventSystem eventSystem;
 
     string currentTarget;
@@ -24,8 +26,11 @@ public class ChatManager : MonoBehaviour
 
     bool isClickable;
 
-    const string TEST_CHAT = "Welcome to the Central Lookup Agency. How may I assist you?";
-    const string TEST_OPTION1 = "I'm looking for a Casey Lafferty. Could you help me find them?";
+    const string STARTING_CHAT_TEXT = "Welcome to the Central Lookup Agency. How may I assist you?";
+
+    const string TEST_CHAT = STARTING_CHAT_TEXT;
+    // const string TEST_OPTION1 = "I'm looking for a Casey Lafferty. Could you help me find them?";
+    const string TEST_TARGET = "Casey Lafferty";
     const string TEST_OPTION2 = "Nevermind.";
     
     // Start is called before the first frame update
@@ -42,8 +47,8 @@ public class ChatManager : MonoBehaviour
             return;
         }
 
-        currentTarget = "";
-
+        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+        
         chatText = GameObject.Find("ChatText").GetComponent<Text>();
 
         option1Button = GameObject.Find("Option1Button").GetComponent<Button>();
@@ -56,8 +61,22 @@ public class ChatManager : MonoBehaviour
 
         // TODO: Get start text
         string startChatText = TEST_CHAT;
-        string startOption1 = TEST_OPTION1;
-        string startOption2 = TEST_OPTION2;
+        string startOption1 = "";
+        string startOption2 = "";
+
+        currentTarget = gameplayManager.CurrentTarget;
+
+        currentTarget = TEST_TARGET;
+
+        if (currentTarget == "")
+        {
+            startOption1 = "I just stopped in to say hi.";
+        }
+        else
+        {
+            startOption1 = "I'm looking for " + currentTarget + ". Could you help me find them?";
+        }
+        startOption2 = TEST_OPTION2;
 
         isClickable = false;
 
