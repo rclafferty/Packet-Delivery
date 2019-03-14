@@ -120,9 +120,12 @@ public class GameplayManager : MonoBehaviour
                 namesPerLocation[x].Add(name);
             }
         }*/
-
-        string filepath = "Assets/Resources/PopulationList/populationList" + index + "_with_index.txt";
-
+        string filepath = "";
+#if UNITY_EDITOR
+        filepath = "Assets/Resources/PopulationList/populationList" + index + "_with_index.txt";
+#else
+        filepath = "PopulationList/populationList" + index + "_with_index.txt";
+#endif
         using (StreamReader sr = new StreamReader(filepath))
         {
             int numberOfNames = System.Convert.ToInt32(sr.ReadLine());
