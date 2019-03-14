@@ -14,10 +14,16 @@ public class GameplayManager : MonoBehaviour
     static GameplayManager instance = null;
     string[] listOfNames;
     LocalLookupAgencyLocation[] peopleLocations;
+
+    ArrayList[] namesPerLocation;
     
     [SerializeField]
     string currentTarget;
     bool hasVisitedCLA;
+
+    static readonly float CHAT_DELAY = 0.01f;
+
+    string currentLocation;
 
     // Start is called before the first frame update
     void Start()
@@ -34,9 +40,16 @@ public class GameplayManager : MonoBehaviour
             return;
         }
 
+        namesPerLocation = new ArrayList[2];
+
+        for (int i = 0; i < namesPerLocation.Length; i++)
+        {
+            namesPerLocation[i] = new ArrayList();
+        }
+        
         LoadPopulationList();
 
-        currentTarget = "Chung Esch";
+        currentTarget = listOfNames[0];
         hasVisitedCLA = false;
     }
 
@@ -66,6 +79,14 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
+    public static float ChatDelay
+    {
+        get
+        {
+            return CHAT_DELAY;
+        }
+    }
+
     void LoadPopulationList()
     {
         string[] list;
@@ -73,7 +94,10 @@ public class GameplayManager : MonoBehaviour
 
         string name = "";
 
-        using (StreamReader sr = new StreamReader("Assets/Resources/PopulationList/populationList.txt"))
+        int index = Mathf.FloorToInt(Random.Range(0, 4));
+        /*string filepath = "Assets/Resources/PopulationList/populationList" + index + ".txt";
+
+        using (StreamReader sr = new StreamReader(filepath))
         {
             int numberOfNames = System.Convert.ToInt32(sr.ReadLine());
             list = new string[numberOfNames];
@@ -93,6 +117,28 @@ public class GameplayManager : MonoBehaviour
                 } while (x > 1);
 
                 locations[i] = (LocalLookupAgencyLocation)x;
+                namesPerLocation[x].Add(name);
+            }
+        }*/
+
+        string filepath = "Assets/Resources/PopulationList/populationList" + index + "_with_index.txt";
+
+        using (StreamReader sr = new StreamReader(filepath))
+        {
+            int numberOfNames = System.Convert.ToInt32(sr.ReadLine());
+            list = new string[numberOfNames];
+            locations = new LocalLookupAgencyLocation[numberOfNames];
+
+            for (int i = 0; i < numberOfNames; i++)
+            {
+                name = sr.ReadLine();
+                string[] parts = name.Split('\t');
+                list[i] = parts[0];
+                
+                int x = System.Convert.ToInt32(parts[1]);
+                
+                locations[i] = (LocalLookupAgencyLocation)x;
+                namesPerLocation[x].Add(name);
             }
         }
 
@@ -130,6 +176,32 @@ public class GameplayManager : MonoBehaviour
                 loc[i] = (int)peopleLocations[i];
             }
             return loc;
+        }
+    }
+
+    public ArrayList GetNamesFromLocation(string direction)
+    {
+        if (direction.ToLower() == "northeast")
+        {
+            return namesPerLocation[(int)LocalLookupAgencyLocation.NE];
+        }
+        else if (direction.ToLower() == "southwest")
+        {
+            return namesPerLocation[(int)LocalLookupAgencyLocation.SW];
+        }
+
+        return null;
+    }
+
+    public string CurrentLocation
+    {
+        get
+        {
+            return currentLocation;
+        }
+        set
+        {
+            currentLocation = value;
         }
     }
 }
