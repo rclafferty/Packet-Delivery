@@ -1,4 +1,5 @@
 ﻿// using System;
+using Assets.Scripts.Chat;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -6,22 +7,12 @@ using UnityEngine;
 
 public class GameplayManager : MonoBehaviour
 {
-    public enum LocalLookupAgencyLocation
-    {
-        NE = 0,
-        SW = 1
-    }
     static GameplayManager instance = null;
-    string[] listOfNames;
-    LocalLookupAgencyLocation[] peopleLocations;
-
-    ArrayList[] namesPerLocation;
     
     [SerializeField]
     string currentTarget;
+    Message currentTargetMessage;
     bool hasVisitedCLA;
-
-    static readonly float CHAT_DELAY = 0.01f;
 
     string currentLocation;
 
@@ -35,21 +26,10 @@ public class GameplayManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("Destroying GameplayManager duplicate");
             Destroy(gameObject);
             return;
         }
 
-        namesPerLocation = new ArrayList[2];
-
-        for (int i = 0; i < namesPerLocation.Length; i++)
-        {
-            namesPerLocation[i] = new ArrayList();
-        }
-        
-        LoadPopulationList();
-
-        currentTarget = listOfNames[0];
         hasVisitedCLA = false;
     }
 
@@ -79,74 +59,24 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    public static float ChatDelay
+    public Message CurrentTargetMessage
     {
         get
         {
-            return CHAT_DELAY;
+            return currentTargetMessage;
+        }
+        set
+        {
+            currentTargetMessage = value;
         }
     }
 
-    void LoadPopulationList()
+    public bool HasCurrentTarget
     {
-        string[] list;
-        LocalLookupAgencyLocation[] locations;
-
-        string name = "";
-
-        int index = Mathf.FloorToInt(Random.Range(0, 4));
-        /*string filepath = "Assets/Resources/PopulationList/populationList" + index + ".txt";
-
-        using (StreamReader sr = new StreamReader(filepath))
+        get
         {
-            int numberOfNames = System.Convert.ToInt32(sr.ReadLine());
-            list = new string[numberOfNames];
-            locations = new LocalLookupAgencyLocation[numberOfNames];
-
-            for (int i = 0; i < numberOfNames; i++)
-            {
-                name = sr.ReadLine();
-                list[i] = name;
-
-                int x = 0;
-
-                do
-                {
-                    // Establish a random location for each person
-                    x = (int)Random.Range(0, 2);
-                } while (x > 1);
-
-                locations[i] = (LocalLookupAgencyLocation)x;
-                namesPerLocation[x].Add(name);
-            }
-        }*/
-        string filepath = "";
-#if UNITY_EDITOR
-        filepath = "Assets/Resources/PopulationList/populationList" + index + "_with_index.txt";
-#else
-        filepath = "PopulationList/populationList" + index + "_with_index.txt";
-#endif
-        using (StreamReader sr = new StreamReader(filepath))
-        {
-            int numberOfNames = System.Convert.ToInt32(sr.ReadLine());
-            list = new string[numberOfNames];
-            locations = new LocalLookupAgencyLocation[numberOfNames];
-
-            for (int i = 0; i < numberOfNames; i++)
-            {
-                name = sr.ReadLine();
-                string[] parts = name.Split('\t');
-                list[i] = parts[0];
-                
-                int x = System.Convert.ToInt32(parts[1]);
-                
-                locations[i] = (LocalLookupAgencyLocation)x;
-                namesPerLocation[x].Add(name);
-            }
+            return (currentTarget != "");
         }
-
-        listOfNames = list;
-        peopleLocations = locations;
     }
 
     public bool VisitedCLA
@@ -159,41 +89,6 @@ public class GameplayManager : MonoBehaviour
         {
             hasVisitedCLA = value;
         }
-    }
-
-    public string[] ListOfPeople
-    {
-        get
-        {
-            return listOfNames;
-        }
-    }
-
-    public int[] PeopleLocations
-    {
-        get
-        {
-            int[] loc = new int[peopleLocations.Length];
-            for (int i = 0; i < peopleLocations.Length; i++)
-            {
-                loc[i] = (int)peopleLocations[i];
-            }
-            return loc;
-        }
-    }
-
-    public ArrayList GetNamesFromLocation(string direction)
-    {
-        if (direction.ToLower() == "northeast")
-        {
-            return namesPerLocation[(int)LocalLookupAgencyLocation.NE];
-        }
-        else if (direction.ToLower() == "southwest")
-        {
-            return namesPerLocation[(int)LocalLookupAgencyLocation.SW];
-        }
-
-        return null;
     }
 
     public string CurrentLocation
