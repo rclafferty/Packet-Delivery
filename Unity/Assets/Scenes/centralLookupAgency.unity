@@ -3262,6 +3262,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 369778361}
   m_CullTransparentMesh: 0
+--- !u!114 &377834691 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1406021924685959318, guid: f29a24efcc4dc4142a4c689580ffb887,
+    type: 3}
+  m_PrefabInstance: {fileID: 4853926135173931333}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 511018257512342fbbd7018756eb71be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &378498515
 GameObject:
   m_ObjectHideFlags: 0
@@ -3980,6 +3992,16 @@ PrefabInstance:
       propertyPath: listOfPeopleGUI
       value: 
       objectReference: {fileID: 281025234}
+    - target: {fileID: 5320918329566020836, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: gameplayManager
+      value: 
+      objectReference: {fileID: 377834691}
+    - target: {fileID: 5320918329566020836, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: levelManager
+      value: 
+      objectReference: {fileID: 539773420}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1c8503f179b8da3478bd8801c074af09, type: 3}
 --- !u!1 &528558724
@@ -4337,6 +4359,18 @@ Transform:
   m_Father: {fileID: 574844210}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &539773420 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6842948260630009654, guid: 4c824711c175b7d4787ea1d71e18f4e0,
+    type: 3}
+  m_PrefabInstance: {fileID: 1257483401}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f53542567ba7cb542a19901b47c86730, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &547604100
 GameObject:
   m_ObjectHideFlags: 0
