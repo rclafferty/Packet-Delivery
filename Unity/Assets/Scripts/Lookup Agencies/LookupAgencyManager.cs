@@ -6,12 +6,6 @@ using UnityEngine;
 
 public class LookupAgencyManager : MonoBehaviour
 {
-    enum LocalLookupAgencyLocation
-    {
-        NE = 0,
-        SW = 1
-    }
-
     string[] LOCATION_TEXT = { "Northeast", "Southwest" };
 
     static LookupAgencyManager instance = null;
@@ -32,14 +26,12 @@ public class LookupAgencyManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        LoadPopulationList();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-
+        LoadPopulationList();
     }
 
     // Update is called once per frame

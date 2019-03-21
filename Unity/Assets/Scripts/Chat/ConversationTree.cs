@@ -10,9 +10,10 @@ namespace Assets.Scripts.Chat
     {
         string speakerText;
         string[] responses;
+        string[] actions;
         ConversationTree[] children;
 
-        public ConversationTree(string text, string[] options, ConversationTree[] next)
+        public ConversationTree(string text, string[] options, string[] actions, ConversationTree[] next)
         {
             if (options.Length != next.Length)
             {
@@ -40,11 +41,23 @@ namespace Assets.Scripts.Chat
             }
         }
 
+        public string[] Actions
+        {
+            get
+            {
+                return actions;
+            }
+        }
+
         public ConversationTree[] Children
         {
             get
             {
                 return children;
+            }
+            set
+            {
+                children = value;
             }
         }
 

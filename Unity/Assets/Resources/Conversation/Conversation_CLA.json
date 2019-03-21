@@ -1,6 +1,7 @@
 {
-    "initialText": "Welcome to the Central Lookup Agency.",
+    "initialText":"Welcome to the Central Lookup Agency.",
 
+    "initialTree":
     {
         "chatText":"How may we assist you?",
     
