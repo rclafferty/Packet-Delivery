@@ -21,26 +21,35 @@ public class LetterManager : MonoBehaviour
 
     string[] URGENCY_STATUS = { "Normal", "Expedited", "Urgent" };
 
+    void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+        
+        LoadLetters();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-
-        LoadLetters();
+        
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public void LoadLetterFromFile()
+    {
+        LoadLetters();
     }
 
     private void LoadLetters()
@@ -62,7 +71,7 @@ public class LetterManager : MonoBehaviour
 #if UNITY_EDITOR
             filepath = "Assets/Resources/Letters/letter" + (index + 1).ToString("00") + ".txt";
 #else
-            filepath = "PopulationList/populationList" + index + "_with_index.txt";
+            filepath = "Assets/Resources/Letters/letter" + (index + 1).ToString("00") + ".txt";
 #endif
 
             string target = "none";

@@ -17,6 +17,8 @@ public class GameplayManager : MonoBehaviour
 
     string currentLocation;
 
+    LetterManager letterManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -46,18 +48,18 @@ public class GameplayManager : MonoBehaviour
         {
             return currentTarget;
         }
-        set
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                currentTarget = "";
-                return;
-            }
-            else
-            {
-                currentTarget = value;
-            }
-        }
+        // set
+        // {
+        //     if (string.IsNullOrEmpty(value))
+        //     {
+        //         currentTarget = "";
+        //         return;
+        //     }
+        //     else
+        //     {
+        //         currentTarget = value;
+        //     }
+        // }
     }
 
     public Message CurrentTargetMessage
@@ -68,7 +70,16 @@ public class GameplayManager : MonoBehaviour
         }
         set
         {
-            currentTargetMessage = value;
+            if (currentTargetMessage == null)
+            {
+                currentTargetMessage = null;
+                currentTarget = "";
+            }
+            else
+            {
+                currentTargetMessage = value;
+                currentTarget = currentTargetMessage.Recipient;
+            }
         }
     }
 
