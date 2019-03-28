@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Chat;
+﻿using Assets.Scripts.Behind_The_Scenes;
+using Assets.Scripts.Chat;
 using Assets.Scripts.Lookup_Agencies;
 using System.Collections;
 using System.Collections.Generic;
@@ -54,7 +55,7 @@ public class ChatManager : MonoBehaviour
     [SerializeField]
     GameObject listOfPeopleGUI;
 
-    static readonly float CHAT_DELAY = 0.05f;
+    static readonly float CHAT_DELAY = 0.02f;
 
     string chatText_message;
     string option1_message;
@@ -63,6 +64,14 @@ public class ChatManager : MonoBehaviour
     bool isClickable;
 
     ConversationTree conversationTree;
+
+    [SerializeField]
+    UnityAction action1;
+    [SerializeField]
+    UnityAction action2;
+
+    [SerializeField]
+    CLALookupManager claManager;
 
     // Start is called before the first frame update
     void Start()
@@ -74,8 +83,8 @@ public class ChatManager : MonoBehaviour
 
         string sceneName = SceneManager.GetActiveScene().name;
 
-        UnityAction action1;
-        UnityAction action2;
+        // UnityAction action1;
+        // UnityAction action2;
 
         /*if (string.IsNullOrEmpty(gameplayManager.CurrentTarget))
         {
@@ -307,7 +316,7 @@ public class ChatManager : MonoBehaviour
 
     public void CLAPopulateList()
     {
-        // Get whole list of people
+        // Get entire list of people
 
         // List each person and their respective location (NE vs SW)
     }
