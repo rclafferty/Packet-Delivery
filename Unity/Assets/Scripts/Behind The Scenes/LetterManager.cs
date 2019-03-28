@@ -17,6 +17,7 @@ public class LetterManager : MonoBehaviour
     bool[] isDelivered;
     bool[] onHold;
 
+    [SerializeField]
     int remaining;
 
     string[] URGENCY_STATUS = { "Normal", "Expedited", "Urgent" };
@@ -119,6 +120,11 @@ public class LetterManager : MonoBehaviour
             return null;
         }
 
+        if (remaining <= 0)
+        {
+            return null;
+        }
+
         int index = -1;
 
         do
@@ -177,6 +183,14 @@ public class LetterManager : MonoBehaviour
             {
                 onHold[i] = false;
             }
+        }
+    }
+
+    public int RemainingLetters
+    {
+        get
+        {
+            return remaining;
         }
     }
 }

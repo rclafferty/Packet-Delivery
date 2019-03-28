@@ -26,4 +26,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/localLookupAgencyNE.unity
     guid: 69f97767b4f086c4c9508439e3ac09b3
+  - enabled: 1
+    path: Assets/Scenes/office2.unity
+    guid: f89470afe50257e42b63c39a8dc6a4ba
+  - enabled: 1
+    path: Assets/Scenes/office.unity
+    guid: 18015490af64a194aadadcd0332525dc
   m_configObjects: {}

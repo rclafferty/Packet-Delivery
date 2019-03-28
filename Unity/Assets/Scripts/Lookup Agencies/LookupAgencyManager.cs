@@ -37,7 +37,7 @@ public class LookupAgencyManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     void LoadPopulationList()
@@ -70,7 +70,7 @@ public class LookupAgencyManager : MonoBehaviour
         using (StreamReader sr = new StreamReader(filepath))
         {
             int numberOfPeople = System.Convert.ToInt32(sr.ReadLine());
-            
+
             for (int i = 0; i < numberOfPeople; i++)
             {
                 line = sr.ReadLine();

@@ -64,7 +64,7 @@ namespace Assets.Scripts.Chat
         public override string ToString()
         {
             string text = "Text: " + speakerText;
-            
+
             for (int i = 0; i < responses.Length; i++)
             {
                 text += "\nOption" + i + ": " + responses[i];

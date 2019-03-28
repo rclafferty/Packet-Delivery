@@ -1,6 +1,6 @@
 ﻿// using System;
 using Assets.Scripts.Behind_The_Scenes;
-using Assets.Scripts.Chat;
+// using Assets.Scripts.Chat;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -12,12 +12,17 @@ public class GameplayManager : MonoBehaviour
     
     [SerializeField]
     string currentTarget;
+
+    [SerializeField]
     Message currentTargetMessage;
     bool hasVisitedCLA;
 
     string currentLocation;
 
+    [SerializeField]
     LetterManager letterManager;
+
+    int remainingTasks;
 
     // Start is called before the first frame update
     void Start()
@@ -40,6 +45,20 @@ public class GameplayManager : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public void SetLetterManager(LetterManager lm)
+    {
+        if (lm == null)
+        {
+            return;
+        }
+
+        letterManager = lm;
+        remainingTasks = letterManager.RemainingLetters;
+
+        // Get initial target
+        CurrentTargetMessage = lm.GetNextMessage();
     }
 
     public string CurrentTarget
@@ -70,7 +89,7 @@ public class GameplayManager : MonoBehaviour
         }
         set
         {
-            if (currentTargetMessage == null)
+            if (value == null)
             {
                 currentTargetMessage = null;
                 currentTarget = "";
@@ -79,6 +98,8 @@ public class GameplayManager : MonoBehaviour
             {
                 currentTargetMessage = value;
                 currentTarget = currentTargetMessage.Recipient;
+
+                Debug.Log("Current target: " + currentTarget);
             }
         }
     }
@@ -112,6 +133,34 @@ public class GameplayManager : MonoBehaviour
         set
         {
             currentLocation = value;
+        }
+    }
+
+    public void CompleteTask()
+    {
+        currentTargetMessage = null;
+        currentTarget = "";
+    }
+
+    public int RemainingTasks
+    {
+        get
+        {
+            return remainingTasks;
+        }
+        set
+        {
+            remainingTasks = value;
+        }
+    }
+
+    public bool HasRemainingTasks
+    {
+        get
+        {
+            remainingTasks = letterManager.RemainingLetters;
+            Debug.Log(remainingTasks + " remaining letters");
+            return (remainingTasks > 0);
         }
     }
 }
