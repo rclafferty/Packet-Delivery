@@ -4081,6 +4081,11 @@ PrefabInstance:
       propertyPath: claManager
       value: 
       objectReference: {fileID: 896892105}
+    - target: {fileID: 5320918329566020836, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1c8503f179b8da3478bd8801c074af09, type: 3}
 --- !u!1 &528558724
@@ -7608,7 +7613,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -9823,6 +9828,31 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1182773205}
   m_CullTransparentMesh: 0
+--- !u!1 &1199745473 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2698441112740837597, guid: 1c8503f179b8da3478bd8801c074af09,
+    type: 3}
+  m_PrefabInstance: {fileID: 526835284}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1199745476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1199745473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36a32e70de8288741a22483cfb66d828, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventSystem: {fileID: 204124475}
+  chatCanvas: {fileID: 887634506}
+  chatText: {fileID: 561550214}
+  option1Button: {fileID: 1160346378}
+  option1Text: {fileID: 1255707428}
+  option2Button: {fileID: 1158793964}
+  option2Text: {fileID: 926892268}
 --- !u!1 &1213308173
 GameObject:
   m_ObjectHideFlags: 0
@@ -10011,7 +10041,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: ' I''m looking for a Casey Lafferty. Could you help me find them?'
+  m_Text: ' Can you help me locate this person?'
 --- !u!222 &1255707429
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13385,7 +13415,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 160100143}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.48805907
+  m_Size: 0.48805913
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -14765,7 +14795,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 31.2, y: 106.70001}
+  m_AnchoredPosition: {x: 31.199951, y: 106.70001}
   m_SizeDelta: {x: -526.9, y: 214.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1949832100

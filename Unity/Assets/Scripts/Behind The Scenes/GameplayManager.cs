@@ -40,6 +40,9 @@ public class GameplayManager : MonoBehaviour
         }
 
         hasVisitedCLA = false;
+
+        if (name.Contains("cla2"))
+            this.CurrentTargetMessage = new Message("Test", "Dummy", "Hi. How are ya?", 0, false);
     }
 
     // Update is called once per frame
