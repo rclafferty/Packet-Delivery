@@ -40,7 +40,7 @@ public class LookupAgencyManager : MonoBehaviour
 
     }
 
-    void LoadPopulationList()
+    public void LoadPopulationList()
     {
         const int MIN_INDEX = 0;
         const int MAX_INDEX = 4;

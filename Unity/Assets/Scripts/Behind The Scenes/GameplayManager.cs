@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameplayManager : MonoBehaviour
 {
@@ -101,6 +102,10 @@ public class GameplayManager : MonoBehaviour
 
                 Debug.Log("Current target: " + currentTarget);
             }
+
+            string name = SceneManager.GetActiveScene().name.ToLower();
+            if (name.Contains("cla2"))
+                gameObject.GetComponent<CLA2GameplayManager>().SetTargetText();
         }
     }
 
