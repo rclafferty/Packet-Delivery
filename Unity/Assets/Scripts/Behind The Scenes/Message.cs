@@ -25,11 +25,15 @@ namespace Assets.Scripts.Behind_The_Scenes
         [SerializeField]
         bool isDelivered;
 
+        [SerializeField]
+        int messageID;
+
         // For debugging purposes
         string filepath;
 
-        public Message(string r, string s, string m, int u, bool d)
+        public Message(int i, string r, string s, string m, int u, bool d)
         {
+            messageID = i;
             recipient = r;
             sender = s;
             messageBody = m;
@@ -41,12 +45,21 @@ namespace Assets.Scripts.Behind_The_Scenes
         // Deep Copy Constructor
         public Message(Message m)
         {
+            messageID = m.ID;
             recipient = m.Recipient;
             sender = m.Sender;
             messageBody = m.MessageBody;
             urgency = m.Urgency;
             urgencyIndex = m.UrgencyIndex;
             isDelivered = m.HasBeenDelivered;
+        }
+
+        public int ID
+        {
+            get
+            {
+                return messageID;
+            }
         }
 
         public string Recipient
@@ -109,7 +122,7 @@ namespace Assets.Scripts.Behind_The_Scenes
         /// <param name="m">Message body</param>
         /// <param name="u">Urgency</param>
         /// <returns></returns>
-        public static Message ParseMessage(string r, string s, string m, string u)
+        public static Message ParseMessage(int id, string r, string s, string m, string u)
         {
             string[] tempParts;
             
@@ -136,7 +149,7 @@ namespace Assets.Scripts.Behind_The_Scenes
                 }
             }
             
-            return new Message(recipient, sender, message, urgencyIndex, false);
+            return new Message(id, recipient, sender, message, urgencyIndex, false);
         }
 
         /// <summary>
@@ -148,9 +161,9 @@ namespace Assets.Scripts.Behind_The_Scenes
         /// <param name="u">Urgency</param>
         /// <param name="d">Indicates if the message was delivered</param>
         /// <returns></returns>
-        public static Message ParseMessage(string r, string s, string m, string u, bool d)
+        public static Message ParseMessage(int id, string r, string s, string m, string u, bool d)
         {
-            Message thisMessage = ParseMessage(r, s, m, u);
+            Message thisMessage = ParseMessage(id, r, s, m, u);
             thisMessage.HasBeenDelivered = d;
 
             return thisMessage;

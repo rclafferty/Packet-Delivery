@@ -42,7 +42,7 @@ public class GameplayManager : MonoBehaviour
         hasVisitedCLA = false;
 
         if (name.Contains("cla2"))
-            this.CurrentTargetMessage = new Message("Test", "Dummy", "Hi. How are ya?", 0, false);
+            this.CurrentTargetMessage = new Message(-1, "Test", "Dummy", "Hi. How are ya?", 0, false);
     }
 
     // Update is called once per frame
@@ -60,9 +60,6 @@ public class GameplayManager : MonoBehaviour
 
         letterManager = lm;
         remainingTasks = letterManager.RemainingLetters;
-
-        // Get initial target
-        CurrentTargetMessage = lm.GetNextMessage();
     }
 
     public string CurrentTarget

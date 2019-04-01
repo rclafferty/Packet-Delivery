@@ -32,8 +32,6 @@ public class LetterManager : MonoBehaviour
         
         instance = this;
         DontDestroyOnLoad(gameObject);
-        
-        LoadLetters();
     }
 
     // Start is called before the first frame update
@@ -105,7 +103,7 @@ public class LetterManager : MonoBehaviour
 
             message = sb.ToString();
 
-            letters[index] = Message.ParseMessage(target, sender, message, urgent, false);
+            letters[index] = Message.ParseMessage(index, target, sender, message, urgent, false);
             isDelivered[index] = false;
         }
 

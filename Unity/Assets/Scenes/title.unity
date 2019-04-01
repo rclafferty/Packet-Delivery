@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -190,18 +190,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 249300070}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1301064192}
-        m_MethodName: LoadLevel
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: town
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &249300070
@@ -385,18 +374,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1088630458}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1301064192}
-        m_MethodName: QuitGame
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1088630458
@@ -548,9 +526,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1139496436}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68cc3104ce2dfd44cb28d19f511e9e0c, type: 3}
+  m_Script: {fileID: 11500000, guid: 2aa7aa3108aa7b741b2bee63fbbbe304, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startButton: {fileID: 249300069}
+  quitButton: {fileID: 1088630457}
 --- !u!1 &1207938613
 GameObject:
   m_ObjectHideFlags: 0
@@ -712,18 +692,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1301064192 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6842948260630009654, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-    type: 3}
-  m_PrefabInstance: {fileID: 4826751236460771958}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f53542567ba7cb542a19901b47c86730, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1563474765
 GameObject:
   m_ObjectHideFlags: 0
@@ -1025,72 +993,3 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2125603707}
   m_CullTransparentMesh: 0
---- !u!1001 &4826751236460771958
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 7985101702535249229, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_Name
-      value: LevelManager
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 207.8577
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 72.22839
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 51675481903381760, guid: 4c824711c175b7d4787ea1d71e18f4e0,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 4c824711c175b7d4787ea1d71e18f4e0, type: 3}
