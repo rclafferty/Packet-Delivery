@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class LookupAgencyManager : MonoBehaviour
 {
-    string[] LOCATION_TEXT = { "Northeast", "Southwest" };
+    public readonly string[] LOCATION_TEXT = { "Northeast", "Southwest" };
 
     static LookupAgencyManager instance = null;
 
@@ -32,12 +32,24 @@ public class LookupAgencyManager : MonoBehaviour
     void Start()
     {
         LoadPopulationList();
+        gameObject.name = "LookupAgencyManager";
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public bool HasLoadedPopulationList
+    {
+        get
+        {
+            bool locationsIsLoaded = (peopleByLocation != null);
+            bool peopleAreLoaded = (listOfPeople != null);
+
+            return (locationsIsLoaded && peopleAreLoaded);
+        }
     }
 
     public void LoadPopulationList()
@@ -122,5 +134,34 @@ public class LookupAgencyManager : MonoBehaviour
         {
             return listOfPeople;
         }
+    }
+
+    public int LocationLookup(string name)
+    {
+        Person temp = null;
+        string lowerName = name.ToLower();
+        string lowerTempName = "";
+        string[] parts = lowerName.Split(' ');
+
+        for (int index = 0; index < peopleByLocation.Length; index++)
+        {
+            List<Person> list = peopleByLocation[index];
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                temp = list[i];
+                lowerTempName = temp.Name.ToLower();
+
+                for (int j = 0; j < parts.Length; j++)
+                {
+                    if (lowerTempName.Contains(parts[j]))
+                    {
+                        return index;
+                    }
+                }
+            }
+        }
+
+        return -1;
     }
 }

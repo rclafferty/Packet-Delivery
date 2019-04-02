@@ -44,11 +44,17 @@ public class GeneralChatManager : MonoBehaviour
 
     readonly float CHAT_DELAY = 0.02f;
 
+    bool isClickable;
+
     // Start is called before the first frame update
     void Start()
     {
         FindObjectsForScene();
         SetupBySceneName();
+
+        isClickable = false;
+
+        ShowText();
     }
 
     // Update is called once per frame
@@ -64,8 +70,10 @@ public class GeneralChatManager : MonoBehaviour
         lookupManager = GameObject.Find("LookupAgencyManager").GetComponent<LookupAgencyManager>();
 
         chatText = GameObject.Find("ChatText").GetComponent<Text>();
-        option1Text = GameObject.Find("ChatText").GetComponent<Text>();
-        option2Text = GameObject.Find("ChatText").GetComponent<Text>();
+        option1Text = GameObject.Find("Option1Text").GetComponent<Text>();
+        option1Button = GameObject.Find("Option1Button").GetComponent<Button>();
+        option2Text = GameObject.Find("Option2Text").GetComponent<Text>();
+        option2Button = GameObject.Find("Option2Button").GetComponent<Button>();
 
         eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
 
@@ -93,6 +101,8 @@ public class GeneralChatManager : MonoBehaviour
         people = lookupManager.GetNamesByLocation(location);
         StartTextAndButtons();
         chatText_message = "Welcome to the " + location + " Lookup Agency." + chatText_message;
+
+        ShowInputField(false);
     }
 
     void StartTextAndButtons()
@@ -101,18 +111,29 @@ public class GeneralChatManager : MonoBehaviour
         option1_message = "I'm looking for someone.";
         option2_message = "I can't figure out where to go from here.";
 
-        option1Action = delegate { ShowInputField(true); };
-        option2Action = DepartTextAndButtons;
+        option1Action = delegate {
+            ShowInputField(true);
+            ShowText();
+        };
+        option2Action = delegate {
+            DepartTextAndButtons();
+            ShowText();
+        };
     }
 
-    void DepartTextAndButtons()
+    public void ShowText()
+    {
+        DisplayText(chatText_message, option1_message, option2_message, option1Action, option2Action, out isClickable);
+    }
+
+    public void DepartTextAndButtons()
     {
         chatText_message = "Come back soon!";
         option1_message = "Bye.";
         option2_message = "";
 
-        option1Action = GoToTown;
-        option2Action = null;
+        option1Action = delegate { GoToTown(); };
+        option2Action = delegate { ShowText(); };
     }
 
     void ClearText()
@@ -128,6 +149,7 @@ public class GeneralChatManager : MonoBehaviour
     {
         inputField.gameObject.SetActive(isActive);
         option1Button.gameObject.SetActive(!isActive);
+        option2Button.gameObject.SetActive(true);
 
         if (isActive)
         {
@@ -135,8 +157,12 @@ public class GeneralChatManager : MonoBehaviour
             option1_message = "";
             option2_message = "This person.";
 
-            option1Action = null;
-            option2Action = LookupPerson;
+            option1Action = delegate { ShowText(); };
+            // option2Action = LookupPerson;
+            option2Action = delegate {
+                LookupPerson();
+                ShowText();
+            };
         }
     }
 
@@ -144,17 +170,32 @@ public class GeneralChatManager : MonoBehaviour
     {
         ShowInputField(false);
 
-        if (inputField.text == gameplayManager.CurrentTarget)
+        string target = gameplayManager.CurrentTarget.ToLower();
+        if (!lookupManager.HasLoadedPopulationList)
+        {
+            lookupManager.LoadPopulationList();
+        }
+
+        if (inputField.text.ToLower() == target)
         {
             // Lookup
-            chatText_message = "Good. You remembered!";
+            int index = lookupManager.LocationLookup(target); // NOT case-sensitive
+            Debug.Log(target + " is at index " + index);
+            string location = lookupManager.LOCATION_TEXT[index];
+
+            // chatText_message = "Good. You remembered!";
+            chatText_message = "Please visit the " + location + " Lookup Agency for further directions.";
             option1_message = "Thanks.";
-            option2_message = "Bye.";
+            // option2_message = "Bye.";
+            option2_message = "";
 
             // a1 = delegate { ShowInputField(true); };
-            option1Action = GoToTown;
+            option1Action = delegate {
+                DepartTextAndButtons();
+                ShowText();
+            };
             // a2 = StartTextAndButtons;
-            option2Action = null;
+            option2Action = delegate { ShowText(); };
         }
         else
         {
@@ -162,10 +203,13 @@ public class GeneralChatManager : MonoBehaviour
             option1_message = "Whoops.";
             option2_message = "I'll try again later";
 
-            option1Action = delegate { ShowInputField(true); };
+            option1Action = delegate {
+                ShowInputField(true);
+                ShowText();
+            };
 
             // a2 = StartTextAndButtons;
-            option2Action = null;
+            option2Action = delegate { ShowText(); };
         }
     }
 
@@ -178,14 +222,14 @@ public class GeneralChatManager : MonoBehaviour
     {
         isClickable = false;
 
-        WriteText(c, o1, o2);
+        StartCoroutine(WriteText(c, o1, o2));
         AddEventListeners(a1, a2);
-
-        isClickable = true;
     }
 
     IEnumerator WriteText(string chat, string option1, string option2)
     {
+        isClickable = false;
+
         ClearText();
 
         // Write chat text
@@ -197,13 +241,16 @@ public class GeneralChatManager : MonoBehaviour
         }
 
         // If there is no text for option 1
-        if (string.IsNullOrEmpty(option2))
+        if (string.IsNullOrEmpty(option1))
         {
             // Disable the button
             option1Button.gameObject.SetActive(false);
         }
         else
         {
+            // Make sure the button is enabled
+            option1Button.gameObject.SetActive(true);
+
             // Write option 1 text
             for (int i = 0; i < option1.Length; i++)
             {
@@ -232,6 +279,8 @@ public class GeneralChatManager : MonoBehaviour
                 option2Text.text += option2[i];
             }
         }
+
+        isClickable = true;
     }
 
     void AddEventListeners(UnityAction a1, UnityAction a2)

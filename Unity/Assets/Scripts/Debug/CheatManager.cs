@@ -4,10 +4,21 @@ using UnityEngine;
 
 public class CheatManager : MonoBehaviour
 {
+    static CheatManager instance = null;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        else
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
     }
 
     // Update is called once per frame
