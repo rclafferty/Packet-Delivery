@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -712,7 +712,7 @@ PrefabInstance:
     - target: {fileID: 5320918329566020836, guid: 1c8503f179b8da3478bd8801c074af09,
         type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5320918329566020836, guid: 1c8503f179b8da3478bd8801c074af09,
         type: 3}
@@ -1803,11 +1803,30 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 526835284}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1199745473}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6886c72b98b67d14c9cefb30e451ef02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1199745475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1199745473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5139e3b67c9f3042aaff27c493afa5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventSystem: {fileID: 0}
+  chatText: {fileID: 0}
+  option1Button: {fileID: 0}
+  option1Text: {fileID: 0}
+  option2Button: {fileID: 0}
+  option2Text: {fileID: 0}
+  inputField: {fileID: 0}
 --- !u!114 &1199745476
 MonoBehaviour:
   m_ObjectHideFlags: 0
