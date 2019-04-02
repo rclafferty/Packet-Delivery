@@ -90,6 +90,12 @@ public class LookupAgencyManager : MonoBehaviour
     public List<Person> GetNamesByLocation(string location)
     {
         string lower = location.ToLower();
+
+        if (lower == "central")
+        {
+            return listOfPeople;
+        }
+
         string directionLower;
 
         // Search through each location text
