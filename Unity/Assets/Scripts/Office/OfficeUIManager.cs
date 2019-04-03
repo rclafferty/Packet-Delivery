@@ -45,7 +45,7 @@ public class OfficeUIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         // statusText = GameObject.Find("Status Text").GetComponent<Text>();
         // SceneManager.sceneLoaded += OnLevelFinishedLoading;
 
