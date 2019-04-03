@@ -147,6 +147,11 @@ public class GameplayManager : MonoBehaviour
         currentTarget = "";
     }
 
+    public void GetNextMessage()
+    {
+        this.CurrentTargetMessage = letterManager.GetNextMessage();
+    }
+
     public int RemainingTasks
     {
         get

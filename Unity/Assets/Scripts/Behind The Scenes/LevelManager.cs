@@ -7,6 +7,13 @@ using UnityEngine.SceneManagement;
 public class LevelManager : MonoBehaviour
 {
     static LevelManager instance = null;
+    static PlayerController playerInstance = null;
+
+    readonly string[] LEVEL_NAMES = { "centralLookupAgency", "loading", "localLookupAgencyNE", "localLookupAgencySW", "office", "styleTitle", "title", "town" };
+
+    readonly string[] INACTIVE_LEVELS = { "centralLookupAgency", "loading", "localLookupAgencyNE", "localLookupAgencySW", "office", "styleTitle", "title" };
+
+    readonly string[] ACTIVE_LEVELS = { "town" };
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +37,11 @@ public class LevelManager : MonoBehaviour
         
     }
 
+    public void SetPlayerController(PlayerController pc)
+    {
+        playerInstance = pc;
+    }
+
     /// <summary>
     /// Load level by index
     /// </summary>
@@ -37,6 +49,8 @@ public class LevelManager : MonoBehaviour
     public void LoadLevel(int index)
     {
         SceneManager.LoadScene(index);
+
+        // if (index != 2), set player inactive
     }
 
     /// <summary>
@@ -46,6 +60,22 @@ public class LevelManager : MonoBehaviour
     public void LoadLevel(string name)
     {
         SceneManager.LoadScene(name);
+
+        foreach (string s in ACTIVE_LEVELS)
+        {
+            if (s == name)
+            {
+                ShowPlayer(true);
+                return;
+            }
+        }
+
+        ShowPlayer(false);
+    }
+
+    public void ShowPlayer(bool tf)
+    {
+        playerInstance.gameObject.SetActive(tf);
     }
     
     /// <summary>

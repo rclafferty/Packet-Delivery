@@ -6,6 +6,8 @@ public class CheatManager : MonoBehaviour
 {
     static CheatManager instance = null;
 
+    LevelManager levelManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,12 +23,21 @@ public class CheatManager : MonoBehaviour
         }
     }
 
+    public void SetLevelManager(LevelManager l)
+    {
+        levelManager = l;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.O))
+        if (Input.GetKeyDown(KeyCode.F1))
         {
-            GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("office");
+            levelManager.LoadLevel("office");
+        }
+        else if (Input.GetKeyDown(KeyCode.F2))
+        {
+            levelManager.LoadLevel("centralLookupAgency");
         }
     }
 }
