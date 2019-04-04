@@ -24,6 +24,8 @@ public class WorkUIManager : MonoBehaviour
 
     const string SPACING = "\n\n";
 
+    const float TYPING_DELAY = 0.02f;
+
     bool hasNextMessage;
     bool currentlyHasMessage;
 
@@ -36,7 +38,6 @@ public class WorkUIManager : MonoBehaviour
         currentMessage = null;
 
         FindSceneObjects();
-        DisplayText();
 
         DisplayImages();
     }
@@ -126,16 +127,13 @@ public class WorkUIManager : MonoBehaviour
         DisplayText();
     }
 
-    void SetupButtonsAndText()
-    {
-        screenText.text = "Upgrades: " + "none" + SPACING + "\nCurrent Message" + SPACING + DisplayMessage(currentMessage);
-    }
-
     void DisplayText()
     {
         currentMessage = gameplayManager.CurrentTargetMessage;
 
-        screenText.text = "Upgrades: " + "none" + SPACING + "\nCurrent Message" + SPACING + DisplayMessage(currentMessage);
+        string text = "Upgrades: " + "none" + SPACING + "\nCurrent Message" + SPACING + DisplayMessage(currentMessage);
+
+        StartCoroutine(WriteText(text));
     }
 
     string DisplayMessage(Message m)
@@ -197,5 +195,18 @@ public class WorkUIManager : MonoBehaviour
         sb.Append(text);
 
         return sb.ToString();
+    }
+
+    IEnumerator WriteText(string text)
+    {
+        screenText.text = "";
+
+        // Write chat text
+        for (int i = 0; i < text.Length; i++)
+        {
+            // Wait for CHAT_DELAY seconds before writing the next letter
+            yield return new WaitForSeconds(TYPING_DELAY);
+            screenText.text += text[i];
+        }
     }
 }

@@ -5,9 +5,6 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/loading.unity
     guid: f58dc9c4e01993f40be221713ecd5683
@@ -35,7 +32,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/office.unity
     guid: 18015490af64a194aadadcd0332525dc
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/cla2.unity
-    guid: f70361dd9b9016c46976decef6dc71aa
+    path: Assets/Scenes/localLookupAgencySW.unity
+    guid: 61229e545a3edc149abdd28ac111bde7
+  - enabled: 1
+    path: Assets/Scenes/home.unity
+    guid: 17b2e0be9ec7b484895e718ac9825b21
   m_configObjects: {}

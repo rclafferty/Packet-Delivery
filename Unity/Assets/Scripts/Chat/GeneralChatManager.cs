@@ -116,9 +116,69 @@ public class GeneralChatManager : MonoBehaviour
             ShowText();
         };
         option2Action = delegate {
-            DepartTextAndButtons();
+            WhereToGo();
             ShowText();
         };
+    }
+
+    void WhereToGo()
+    {
+        string location = gameplayManager.NextDeliveryLocation;
+        string sceneName = SceneManager.GetActiveScene().name.ToLower();
+        Debug.Log("Location = " + location + "\tScene Name = " + sceneName);
+
+        bool isCurrentSpot = (
+            (location == "CLA" && sceneName == "centrallookupagency") ||
+            (location == "LLA NE" && sceneName == "locallookupagencyne") ||
+            (location == "LLA SW" && sceneName == "locallookupagencysw")
+        );
+
+        if (isCurrentSpot)
+        {
+            chatText_message = "You're in the right spot! I can help you.";
+            option1_message = "Okay!";
+            option2_message = "On second thought, I'll come back later.";
+            option1Action = delegate {
+                StartTextAndButtons();
+                ShowText();
+            };
+            option2Action = delegate {
+                DepartTextAndButtons();
+                ShowText();
+            };
+        }
+        else
+        {
+            if (location == "CLA")
+            {
+                chatText_message = "Please visit the Central Lookup Agency for further directions.";
+            }
+            if (location == "LLA NE")
+            {
+                chatText_message = "Please visit the Northeast Local Lookup Agency for further directions.";
+            }
+            else if (location == "LLA SW")
+            {
+                chatText_message = "Please visit the Southwest Local Lookup Agency for further directions.";
+            }
+            else // if (location == "Office")
+            {
+                string[] directions = gameplayManager.Directions;
+
+                chatText_message = "Please visit the " + directions[0] + " " + directions[1] + " on the " + directions[2] + " side of town for your next step.";
+            }
+
+            option1_message = "Thank you for your help.";
+            option2_message = "";
+            option1Action = delegate {
+                DepartTextAndButtons();
+                ShowText();
+            };
+            option2Action = delegate {
+                DepartTextAndButtons();
+                ShowText();
+            };
+        }
     }
 
     public void ShowText()
@@ -147,22 +207,78 @@ public class GeneralChatManager : MonoBehaviour
 
     void ShowInputField(bool isActive)
     {
-        inputField.gameObject.SetActive(isActive);
-        option1Button.gameObject.SetActive(!isActive);
+        string location = gameplayManager.NextDeliveryLocation;
+        string sceneName = SceneManager.GetActiveScene().name.ToLower();
+        Debug.Log("Location = " + location + "\tScene Name = " + sceneName);
+
+        bool isCurrentSpot = (
+            (sceneName == "centrallookupagency") ||
+            (location == "LLA NE" && sceneName == "locallookupagencyne") ||
+            (location == "LLA SW" && sceneName == "locallookupagencysw")
+        );
+
+        inputField.gameObject.SetActive(false);
+        option1Button.gameObject.SetActive(true);
         option2Button.gameObject.SetActive(true);
 
         if (isActive)
         {
-            chatText_message = "Who are you looking for?";
-            option1_message = "";
-            option2_message = "This person.";
+            if (gameplayManager.CurrentTargetMessage == null)
+            {
+                chatText_message = "You don't have a package with you to deliver.";
+                option1_message = "Whoops. I'll come back when I have one.";
+                option2_message = "";
 
-            option1Action = delegate { ShowText(); };
-            // option2Action = LookupPerson;
-            option2Action = delegate {
-                LookupPerson();
-                ShowText();
-            };
+                option1Action = delegate {
+                    DepartTextAndButtons();
+                    ShowText();
+                };
+                // option2Action = LookupPerson;
+                option2Action = delegate {
+                    DepartTextAndButtons();
+                    ShowText();
+                };
+
+                return;
+            }
+            else if (!isCurrentSpot)
+            {
+                chatText_message = "Hmm... I'm not sure you're in the right spot. Try visiting the Central Lookup Agency to get started with your delivery.";
+                option1_message = "I'll do that.";
+                option2_message = "";
+
+                option1Action = delegate
+                {
+                    DepartTextAndButtons();
+                    ShowText();
+                };
+                // option2Action = LookupPerson;
+                option2Action = delegate
+                {
+                    DepartTextAndButtons();
+                    ShowText();
+                };
+
+                return;
+            }
+            else
+            {
+                inputField.gameObject.SetActive(isActive);
+                option1Button.gameObject.SetActive(!isActive);
+                option2Button.gameObject.SetActive(true);
+
+                chatText_message = "Who are you looking for?";
+                option1_message = "";
+                option2_message = "This person.";
+
+                option1Action = delegate { ShowText(); };
+                // option2Action = LookupPerson;
+                option2Action = delegate
+                {
+                    LookupPerson();
+                    ShowText();
+                };
+            }
         }
     }
 
@@ -183,19 +299,27 @@ public class GeneralChatManager : MonoBehaviour
             Debug.Log(target + " is at index " + index);
             string location = lookupManager.LOCATION_TEXT[index];
 
-            // chatText_message = "Good. You remembered!";
-            chatText_message = "Please visit the " + location + " Lookup Agency for further directions.";
-            option1_message = "Thanks.";
-            // option2_message = "Bye.";
-            option2_message = "";
+            if (SceneManager.GetActiveScene().name.ToLower().Contains("central"))
+            {
+                // Set next location
+                if (location.ToLower() == "northeast")
+                {
+                    gameplayManager.NextDeliveryLocation = "LLA NE";
+                }
+                else if (location.ToLower() == "southwest")
+                {
+                    gameplayManager.NextDeliveryLocation = "LLA SW";
+                }
+            }
+            else
+            {
+                gameplayManager.NextDeliveryLocation = "Home";
 
-            // a1 = delegate { ShowInputField(true); };
-            option1Action = delegate {
-                DepartTextAndButtons();
-                ShowText();
-            };
-            // a2 = StartTextAndButtons;
-            option2Action = delegate { ShowText(); };
+                string[] directions = { "yellow", "house", "northeast" };
+                gameplayManager.Directions = directions;
+            }
+
+            WhereToGo();
         }
         else
         {
@@ -209,7 +333,10 @@ public class GeneralChatManager : MonoBehaviour
             };
 
             // a2 = StartTextAndButtons;
-            option2Action = delegate { ShowText(); };
+            option2Action = delegate {
+                DepartTextAndButtons();
+                ShowText();
+            };
         }
     }
 

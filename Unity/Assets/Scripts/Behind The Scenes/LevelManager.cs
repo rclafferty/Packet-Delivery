@@ -65,17 +65,9 @@ public class LevelManager : MonoBehaviour
         {
             if (s == name)
             {
-                ShowPlayer(true);
                 return;
             }
         }
-
-        ShowPlayer(false);
-    }
-
-    public void ShowPlayer(bool tf)
-    {
-        playerInstance.gameObject.SetActive(tf);
     }
     
     /// <summary>

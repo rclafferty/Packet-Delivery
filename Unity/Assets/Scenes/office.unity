@@ -556,7 +556,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: b91857de4a480bb44a309b54be8c3816, type: 3}
-    m_FontSize: 28
+    m_FontSize: 24
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -1636,29 +1636,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 6706888291077211975}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8451645910404662878
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8451645910404662877}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9e552865dfaf9c4395911c825760b88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameplayManager: {fileID: 0}
-  letterManager: {fileID: 0}
-  statusText: {fileID: 0}
-  letter1Button: {fileID: 0}
-  letter1Text: {fileID: 0}
-  checkMessagesButton: {fileID: 0}
-  checkMessagesText: {fileID: 0}
-  completeTaskButton: {fileID: 0}
-  completeTaskText: {fileID: 0}
-  errorWindow: {fileID: 0}
-  errorText: {fileID: 0}
 --- !u!114 &8451645910404662879
 MonoBehaviour:
   m_ObjectHideFlags: 0

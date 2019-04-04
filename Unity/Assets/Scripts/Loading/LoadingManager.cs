@@ -74,6 +74,7 @@ public class LoadingManager : MonoBehaviour
         cheatManager.SetLevelManager(levelManager);
 
         // DONE
+        // yield return new WaitForSeconds(2);
         levelManager.LoadLevel("title");
 
         yield return null;

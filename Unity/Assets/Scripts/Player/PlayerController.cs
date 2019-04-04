@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    static PlayerController instance = null;
-
     const float DEAD_VALUE = 0.4f;
     const float SPEED = 8f;
     Rigidbody2D thisRigidbody;
@@ -13,14 +11,6 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        instance = this;
-        DontDestroyOnLoad(gameObject);
 
         thisRigidbody = GetComponent<Rigidbody2D>();
     }

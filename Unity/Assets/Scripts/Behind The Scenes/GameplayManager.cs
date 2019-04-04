@@ -25,6 +25,12 @@ public class GameplayManager : MonoBehaviour
 
     int remainingTasks;
 
+    string nextDeliveryLocation;
+
+    string direction_building = "";
+    string direction_color = "";
+    string direction_direction = "";
+
     // Start is called before the first frame update
     void Start()
     {
@@ -43,6 +49,8 @@ public class GameplayManager : MonoBehaviour
 
         if (name.Contains("cla2"))
             this.CurrentTargetMessage = new Message(-1, "Test", "Dummy", "Hi. How are ya?", 0, false);
+
+        CompleteTask();
     }
 
     // Update is called once per frame
@@ -60,6 +68,25 @@ public class GameplayManager : MonoBehaviour
 
         letterManager = lm;
         remainingTasks = letterManager.RemainingLetters;
+    }
+
+    public string NextDeliveryLocation
+    {
+        get
+        {
+            return nextDeliveryLocation;
+        }
+        set
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                nextDeliveryLocation = "Office";
+            }
+            else
+            {
+                nextDeliveryLocation = value;
+            }
+        }
     }
 
     public string CurrentTarget
@@ -145,11 +172,23 @@ public class GameplayManager : MonoBehaviour
     {
         currentTargetMessage = null;
         currentTarget = "";
+
+        ResetDirectionsToOffice();
+    }
+
+    void ResetDirectionsToOffice()
+    {
+        nextDeliveryLocation = "Office";
+
+        direction_color = "red";
+        direction_color = "office";
+        direction_direction = "northwest";
     }
 
     public void GetNextMessage()
     {
         this.CurrentTargetMessage = letterManager.GetNextMessage();
+        nextDeliveryLocation = "CLA";
     }
 
     public int RemainingTasks
@@ -171,6 +210,33 @@ public class GameplayManager : MonoBehaviour
             remainingTasks = letterManager.RemainingLetters;
             Debug.Log(remainingTasks + " remaining letters");
             return (remainingTasks > 0);
+        }
+    }
+
+    public string[] Directions
+    {
+        get
+        {
+            string[] directions = { direction_color, direction_building, direction_direction };
+            return directions;
+        }
+        set
+        {
+            string[] directions = value;
+            if (directions == null)
+            {
+                ResetDirectionsToOffice();
+            }
+            else if (directions.Length < 3)
+            {
+                ResetDirectionsToOffice();
+            }
+            else
+            {
+                direction_color = directions[0];
+                direction_building = directions[1];
+                direction_direction = directions[2];
+            }
         }
     }
 }
