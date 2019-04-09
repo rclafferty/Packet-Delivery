@@ -31,6 +31,8 @@ public class GameplayManager : MonoBehaviour
     string direction_color = "";
     string direction_direction = "";
 
+    Vector3 spawnLocation;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -46,9 +48,6 @@ public class GameplayManager : MonoBehaviour
         }
 
         hasVisitedCLA = false;
-
-        if (name.Contains("cla2"))
-            this.CurrentTargetMessage = new Message(-1, "Test", "Dummy", "Hi. How are ya?", 0, false);
 
         CompleteTask();
     }
@@ -237,6 +236,18 @@ public class GameplayManager : MonoBehaviour
                 direction_building = directions[1];
                 direction_direction = directions[2];
             }
+        }
+    }
+
+    public Vector3 CurrentSpawnLocation
+    {
+        get
+        {
+            return spawnLocation;
+        }
+        set
+        {
+            spawnLocation = value;
         }
     }
 }

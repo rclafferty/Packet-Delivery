@@ -39,6 +39,11 @@ public class Transition : MonoBehaviour
                 }
             }
 
+            string nameOfTransition = gameObject.name.Split(' ')[0];
+            GameplayManager gm = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+            RespawnManager sm = GameObject.Find("SpawnManager").GetComponent<RespawnManager>();
+            gm.CurrentSpawnLocation = sm.GetSpawnPointByName(nameOfTransition);
+
             lm.LoadLevel(newScene);
         }
     }

@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     {
 
         thisRigidbody = GetComponent<Rigidbody2D>();
+        // transform.position = GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CurrentSpawnLocation;
     }
 
     // Update is called once per frame
