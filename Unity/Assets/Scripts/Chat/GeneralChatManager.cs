@@ -102,7 +102,7 @@ public class GeneralChatManager : MonoBehaviour
 
         people = lookupManager.GetNamesByLocation(location);
         StartTextAndButtons();
-        chatText_message = "Welcome to the " + location + " Lookup Agency." + chatText_message;
+        chatText_message = "Welcome to the " + location + " Lookup Agency. " + chatText_message;
 
         ShowInputField(false);
     }
@@ -365,14 +365,17 @@ public class GeneralChatManager : MonoBehaviour
 
         ClearText();
 
+        bool option1ButtonInteractable = !string.IsNullOrEmpty(option1);
+        bool option2ButtonInteractable = !string.IsNullOrEmpty(option2);
+
         // Disable button 1 if null or ""
-        if (string.IsNullOrEmpty(option1))
+        if (!option1ButtonInteractable)
         {
             option1Button.interactable = false;
         }
 
         // Disable button 2 if null or ""
-        if (string.IsNullOrEmpty(option2))
+        if (!option2ButtonInteractable)
         {
             option2Button.interactable = false;
         }
@@ -400,6 +403,12 @@ public class GeneralChatManager : MonoBehaviour
             yield return new WaitForSeconds(CHAT_DELAY);
             option2Text.text += option2[i];
         }
+
+        // Enable button 1 if not empty
+        option1Button.interactable = option1ButtonInteractable;
+
+        // Enable button 2 if not empty
+        option2Button.interactable = option2ButtonInteractable;
 
         isClickable = true;
     }

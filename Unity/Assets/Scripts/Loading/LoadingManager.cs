@@ -12,6 +12,7 @@ public class LoadingManager : MonoBehaviour
     MusicManager musicManager;
     PlayerController playerController;
     RespawnManager spawnManager;
+    Timer timer;
 
     GameObject prefab_CheatManager;
     GameObject prefab_GameplayManager;
@@ -20,6 +21,7 @@ public class LoadingManager : MonoBehaviour
     GameObject prefab_MusicManager;
     // GameObject prefab_PlayerController;
     GameObject prefab_SpawnManager;
+    GameObject prefab_Timer;
 
     GameObject object_CheatManager;
     GameObject object_GameplayManager;
@@ -28,6 +30,7 @@ public class LoadingManager : MonoBehaviour
     GameObject object_MusicManager;
     // GameObject object_PlayerController;
     GameObject object_SpawnManager;
+    GameObject object_Timer;
 
     [SerializeField]
     AudioClip music;
@@ -53,6 +56,7 @@ public class LoadingManager : MonoBehaviour
         prefab_LevelManager = Resources.Load<GameObject>("Prefabs/LevelManager");
         prefab_MusicManager = Resources.Load<GameObject>("Prefabs/MusicManager");
         prefab_SpawnManager = Resources.Load<GameObject>("Prefabs/SpawnManager");
+        prefab_Timer = Resources.Load<GameObject>("Prefabs/Timer");
 
         // Instantiate prefabs
         object_CheatManager = Instantiate(prefab_CheatManager, Vector3.zero, Quaternion.identity);
@@ -62,6 +66,7 @@ public class LoadingManager : MonoBehaviour
         object_MusicManager = Instantiate(prefab_MusicManager, Vector3.zero, Quaternion.identity);
         // object_PlayerController = Instantiate(prefab_PlayerController, Vector3.zero, Quaternion.identity);
         object_SpawnManager = Instantiate(prefab_SpawnManager, Vector3.zero, Quaternion.identity);
+        object_Timer = Instantiate(prefab_Timer, Vector3.zero, Quaternion.identity);
 
         // Change names of objects for consistency
         object_CheatManager.name = "CheatManager";
@@ -71,6 +76,7 @@ public class LoadingManager : MonoBehaviour
         object_MusicManager.name = "MusicManager";
         // object_PlayerController.name = "Player";
         object_SpawnManager.name = "SpawnManager";
+        object_Timer.name = "Timer";
 
         // Get the components
         cheatManager = object_CheatManager.GetComponent<CheatManager>();
@@ -80,6 +86,7 @@ public class LoadingManager : MonoBehaviour
         musicManager = object_MusicManager.GetComponent<MusicManager>();
         // playerController = object_PlayerController.GetComponent<PlayerController>();
         spawnManager = object_SpawnManager.GetComponent<RespawnManager>();
+        timer = object_Timer.GetComponent<Timer>();
 
         // Load Audio Clip from file
         // music = Resources.Load("Music/LaserGroove") as AudioClip;
@@ -94,6 +101,7 @@ public class LoadingManager : MonoBehaviour
         musicManager.Play();
         // levelManager.SetPlayerController(playerController);
         cheatManager.SetLevelManager(levelManager);
+        timer.SetDifficulty("Default");
 
         // DONE
         // yield return new WaitForSeconds(2);

@@ -9,6 +9,7 @@ public class WorkUIManager : MonoBehaviour
 {
     GameplayManager gameplayManager;
     LevelManager levelManager;
+    Timer timer;
 
     GameObject prefab_CheckMark;
     GameObject prefab_ErrorWindow;
@@ -54,6 +55,7 @@ public class WorkUIManager : MonoBehaviour
     {
         gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        timer = GameObject.Find("Timer").GetComponent<Timer>();
 
         screenText = GameObject.Find("ScreenText").GetComponent<Text>();
         prefab_LetterImage = Resources.Load<GameObject>("Prefabs/LetterImage");
@@ -75,7 +77,11 @@ public class WorkUIManager : MonoBehaviour
 
         Button exitButton = GameObject.Find("ExitButton").GetComponent<Button>();
         exitButton.onClick.RemoveAllListeners();
-        exitButton.onClick.AddListener(delegate { levelManager.LoadLevel("town"); });
+        exitButton.onClick.AddListener(delegate {
+            if (!(gameplayManager.CurrentTarget == "None" || gameplayManager.CurrentTarget == ""))
+                timer.StartNewTimerIfNotAlreadyRunning();
+            levelManager.LoadLevel("town");
+        });
     }
 
     void DisplayImages()
