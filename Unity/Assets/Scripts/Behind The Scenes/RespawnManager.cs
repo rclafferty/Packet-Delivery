@@ -12,10 +12,10 @@ public class RespawnManager : MonoBehaviour
     };
 
     readonly string[] spawnPointTitles = {
-        "Office Spawn Point",
-        "CLA Spawn Point",
-        "LLA NE Spawn Point",
-        "LLA SW Spawn Point"
+        "Office",
+        "CentralLookupAgency",
+        "LocalLookupAgencyNE",
+        "LocalLookupAgencySW"
     };
 
     static RespawnManager instance = null;

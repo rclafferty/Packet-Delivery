@@ -32,6 +32,38 @@ public class TitleScreenSetup : MonoBehaviour
         GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("town");
     }
 
+    /*public void StartButtonAction()
+    {
+        const float WAIT_SECONDS = 3.0f;
+        Image backgroundImage = GameObject.Find("Background Image").GetComponent<Image>();
+        Color backgroundColor = backgroundImage.color;
+
+        startButton.enabled = false;
+
+        // Load level
+        StartCoroutine(FadeToNewLevel("town"));
+    }
+
+    IEnumerator FadeToNewLevel(string level)
+    {
+        Image backgroundImage = GameObject.Find("Background Image").GetComponent<Image>();
+        Color backgroundColor = backgroundImage.color;
+
+        const float WAIT_SECONDS = 3.0f;
+        float timePassed = 0.0f;
+        const float DELAY = 0.01f;
+
+        while (timePassed < WAIT_SECONDS)
+        {
+            yield return new WaitForSeconds(DELAY);
+            timePassed += DELAY;
+            backgroundColor.a = (1 - (timePassed / WAIT_SECONDS));
+            Update();
+        }
+
+        GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel(level);
+    }*/
+
     public void QuitButtonAction()
     {
         GameObject.Find("LevelManager").GetComponent<LevelManager>().QuitGame();

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -226,7 +226,6 @@ MonoBehaviour:
   option1Text: {fileID: 0}
   option2Button: {fileID: 0}
   option2Text: {fileID: 0}
-  inputField: {fileID: 0}
 --- !u!4 &132080860
 Transform:
   m_ObjectHideFlags: 0
@@ -1154,6 +1153,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1096532611}
   - component: {fileID: 1096532610}
+  - component: {fileID: 1096532612}
   m_Layer: 0
   m_Name: Person
   m_TagString: Untagged
@@ -1223,6 +1223,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1096532612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1096532609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23bf0cda138ec3947b1ef003b730956d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultSprite: {fileID: 21300000, guid: 61db866e1a7916b48b2a42424c323e09, type: 3}
+  randomImages:
+  - {fileID: 21300000, guid: 61db866e1a7916b48b2a42424c323e09, type: 3}
+  - {fileID: 21300002, guid: 7dd095076aed63a4a846a379f0b6eafb, type: 3}
 --- !u!1 &1119085917
 GameObject:
   m_ObjectHideFlags: 0

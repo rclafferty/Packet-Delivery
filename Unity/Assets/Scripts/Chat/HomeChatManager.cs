@@ -39,6 +39,8 @@ public class HomeChatManager : MonoBehaviour
 
     readonly float CHAT_DELAY = 0.02f;
 
+    Coroutine currentCoroutine;
+
     bool isClickable;
     // Start is called before the first frame update
     void Start()
@@ -114,7 +116,11 @@ public class HomeChatManager : MonoBehaviour
     {
         isClickable = false;
 
-        StartCoroutine(WriteText(chatText_message, option1_message, option2_message));
+        if (currentCoroutine != null)
+        {
+            StopCoroutine(currentCoroutine);
+        }
+        currentCoroutine = StartCoroutine(WriteText(chatText_message, option1_message, option2_message));
 
         AddEventListeners(option1Action, option2Action);
 
@@ -125,7 +131,11 @@ public class HomeChatManager : MonoBehaviour
     {
         isClickable = false;
 
-        StartCoroutine(WriteText(c, o1, o2));
+        if (currentCoroutine != null)
+        {
+            StopCoroutine(currentCoroutine);
+        }
+        currentCoroutine = StartCoroutine(WriteText(c, o1, o2));
         AddEventListeners(a1, a2);
     }
 
@@ -135,6 +145,18 @@ public class HomeChatManager : MonoBehaviour
 
         ClearText();
 
+        // Disable button 1 if null or ""
+        if (string.IsNullOrEmpty(option1))
+        {
+            option1Button.interactable = false;
+        }
+
+        // Disable button 2 if null or ""
+        if (string.IsNullOrEmpty(option2))
+        {
+            option2Button.interactable = false;
+        }
+
         // Write chat text
         for (int i = 0; i < chat.Length; i++)
         {
@@ -143,44 +165,20 @@ public class HomeChatManager : MonoBehaviour
             chatText.text += chat[i];
         }
 
-        // If there is no text for option 1
-        if (string.IsNullOrEmpty(option1))
+        // Write option 1 text
+        for (int i = 0; i < option1.Length; i++)
         {
-            // Disable the button
-            option1Button.gameObject.SetActive(false);
-        }
-        else
-        {
-            // Make sure the button is enabled
-            option1Button.gameObject.SetActive(true);
-
-            // Write option 1 text
-            for (int i = 0; i < option1.Length; i++)
-            {
-                // Wait for CHAT_DELAY seconds before writing the next letter
-                yield return new WaitForSeconds(CHAT_DELAY);
-                option1Text.text += option1[i];
-            }
+            // Wait for CHAT_DELAY seconds before writing the next letter
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option1Text.text += option1[i];
         }
 
-        // If there is no text for option 2
-        if (string.IsNullOrEmpty(option2))
+        // Write option 2 text
+        for (int i = 0; i < option2.Length; i++)
         {
-            // Disable the button
-            option2Button.gameObject.SetActive(false);
-        }
-        else
-        {
-            // Make sure the button is enabled
-            option2Button.gameObject.SetActive(true);
-
-            // Write option 2 text
-            for (int i = 0; i < option2.Length; i++)
-            {
-                // Wait for CHAT_DELAY seconds before writing the next letter
-                yield return new WaitForSeconds(CHAT_DELAY);
-                option2Text.text += option2[i];
-            }
+            // Wait for CHAT_DELAY seconds before writing the next letter
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option2Text.text += option2[i];
         }
 
         isClickable = true;
@@ -208,7 +206,7 @@ public class HomeChatManager : MonoBehaviour
 
     public void DepartTextAndButtons()
     {
-        chatText_message = "Oh. Ok then. Have a good day!";
+        chatText_message = "Have a good day!";
         option1_message = "Bye.";
         option2_message = "";
 

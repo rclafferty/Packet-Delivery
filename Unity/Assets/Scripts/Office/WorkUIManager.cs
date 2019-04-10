@@ -29,6 +29,8 @@ public class WorkUIManager : MonoBehaviour
     bool hasNextMessage;
     bool currentlyHasMessage;
 
+    Coroutine currentCoroutine;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -133,7 +135,11 @@ public class WorkUIManager : MonoBehaviour
 
         string text = "Upgrades: " + "none" + SPACING + "\nCurrent Message" + SPACING + DisplayMessage(currentMessage);
 
-        StartCoroutine(WriteText(text));
+        if (currentCoroutine != null)
+        {
+            StopCoroutine(currentCoroutine);
+        }
+        currentCoroutine = StartCoroutine(WriteText(text));
     }
 
     string DisplayMessage(Message m)

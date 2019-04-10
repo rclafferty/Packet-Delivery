@@ -8,12 +8,34 @@ public class PlayerController : MonoBehaviour
     const float SPEED = 8f;
     Rigidbody2D thisRigidbody;
 
+    bool activateSpeedModifier;
+    float speedModifier;
+
+    [SerializeField]
+    Animator playerAnimator;
+
+    enum Direction {
+        Idle,
+        Up,
+        Down,
+        Left,
+        Right
+    };
+
+    Direction playerDirection;
+
     // Start is called before the first frame update
     void Start()
     {
-
         thisRigidbody = GetComponent<Rigidbody2D>();
-        // transform.position = GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CurrentSpawnLocation;
+        transform.position = GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CurrentSpawnLocation;
+
+        activateSpeedModifier = false;
+        speedModifier = 1;
+
+        playerAnimator = gameObject.GetComponent<Animator>();
+
+        playerDirection = Direction.Idle;
     }
 
     // Update is called once per frame
@@ -22,22 +44,98 @@ public class PlayerController : MonoBehaviour
         float xMovement = Input.GetAxis("Horizontal");
         float yMovement = Input.GetAxis("Vertical");
 
-        float speedModifier = 1;
-        bool activateSpeedModifier = false;
-
 #if UNITY_EDITOR
-        // Debugging the game only
-        activateSpeedModifier = Input.GetKey(KeyCode.LeftShift);
-#endif
-
-        if (activateSpeedModifier)
+        if (Input.GetKey(KeyCode.LeftShift))
         {
-#if UNITY_EDITOR
-            speedModifier = 5;
-#endif
+            DebugActivateSpeedModifier(3f);
         }
+        else
+        {
+            DebugActivateSpeedModifier(1f);
+        }
+#endif
 
         // Move
         thisRigidbody.velocity = new Vector2(xMovement * SPEED * speedModifier, yMovement * SPEED * speedModifier);
+
+        // Animate
+        if (yMovement > DEAD_VALUE)
+        {
+            Animate(Direction.Up);
+        }
+        else if (yMovement < 0 - DEAD_VALUE)
+        {
+            Animate(Direction.Down);
+        }
+        else if (xMovement < 0 - DEAD_VALUE)
+        {
+            Animate(Direction.Left);
+        }
+        else if (xMovement > DEAD_VALUE)
+        {
+            Animate(Direction.Right);
+        }
+        else
+        {
+            Animate(Direction.Idle);
+        }
     }
+
+    void Animate(Direction direction)
+    {
+        if (direction == playerDirection)
+            return;
+
+        playerDirection = direction;
+        if (playerDirection == Direction.Idle)
+        {
+            // Set all release triggers
+            playerAnimator.SetTrigger("UpReleaseTrigger");
+            playerAnimator.SetTrigger("DownReleaseTrigger");
+            playerAnimator.SetTrigger("LeftReleaseTrigger");
+            playerAnimator.SetTrigger("RightReleaseTrigger");
+        }
+        else
+        {
+            // Reset all other triggers
+            playerAnimator.ResetTrigger("UpTrigger");
+            playerAnimator.ResetTrigger("DownTrigger");
+            playerAnimator.ResetTrigger("LeftTrigger");
+            playerAnimator.ResetTrigger("RightTrigger");
+
+            if (playerDirection == Direction.Up)
+            {
+                // Set up trigger
+                playerAnimator.SetTrigger("UpTrigger");
+            }
+            else if (playerDirection == Direction.Down)
+            {
+                // Set down trigger
+                playerAnimator.SetTrigger("DownTrigger");
+            }
+            else if (playerDirection == Direction.Left)
+            {
+                // Set left trigger
+                playerAnimator.SetTrigger("LeftTrigger");
+            }
+            else if (playerDirection == Direction.Right)
+            {
+                // Set right trigger
+                playerAnimator.SetTrigger("RightTrigger");
+            }
+
+            // Reset release triggers
+            playerAnimator.ResetTrigger("UpReleaseTrigger");
+            playerAnimator.ResetTrigger("DownReleaseTrigger");
+            playerAnimator.ResetTrigger("LeftReleaseTrigger");
+            playerAnimator.ResetTrigger("RightReleaseTrigger");
+        }
+    }
+
+#if UNITY_EDITOR
+    public void DebugActivateSpeedModifier(float mod)
+    {
+        speedModifier = mod;
+    }
+#endif
 }
