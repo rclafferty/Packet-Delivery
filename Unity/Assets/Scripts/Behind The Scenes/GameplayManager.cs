@@ -22,6 +22,7 @@ public class GameplayManager : MonoBehaviour
 
     [SerializeField]
     LetterManager letterManager;
+    UpgradeManager upgradeManager;
 
     int remainingTasks;
 
@@ -82,6 +83,16 @@ public class GameplayManager : MonoBehaviour
 
         letterManager = lm;
         remainingTasks = letterManager.RemainingLetters;
+    }
+
+    public void SetUpgradeManager(UpgradeManager um)
+    {
+        if (um == null)
+        {
+            return;
+        }
+
+        upgradeManager = um;
     }
 
     public void SetTimer(Timer t)

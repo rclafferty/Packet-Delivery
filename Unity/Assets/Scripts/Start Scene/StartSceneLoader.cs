@@ -8,6 +8,10 @@ public class StartSceneLoader : MonoBehaviour
     [SerializeField]
     GameObject startNPC;
 
+    public Sprite sprite_PlayerRight;
+    public Sprite sprite_PlayerDown;
+    public Sprite sprite_NPCLeft;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,8 +34,14 @@ public class StartSceneLoader : MonoBehaviour
     {
         if (scene.name == "start_town")
         {
+            GameObject player = GameObject.Find("Player");
+            player.GetComponent<SpriteRenderer>().sprite = sprite_PlayerRight;
+
             startNPC = GameObject.Find("Starting NPC");
             StartingNPCManager npcManager = startNPC.GetComponent<StartingNPCManager>();
+            startNPC.GetComponent<SpriteRenderer>().sprite = sprite_NPCLeft;
+            npcManager.sprite_PlayerDown = sprite_PlayerDown;
+
             npcManager.MoveNPC(true);
             npcManager.StartDialogue();
             npcManager.MoveNPC(false);

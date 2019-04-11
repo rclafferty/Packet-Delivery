@@ -95,14 +95,32 @@ public class HomeChatManager : MonoBehaviour
         {
             chatText_message = "I wasn't expecting a package.";
             option1_message = "Sorry. I must have the wrong house.";
+
+            option1Action = delegate {
+                DepartTextAndButtons();
+                ShowText();
+            };
         }
         else
         {
             chatText_message = "Thank you very much!";
             option1_message = "Enjoy!";
 
-            gameplayManager.CompleteTask();
+            option1Action = delegate {
+                if (gameplayManager.HasStartingLetter)
+                    MorePackagesText();
+                else
+                    DepartTextAndButtons();
+                ShowText();
+                gameplayManager.CompleteTask();
+            };
         }
+    }
+
+    void MorePackagesText()
+    {
+        chatText_message = "I want to hire you to send another package. I'll email you the details.";
+        option1_message = "Thank you!";
         option2_message = "";
 
         option1Action = delegate {
@@ -110,6 +128,8 @@ public class HomeChatManager : MonoBehaviour
             ShowText();
         };
         option2Action = delegate { ShowText(); };
+
+        gameplayManager.HasStartingLetter = false;
     }
     
     public void ShowText()

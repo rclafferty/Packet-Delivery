@@ -60,6 +60,8 @@ public class StartingNPCManager : MonoBehaviour
     string message_ChatText;
     string message_Option1Text;
 
+    public Sprite sprite_PlayerDown;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -101,7 +103,7 @@ public class StartingNPCManager : MonoBehaviour
         }
 
         // Lerp to moveToX
-        Vector3.Lerp(start, end, 3.0f);
+        // Vector3.Lerp(start, end, 3.0f);
     }
 
     public void StartDialogue()
@@ -129,6 +131,17 @@ public class StartingNPCManager : MonoBehaviour
 
         option1Button.onClick.RemoveAllListeners();
         option1Button.onClick.AddListener(Dialogue);
+
+        if (dialogue[dialogueIndex] == "But...")
+        {
+            if (dialogue[dialogueIndex + 1] == "...")
+                Destroy(gameObject.GetComponent<SpriteRenderer>());
+        }
+
+        if (dialogue[dialogueIndex] == "...")
+        {
+            GameObject.Find("Player").GetComponent<SpriteRenderer>().sprite = sprite_PlayerDown;
+        }
 
         dialogueIndex++;
     }

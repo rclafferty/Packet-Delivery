@@ -54,9 +54,14 @@ namespace Assets.Scripts
             }
         }
 
-        public void Purchase()
+        public void Purchase(int q)
         {
+            quantity += q;
+        }
 
+        public void Remove(int q)
+        {
+            quantity -= q;
         }
     }
 }

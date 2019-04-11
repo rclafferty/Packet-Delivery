@@ -10,8 +10,8 @@ public class Timer : MonoBehaviour
     const float EASY_MINUTES = 4.5f;
     const float DEFAULT_MINUTES = 3.0f;
     const float HARD_MINUTES = 1.5f;
-
     const float DEBUG_MINUTES = 0.2f;
+
     float difficultyMinutes;
 
     [SerializeField]
