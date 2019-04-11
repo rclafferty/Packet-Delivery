@@ -46,6 +46,8 @@ public class GeneralChatManager : MonoBehaviour
 
     bool isClickable;
 
+    bool inputFieldActive;
+
     Coroutine currentCoroutine;
 
     // Start is called before the first frame update
@@ -55,6 +57,7 @@ public class GeneralChatManager : MonoBehaviour
         SetupBySceneName();
 
         isClickable = false;
+        inputFieldActive = false;
 
         ShowText();
     }
@@ -62,7 +65,13 @@ public class GeneralChatManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (inputFieldActive)
+        {
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                option2Button.onClick.Invoke();
+            }
+        }
     }
 
     void FindObjectsForScene()
@@ -209,6 +218,9 @@ public class GeneralChatManager : MonoBehaviour
 
     void ShowInputField(bool isActive)
     {
+        // Disable first
+        inputFieldActive = false;
+
         string location = gameplayManager.NextDeliveryLocation;
         string sceneName = SceneManager.GetActiveScene().name.ToLower();
         Debug.Log("Location = " + location + "\tScene Name = " + sceneName);
@@ -282,6 +294,9 @@ public class GeneralChatManager : MonoBehaviour
                 };
             }
         }
+
+        // Enable if applicable
+        inputFieldActive = isActive;
     }
 
     public void LookupPerson()

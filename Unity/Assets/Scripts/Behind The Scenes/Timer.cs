@@ -7,13 +7,16 @@ public class Timer : MonoBehaviour
 {
     static Timer instance = null;
 
-    const float EASY_MINUTES = 5.0f;
-    const float DEFAULT_MINUTES = 4.0f;
-    const float HARD_MINUTES = 3.0f;
+    const float EASY_MINUTES = 4.5f;
+    const float DEFAULT_MINUTES = 3.0f;
+    const float HARD_MINUTES = 1.5f;
+
+    const float DEBUG_MINUTES = 0.2f;
     float difficultyMinutes;
 
     [SerializeField]
     float runningTime;
+    [SerializeField]
     bool running;
 
     float startTime;
@@ -55,28 +58,37 @@ public class Timer : MonoBehaviour
             float diff = currentTime - startTime;
             runningTime = difficultyMinutes - diff;
             // timerText.text = "Time left:  " + runningTime.ToString("#,##0.00") + " s";
-            timerText.text = "Time left:  " + TimeToString(runningTime) + " s";
+            // timerText.text = "Time left:  " + TimeToString(runningTime) + " s";
 
-            if (currentTime <= 0.0f)
+            string time = TimeToString(runningTime);
+
+            if (runningTime <= 0.0f)
             {
-                StopTimer();
+                // StopTimerIfRunning();
+                timerText.text = "OVERDUE!  " + time + " s";
+                timerText.color = Color.red;
+            }
+            else
+            {
+                timerText.text = "Time left:  " + time + " s";
+                // timerText.color = Color.white;
             }
         }
     }
 
     public string TimeToString(float time)
     {
+        if (time < 0)
+        {
+            time = -1 * time;
+        }
+
         int min = (int)(time / 60.0f);
         int sec = (int)(time - (min * 60));
         int millisec = (int)((time % 1) * 10);
 
         string text = min + ":" + sec.ToString("00") + "." + millisec;
         return text;
-    }
-
-    public void StopTimer()
-    {
-        running = false;
     }
 
     public void StartNewTimerIfNotAlreadyRunning()
@@ -106,11 +118,27 @@ public class Timer : MonoBehaviour
 
     public void StopTimerIfRunning()
     {
+        running = false;
+
         if (currentTimer != null)
         {
             StopCoroutine(currentTimer);
-            object_timerText.SetActive(false);
         }
+
+        timerText.text = "";
+        object_timerText.SetActive(false);
+    }
+
+    void Timeout()
+    {
+        running = false;
+        if (currentTimer != null)
+        {
+            StopCoroutine(currentTimer);
+        }
+
+        timerText.text = "OUT OF TIME -- MESSAGE LOST";
+
     }
 
     public void SetDifficulty(string difficulty)

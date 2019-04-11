@@ -33,6 +33,8 @@ public class GameplayManager : MonoBehaviour
 
     Vector3 spawnLocation;
 
+    Timer timer;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -48,8 +50,6 @@ public class GameplayManager : MonoBehaviour
         }
 
         hasVisitedCLA = false;
-
-        CompleteTask();
     }
 
     // Update is called once per frame
@@ -67,6 +67,11 @@ public class GameplayManager : MonoBehaviour
 
         letterManager = lm;
         remainingTasks = letterManager.RemainingLetters;
+    }
+
+    public void SetTimer(Timer t)
+    {
+        timer = t;
     }
 
     public string NextDeliveryLocation
@@ -173,6 +178,8 @@ public class GameplayManager : MonoBehaviour
         currentTarget = "";
 
         ResetDirectionsToOffice();
+
+        timer.StopTimerIfRunning();
     }
 
     void ResetDirectionsToOffice()

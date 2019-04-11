@@ -78,9 +78,9 @@ public class WorkUIManager : MonoBehaviour
         Button exitButton = GameObject.Find("ExitButton").GetComponent<Button>();
         exitButton.onClick.RemoveAllListeners();
         exitButton.onClick.AddListener(delegate {
+            levelManager.LoadLevel("town");
             if (!(gameplayManager.CurrentTarget == "None" || gameplayManager.CurrentTarget == ""))
                 timer.StartNewTimerIfNotAlreadyRunning();
-            levelManager.LoadLevel("town");
         });
     }
 
@@ -93,23 +93,17 @@ public class WorkUIManager : MonoBehaviour
         // if the player currently has a task -- "You're all caught up"
         if (currentlyHasMessage)
         {
-            Debug.Log("Already has a message to deliver...");
-
             ShowNewMessage(false);
 
         }
         // if there is another message -- new message
         else if (hasNextMessage)
         {
-            Debug.Log("New message to deliver...");
-
             ShowNewMessage(true);
         }
         // No messages and no target
         else
         {
-            Debug.Log("No new messages...");
-
             ShowNewMessage(false);
         }
     }
