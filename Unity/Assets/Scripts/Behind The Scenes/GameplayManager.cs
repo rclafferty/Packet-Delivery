@@ -35,6 +35,8 @@ public class GameplayManager : MonoBehaviour
 
     Timer timer;
 
+    bool startingLetter;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -50,12 +52,25 @@ public class GameplayManager : MonoBehaviour
         }
 
         hasVisitedCLA = false;
+        startingLetter = true;
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public bool HasStartingLetter
+    {
+        get
+        {
+            return startingLetter;
+        }
+        set
+        {
+            startingLetter = value;
+        }
     }
 
     public void SetLetterManager(LetterManager lm)

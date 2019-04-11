@@ -103,9 +103,10 @@ public class LoadingManager : MonoBehaviour
         gameplayManager.SetTimer(timer);
         gameplayManager.CompleteTask();
         gameplayManager.SetLetterManager(letterManager);
-        gameplayManager.CurrentSpawnLocation = spawnManager.GetSpawnPointByName("Office");
+        gameplayManager.CurrentTargetMessage = letterManager.GetStartingMessage();
 
         // Do something with them (cont) -- NOT order sensitive
+        gameplayManager.CurrentSpawnLocation = spawnManager.GetSpawnPointByName("Office");
         musicManager.SetAudioClip(music);
         musicManager.Play();
         // levelManager.SetPlayerController(playerController);

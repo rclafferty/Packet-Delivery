@@ -147,6 +147,19 @@ public class LetterManager : MonoBehaviour
         return thisMessage;
     }
 
+    public Message GetStartingMessage()
+    {
+        for (int i = 0; i < letters.Length; i++)
+        {
+            if (letters[i].Recipient.ToLower() == "Uncle Doug".ToLower())
+            {
+                return letters[i];
+            }
+        }
+
+        return null;
+    }
+
     public Message[] GetNextMessages(int n)
     {
         int numberOfMessages = n;

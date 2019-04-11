@@ -80,7 +80,8 @@ public class WorkUIManager : MonoBehaviour
         exitButton.onClick.AddListener(delegate {
             levelManager.LoadLevel("town");
             if (!(gameplayManager.CurrentTarget == "None" || gameplayManager.CurrentTarget == ""))
-                timer.StartNewTimerIfNotAlreadyRunning();
+                if (!gameplayManager.HasStartingLetter)
+                    timer.StartNewTimerIfNotAlreadyRunning();
         });
     }
 
