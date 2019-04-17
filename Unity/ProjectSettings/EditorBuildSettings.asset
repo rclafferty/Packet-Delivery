@@ -20,30 +20,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/centralLookupAgency.unity
     guid: 511dd3d681870564b8e9ec17ff2a646c
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/localLookupAgencyNE.unity
     guid: 69f97767b4f086c4c9508439e3ac09b3
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/office.unity
     guid: 18015490af64a194aadadcd0332525dc
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/localLookupAgencySW.unity
     guid: 61229e545a3edc149abdd28ac111bde7
   - enabled: 1
     path: Assets/Scenes/home.unity
     guid: 17b2e0be9ec7b484895e718ac9825b21
-  - enabled: 1
-    path: Assets/Scenes/opening.unity
-    guid: 220cf5623db6adc4abadf5550bca428d
   - enabled: 1
     path: Assets/Scenes/start_town.unity
     guid: 2cda617652c4fd149a73258b92d16450

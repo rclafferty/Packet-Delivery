@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         thisRigidbody = GetComponent<Rigidbody2D>();
-        transform.position = GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CurrentSpawnLocation;
+        // transform.position = GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CurrentSpawnLocation;
 
         activateSpeedModifier = false;
         speedModifier = 1;
