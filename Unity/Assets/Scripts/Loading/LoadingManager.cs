@@ -52,7 +52,10 @@ public class LoadingManager : MonoBehaviour
         Debug.Log("Loading game...");
         // LoadGame();
         // StartCoroutine(LoadGame());
-        Debug_LoadGame(false);
+        // Debug_LoadGame(false);
+
+        // StartCoroutine(LoadGame_Coroutine());
+        LoadGame_Method();
         Debug.Log("Done");
     }
 
