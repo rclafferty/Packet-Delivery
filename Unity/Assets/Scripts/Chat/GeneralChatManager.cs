@@ -314,6 +314,8 @@ public class GeneralChatManager : MonoBehaviour
             // Lookup
             int index = lookupManager.LocationLookup(target); // NOT case-sensitive
             Debug.Log(target + " is at index " + index);
+
+            // This line throws errors!!!!!!!!!!!!!!!!!!!
             string location = lookupManager.LOCATION_TEXT[index];
 
             if (SceneManager.GetActiveScene().name.ToLower().Contains("central"))

@@ -79,6 +79,8 @@ public class LoadingManager : MonoBehaviour
 
     void LoadGame_Method()
     {
+        Debug.Log("Method, not coroutine");
+
         // Load prefabs
         prefab_CheatManager = Resources.Load<GameObject>("Prefabs/CheatManager");
         prefab_GameplayManager = Resources.Load<GameObject>("Prefabs/GameplayManager");

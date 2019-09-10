@@ -29,8 +29,8 @@ public class TitleScreenSetup : MonoBehaviour
 
     public void StartButtonAction()
     {
-        GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("town");
-        // GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("start_town");
+        // GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("town");
+        GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("start_town");
     }
 
     /*public void StartButtonAction()
