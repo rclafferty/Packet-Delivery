@@ -151,6 +151,7 @@ public class LookupAgencyManager : MonoBehaviour
             {
                 temp = list[i];
                 lowerTempName = temp.Name.ToLower();
+                Debug.Log("Comparing " + name + " to " + temp.Name);
 
                 for (int j = 0; j < parts.Length; j++)
                 {

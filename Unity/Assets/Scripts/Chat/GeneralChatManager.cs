@@ -315,30 +315,52 @@ public class GeneralChatManager : MonoBehaviour
             int index = lookupManager.LocationLookup(target); // NOT case-sensitive
             Debug.Log(target + " is at index " + index);
 
-            // This line throws errors!!!!!!!!!!!!!!!!!!!
-            string location = lookupManager.LOCATION_TEXT[index];
-
-            if (SceneManager.GetActiveScene().name.ToLower().Contains("central"))
+            if (index < 0 || index > lookupManager.LOCATION_TEXT.Length)
             {
-                // Set next location
-                if (location.ToLower() == "northeast")
+                chatText_message = "Hmmm... I didn't catch that. Who was it again?";
+                option1_message = "Let me try again.";
+                option2_message = "I'll try again later";
+
+                option1Action = delegate
                 {
-                    gameplayManager.NextDeliveryLocation = "LLA NE";
-                }
-                else if (location.ToLower() == "southwest")
+                    ShowInputField(true);
+                    ShowText();
+                };
+
+                // a2 = StartTextAndButtons;
+                option2Action = delegate
                 {
-                    gameplayManager.NextDeliveryLocation = "LLA SW";
-                }
+                    DepartTextAndButtons();
+                    ShowText();
+                };
             }
             else
             {
-                gameplayManager.NextDeliveryLocation = "Home";
+                // This line throws errors!!!!!!!!!!!!!!!!!!!
+                string location = lookupManager.LOCATION_TEXT[index];
 
-                string[] directions = { "yellow", "house", "northeast" };
-                gameplayManager.Directions = directions;
+                if (SceneManager.GetActiveScene().name.ToLower().Contains("central"))
+                {
+                    // Set next location
+                    if (location.ToLower() == "northeast")
+                    {
+                        gameplayManager.NextDeliveryLocation = "LLA NE";
+                    }
+                    else if (location.ToLower() == "southwest")
+                    {
+                        gameplayManager.NextDeliveryLocation = "LLA SW";
+                    }
+                }
+                else
+                {
+                    gameplayManager.NextDeliveryLocation = "Home";
+
+                    string[] directions = { "yellow", "house", "northeast" };
+                    gameplayManager.Directions = directions;
+                }
+
+                WhereToGo();
             }
-
-            WhereToGo();
         }
         else
         {
