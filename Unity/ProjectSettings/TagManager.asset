@@ -6,6 +6,7 @@ TagManager:
   tags:
   - LocationLabel
   - PersonLabel
+  - ObstacleTilemap
   layers:
   - Default
   - TransparentFX

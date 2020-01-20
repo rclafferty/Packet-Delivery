@@ -38,9 +38,13 @@ public class GameplayManager : MonoBehaviour
 
     bool startingLetter;
 
+    int obstacleIndex;
+
     // Start is called before the first frame update
     void Start()
     {
+        obstacleIndex = -1;
+
         if (instance == null)
         {
             instance = this;
@@ -54,12 +58,34 @@ public class GameplayManager : MonoBehaviour
 
         hasVisitedCLA = false;
         startingLetter = true;
+
+        SceneManager.sceneLoaded += OnSceneLoad;
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+
+    void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)
+    {
+        if (thisScene.name == "town")
+        {
+            GameObject[] obstacleTilemapObjects = GameObject.FindGameObjectsWithTag("ObstacleTilemap");
+
+            foreach (GameObject g in obstacleTilemapObjects)
+            {
+                if (g.name.Contains(obstacleIndex.ToString()))
+                {
+                    g.SetActive(true);
+                }
+                else
+                {
+                    g.SetActive(false);
+                }
+            }
+        }
     }
 
     public bool HasStartingLetter
@@ -206,6 +232,8 @@ public class GameplayManager : MonoBehaviour
         ResetDirectionsToOffice();
 
         timer.StopTimerIfRunning();
+
+        obstacleIndex++;
     }
 
     void ResetDirectionsToOffice()
@@ -220,6 +248,12 @@ public class GameplayManager : MonoBehaviour
     public void GetNextMessage()
     {
         this.CurrentTargetMessage = letterManager.GetNextMessage();
+        nextDeliveryLocation = "CLA";
+    }
+
+    public void GetStartingMessage()
+    {
+        this.CurrentTargetMessage = letterManager.GetStartingMessage();
         nextDeliveryLocation = "CLA";
     }
 

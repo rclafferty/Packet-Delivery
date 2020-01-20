@@ -142,11 +142,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1528671711}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0000076563, y: 271.15}
+  m_AnchoredPosition: {x: -0.0000076563, y: 300}
   m_SizeDelta: {x: 935.8, y: 136.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4133110
@@ -426,10 +426,10 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: b91857de4a480bb44a309b54be8c3816, type: 3}
-    m_FontSize: 35
+    m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 3
     m_MaxSize: 67
     m_Alignment: 4
     m_AlignByGeometry: 0
@@ -437,11 +437,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'New
-
-    Delivery
-
-    Request'
+  m_Text: New Delivery Request
 --- !u!222 &490274089
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -546,7 +542,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &884047276
 RectTransform:
   m_ObjectHideFlags: 0
@@ -559,12 +555,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1528671711}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000012398, y: -68.038}
-  m_SizeDelta: {x: 935.8, y: 542.32}
+  m_AnchoredPosition: {x: -0.0040007, y: -165.7}
+  m_SizeDelta: {x: 935.81, y: 449.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &884047277
 MonoBehaviour:
@@ -579,7 +575,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -599,7 +595,12 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: "Success! You've successfully initiated the following delivery:\n\nTo: Mayor
+    Clark\r\nFrom: A Concerned Citizen\r\n\r\nMr. Mayor,\r\n\r\nI'm concerned about
+    this new law you just approved on Thursday. According to the bill, you are mandating
+    that all trees be cut down immediately. Where will all the squirrels and birds
+    live? I'm sure there's enough room in City Hall, right?\r\n\r\nSigned,\r\n\r\nSomeone
+    who won't vote for you again"
 --- !u!222 &884047278
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -678,7 +679,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Return to Town
+  m_Text: Return to Office
 --- !u!222 &891244320
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -705,7 +706,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &908921593
 RectTransform:
   m_ObjectHideFlags: 0
@@ -713,17 +714,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 908921592}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 891244318}
-  m_Father: {fileID: 1930236706}
+  m_Father: {fileID: 1528671711}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 481.5, y: 374.9}
+  m_AnchoredPosition: {x: 383, y: 308}
   m_SizeDelta: {x: 206.6, y: 97.701}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &908921594
@@ -765,7 +766,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 908921595}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1998220332}
+        m_MethodName: TurnOffComputer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &908921595
@@ -985,12 +997,12 @@ RectTransform:
   m_Children:
   - {fileID: 1477765692}
   m_Father: {fileID: 1528671711}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 245, y: 81.65}
-  m_SizeDelta: {x: 314.2, y: 163.3}
+  m_AnchoredPosition: {x: 264.04993, y: 206.85004}
+  m_SizeDelta: {x: 407.7, y: 64.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1160483567
 MonoBehaviour:
@@ -1114,12 +1126,12 @@ RectTransform:
   m_Children:
   - {fileID: 2065644248}
   m_Father: {fileID: 1528671711}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 248, y: -160}
-  m_SizeDelta: {x: 314.2, y: 163.3}
+  m_AnchoredPosition: {x: 264.02, y: 124.00006}
+  m_SizeDelta: {x: 407.75, y: 64.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1162342395
 MonoBehaviour:
@@ -1428,10 +1440,10 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: b91857de4a480bb44a309b54be8c3816, type: 3}
-    m_FontSize: 35
+    m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 3
     m_MaxSize: 67
     m_Alignment: 4
     m_AlignByGeometry: 0
@@ -1439,11 +1451,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'View
-
-    Delivery
-
-    Details'
+  m_Text: View Delivery Details
 --- !u!222 &1477765694
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1481,6 +1489,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 908921593}
   - {fileID: 4133109}
   - {fileID: 884047276}
   - {fileID: 2010247293}
@@ -1488,12 +1497,12 @@ RectTransform:
   - {fileID: 1162342394}
   - {fileID: 1959530797}
   m_Father: {fileID: 1930236706}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.000024319}
-  m_SizeDelta: {x: 1038.6, y: 746.9}
+  m_AnchoredPosition: {x: 0, y: -2.7}
+  m_SizeDelta: {x: 1038.6, y: 781.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1528671712
 MonoBehaviour:
@@ -1681,6 +1690,11 @@ PrefabInstance:
       propertyPath: officeComputerCanvas
       value: 
       objectReference: {fileID: 1941121238}
+    - target: {fileID: 1629079025838653678, guid: f83ab6737cea1194bbec16f2e1c473ef,
+        type: 3}
+      propertyPath: screenText
+      value: 
+      objectReference: {fileID: 884047277}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f83ab6737cea1194bbec16f2e1c473ef, type: 3}
 --- !u!1 &1662300361
@@ -1750,7 +1764,6 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 908921593}
   - {fileID: 1528671711}
   m_Father: {fileID: 1941121239}
   m_RootOrder: 1
@@ -1987,10 +2000,10 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: b91857de4a480bb44a309b54be8c3816, type: 3}
-    m_FontSize: 35
+    m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 3
     m_MaxSize: 67
     m_Alignment: 4
     m_AlignByGeometry: 0
@@ -1998,9 +2011,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Next
-
-    Destination'
+  m_Text: Next Destination
 --- !u!222 &1943035297
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2041,12 +2052,12 @@ RectTransform:
   m_Children:
   - {fileID: 1943035295}
   m_Father: {fileID: 1528671711}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -226.90002, y: -159.95007}
-  m_SizeDelta: {x: 314.2, y: 163.3}
+  m_AnchoredPosition: {x: -264.08, y: 124}
+  m_SizeDelta: {x: 407.65, y: 64.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1959530798
 MonoBehaviour:
@@ -2405,12 +2416,12 @@ RectTransform:
   m_Children:
   - {fileID: 490274087}
   m_Father: {fileID: 1528671711}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -229.9, y: 81.7}
-  m_SizeDelta: {x: 314.2, y: 163.3}
+  m_AnchoredPosition: {x: -264.05, y: 206.85004}
+  m_SizeDelta: {x: 407.7, y: 64.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2010247294
 MonoBehaviour:
@@ -2640,10 +2651,10 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: b91857de4a480bb44a309b54be8c3816, type: 3}
-    m_FontSize: 35
+    m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 3
     m_MaxSize: 67
     m_Alignment: 4
     m_AlignByGeometry: 0
@@ -2651,9 +2662,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Logistics &
-
-    Upgrades'
+  m_Text: Logistics & Upgrades
 --- !u!222 &2065644250
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3286,13 +3295,14 @@ PrefabInstance:
     - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
         type: 3}
       propertyPath: m_TileSpriteArray.Array.data[18].m_RefCount
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
         type: 3}
       propertyPath: m_TileSpriteArray.Array.data[18].m_Data
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 21300762, guid: 3a2b46c9bdb412649a0a8ed3abc6d360,
+        type: 3}
     - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
         type: 3}
       propertyPath: m_TileMatrixArray.Array.data[0].m_RefCount
@@ -3341,13 +3351,99 @@ PrefabInstance:
     - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
         type: 3}
       propertyPath: m_TileSpriteArray.Array.data[17].m_RefCount
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
         type: 3}
       propertyPath: m_TileSpriteArray.Array.data[17].m_Data
       value: 
+      objectReference: {fileID: 21300950, guid: 3a2b46c9bdb412649a0a8ed3abc6d360,
+        type: 3}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_Tiles.Array.data[48].second.m_TileSpriteIndex
+      value: 18
       objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_Tiles.Array.data[49].second.m_TileSpriteIndex
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_Tiles.Array.data[50].second.m_TileSpriteIndex
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_Tiles.Array.data[60].second.m_TileSpriteIndex
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_Tiles.Array.data[61].second.m_TileSpriteIndex
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_Tiles.Array.data[63].second.m_TileSpriteIndex
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_Tiles.Array.data[75].second.m_TileSpriteIndex
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_TileSpriteArray.Array.data[3].m_RefCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_TileSpriteArray.Array.data[3].m_Data
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_TileSpriteArray.Array.data[4].m_RefCount
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_TileSpriteArray.Array.data[4].m_Data
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_TileSpriteArray.Array.data[5].m_Data
+      value: 
+      objectReference: {fileID: 21300652, guid: 3a2b46c9bdb412649a0a8ed3abc6d360,
+        type: 3}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_TileSpriteArray.Array.data[8].m_Data
+      value: 
+      objectReference: {fileID: 21300898, guid: 3a2b46c9bdb412649a0a8ed3abc6d360,
+        type: 3}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_TileSpriteArray.Array.data[10].m_Data
+      value: 
+      objectReference: {fileID: 21300218, guid: 3a2b46c9bdb412649a0a8ed3abc6d360,
+        type: 3}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_TileSpriteArray.Array.data[11].m_Data
+      value: 
+      objectReference: {fileID: 21300896, guid: 3a2b46c9bdb412649a0a8ed3abc6d360,
+        type: 3}
+    - target: {fileID: 7344627928395474130, guid: a2494494bfb912f4abaa56aeda43e9f8,
+        type: 3}
+      propertyPath: m_TileSpriteArray.Array.data[13].m_Data
+      value: 
+      objectReference: {fileID: 21300952, guid: 3a2b46c9bdb412649a0a8ed3abc6d360,
+        type: 3}
     - target: {fileID: 7344627926553646446, guid: a2494494bfb912f4abaa56aeda43e9f8,
         type: 3}
       propertyPath: m_Tiles.Array.size

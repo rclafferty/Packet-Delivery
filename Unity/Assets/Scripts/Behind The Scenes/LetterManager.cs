@@ -22,6 +22,8 @@ public class LetterManager : MonoBehaviour
 
     string[] URGENCY_STATUS = { "Normal", "Expedited", "Urgent" };
 
+    public static bool isFirstLetter = true;
+
     void Awake()
     {
         if (instance != null)
@@ -118,6 +120,7 @@ public class LetterManager : MonoBehaviour
             return null;
         }
 
+        // No more messages
         if (remaining <= 0)
         {
             return null;
@@ -125,7 +128,17 @@ public class LetterManager : MonoBehaviour
 
         int index = -1;
 
-        do
+        // Deliver letters in order
+        for (int i = 0; i < letters.Length; i++)
+        {
+            if (!isDelivered[i] && !onHold[i])
+            {
+                index = i;
+            }
+        }
+
+        // Randomize letters
+        /* do
         {
             index = (int)Random.Range(0, letters.Length);
 
@@ -137,7 +150,7 @@ public class LetterManager : MonoBehaviour
             {
                 index = -1;
             }
-        } while (index == -1);
+        } while (index == -1); */
 
         Message thisMessage = letters[index];
         onHold[index] = true;

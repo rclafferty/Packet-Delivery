@@ -135,7 +135,8 @@ public class LoadingManager : MonoBehaviour
         gameplayManager.SetTimer(timer);
         gameplayManager.CompleteTask();
         gameplayManager.SetLetterManager(letterManager);
-        gameplayManager.CurrentTargetMessage = letterManager.GetStartingMessage();
+        // Disabled temporarily: Start with a message already
+        // gameplayManager.CurrentTargetMessage = letterManager.GetStartingMessage();
         gameplayManager.SetUpgradeManager(upgradeManager);
 
         // Do something with them (cont) -- NOT order sensitive
