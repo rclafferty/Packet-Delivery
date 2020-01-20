@@ -8,16 +8,13 @@ using UnityEngine.UI;
 
 public class StartingNPCManager : MonoBehaviour
 {
-    [SerializeField]
-    EventSystem eventSystem;
+    [SerializeField] EventSystem eventSystem;
 
-    [SerializeField]
-    Text chatText;
+    [SerializeField] Text chatText;
+    [SerializeField] Button option1Button;
+    [SerializeField] Text option1Text;
 
-    [SerializeField]
-    Button option1Button;
-    [SerializeField]
-    Text option1Text;
+    [SerializeField] string nextSceneName;
 
     const float RIGHT_X = -4.0f;
     const float LEFT_X = -13.0f;
@@ -65,6 +62,11 @@ public class StartingNPCManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (string.IsNullOrEmpty(nextSceneName))
+        {
+            nextSceneName = "office";
+        }
+
         FindObjectsForScene();
 
         dialogueIndex = 0;
@@ -116,7 +118,7 @@ public class StartingNPCManager : MonoBehaviour
         Debug.Log("Dialogue Index: " + dialogueIndex);
         if (dialogueIndex >= dialogue.Length)
         {
-            SceneManager.LoadScene("town");
+            SceneManager.LoadScene(nextSceneName);
             return;
         }
 
