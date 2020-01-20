@@ -19,6 +19,8 @@ public class StartingNPCManager : MonoBehaviour
     [SerializeField]
     Text option1Text;
 
+    [SerializeField] string nextScene;
+
     const float RIGHT_X = -4.0f;
     const float LEFT_X = -13.0f;
 
@@ -65,6 +67,11 @@ public class StartingNPCManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (string.IsNullOrEmpty(nextScene))
+        {
+            nextScene = "office";
+        }
+
         FindObjectsForScene();
 
         dialogueIndex = 0;
@@ -116,7 +123,7 @@ public class StartingNPCManager : MonoBehaviour
         Debug.Log("Dialogue Index: " + dialogueIndex);
         if (dialogueIndex >= dialogue.Length)
         {
-            SceneManager.LoadScene("town");
+            SceneManager.LoadScene(nextScene);
             return;
         }
 
