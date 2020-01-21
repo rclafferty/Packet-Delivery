@@ -15,6 +15,8 @@ public class OfficeComputerManager : MonoBehaviour
     bool isComputerShown;
     GameplayManager gameplayManager;
 
+    Dictionary<string, string> abbreviationLookupTable;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,6 +29,11 @@ public class OfficeComputerManager : MonoBehaviour
         {
             gameplayManager = object_gameplayManager.GetComponent<GameplayManager>();
         }
+
+        abbreviationLookupTable = new Dictionary<string, string>();
+        abbreviationLookupTable.Add("CLA", "Central Lookup Agency");
+        abbreviationLookupTable.Add("LLA SW", "Southwest Local Lookup Agency");
+        abbreviationLookupTable.Add("LLA NE", "Northeast Local Lookup Agency");
     }
 
     // Update is called once per frame
@@ -87,7 +94,7 @@ public class OfficeComputerManager : MonoBehaviour
         }
     }
 
-    void DisplayDetails(string systemMessage)
+    void DisplayDetails(in string systemMessage)
     {
         Message currentMessage = gameplayManager.CurrentTargetMessage;
         string senderLine = "Sender: " + currentMessage.Sender;
@@ -138,24 +145,14 @@ public class OfficeComputerManager : MonoBehaviour
             if (gameplayManager.HasCurrentTarget())
             {
                 string nextDestination = "";
-                if (gameplayManager.NextDeliveryLocation == "CLA")
+
+                // Attempt to lookup the abbreviation
+                if (!abbreviationLookupTable.TryGetValue(gameplayManager.NextDeliveryLocation, out nextDestination))
                 {
-                    nextDestination = "Central Lookup Agency";
-                }
-                else if (gameplayManager.NextDeliveryLocation == "LLA SW")
-                {
-                    nextDestination = "Southwest Local Lookup Agency";
-                }
-                else if (gameplayManager.NextDeliveryLocation == "LLA NE")
-                {
-                    nextDestination = "Northeast Local Lookup Agency";
-                }
-                else
-                {
+                    // If not found, display the stored location
                     nextDestination = gameplayManager.NextDeliveryLocation;
                 }
-
-                // TODO: Visualize this
+                
                 screenText.text = "You should try stopping by the " + nextDestination + " next";
             }
             else

@@ -188,18 +188,11 @@ public class GameplayManager : MonoBehaviour
 
     // Auto property
     public Vector3 CurrentSpawnLocation { get; set; }
-
     public bool HasStartingLetter { get; set; }
-
     public string CurrentLocation { get; set; }
-
     public int RemainingTasks { get; set; }
-
     public string CurrentTarget { get; private set; }
-
     public DeliveryDirections NextStep { get; set; }
-
     public string NextDeliveryLocation { get; set; }
-
     public Timer GameplayTimer { get; set; }
 }

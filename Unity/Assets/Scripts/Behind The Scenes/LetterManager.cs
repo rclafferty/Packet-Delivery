@@ -14,8 +14,7 @@ public class LetterManager : MonoBehaviour
 
     [SerializeField] TextAsset[] letterTextFiles;
 
-    [SerializeField]
-    Message[] letters;
+    [SerializeField] Message[] letters;
     bool[] isDelivered;
     bool[] onHold;
 
