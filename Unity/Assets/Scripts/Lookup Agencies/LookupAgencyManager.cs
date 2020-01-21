@@ -6,41 +6,37 @@ using UnityEngine;
 
 public class LookupAgencyManager : MonoBehaviour
 {
+    static LookupAgencyManager instance = null;
+
     [SerializeField] TextAsset[] populationListOptions;
 
     public readonly string[] LOCATION_TEXT = { "Northeast", "Southwest" };
-
-    static LookupAgencyManager instance = null;
 
     List<Person> listOfPeople;
 
     List<Person>[] peopleByLocation;
 
+    // New variables
+    List<Person> comprehensivePersonList;
+    List<Person>[] peopleByQuadrant;
+
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (instance != null)
         {
             Destroy(gameObject);
             return;
         }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+        gameObject.name = "LookupAgencyManager";
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        gameObject.name = "LookupAgencyManager";
         LoadPopulationListFromTextAsset();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     public bool HasLoadedPopulationList
@@ -139,13 +135,15 @@ public class LookupAgencyManager : MonoBehaviour
         string lowerTempName = "";
         string[] parts = lowerName.Split(' ');
 
+        List<Person> personList = null;
+
         for (int index = 0; index < peopleByLocation.Length; index++)
         {
-            List<Person> list = peopleByLocation[index];
+            personList = peopleByLocation[index];
 
-            for (int i = 0; i < list.Count; i++)
+            for (int i = 0; i < personList.Count; i++)
             {
-                temp = list[i];
+                temp = personList[i];
                 lowerTempName = temp.Name.ToLower();
 
                 for (int j = 0; j < parts.Length; j++)
@@ -160,4 +158,8 @@ public class LookupAgencyManager : MonoBehaviour
 
         return -1;
     }
+
+    // TODO: Change lookup system to 4 quadrants (NE, NW, SE, SW)
+    // The NE LLA handles NE and NW quadrants
+    // The SW LLA handles SE and SW quadrants
 }

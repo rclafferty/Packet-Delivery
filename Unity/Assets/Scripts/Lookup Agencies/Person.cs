@@ -8,39 +8,17 @@ namespace Assets.Scripts.Lookup_Agencies
 {
     public class Person
     {
-        string name;
-        string location;
-        int locationIndex;
-
         public Person(string n, string l, int li)
         {
-            name = n;
-            location = l;
-            locationIndex = li;
+            Name = n;
+            Location = l;
+            LocationIndex = li;
         }
 
-        public string Name
-        {
-            get
-            {
-                return name;
-            }
-        }
+        public string Name { get; private set; }
 
-        public string Location
-        {
-            get
-            {
-                return location;
-            }
-        }
+        public string Location { get; private set;}
 
-        public int LocationIndex
-        {
-            get
-            {
-                return locationIndex;
-            }
-        }
+        public int LocationIndex { get; private set;}
     }
 }
