@@ -66,8 +66,8 @@ public class LoadingManager : MonoBehaviour
         musicManager.SetAudioClip(music);
         musicManager.Play();
         gameplayManager.GameplayTimer = timer;
-        gameplayManager.CompleteTask();
         gameplayManager.SetLetterManager(letterManager);
+        gameplayManager.CompleteTask();
         // Disabled temporarily: Start with a message already
         // gameplayManager.CurrentTargetMessage = letterManager.GetStartingMessage();
 

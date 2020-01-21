@@ -26,7 +26,7 @@ public class LetterManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        
+
         instance = this;
         DontDestroyOnLoad(gameObject);
 
@@ -161,6 +161,18 @@ public class LetterManager : MonoBehaviour
         foreach (Letter letter in listOfLetters)
         {
             letter.IsOnHold = false;
+        }
+    }
+
+    public void MarkMessageAsDelivered(int messageID)
+    {
+        for (int i = 0; i < listOfLetters.Count; i++)
+        {
+            Letter thisLetter = (Letter)listOfLetters[i];
+            if (thisLetter.MessageID == messageID)
+            {
+                ((Letter)listOfLetters[i]).HasBeenDelivered = true;
+            }
         }
     }
 

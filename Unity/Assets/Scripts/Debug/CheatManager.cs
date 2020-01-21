@@ -40,5 +40,9 @@ public class CheatManager : MonoBehaviour
         {
             levelManager.LoadLevel("centralLookupAgency");
         }
+        else if (Input.GetKeyDown(KeyCode.F3))
+        {
+            GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CompleteTask();
+        }
     }
 }

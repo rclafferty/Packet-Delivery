@@ -46,6 +46,15 @@ public class GameplayManager : MonoBehaviour
         }
         
         HasStartingLetter = true;
+        currentTargetMessage = null;
+
+        CurrentTarget = "";
+
+        ResetDirectionsToOffice();
+
+        GameplayTimer.StopTimerIfRunning();
+
+        obstacleTilemapIndex++;
 
         SceneManager.sceneLoaded += OnSceneLoad;
     }
@@ -153,6 +162,13 @@ public class GameplayManager : MonoBehaviour
 
     public void CompleteTask()
     {
+        if (HasCurrentTarget())
+        {
+            Debug.Log("LetterManager ? " + (letterManager != null));
+            Debug.Log("Current Message ? " + (currentTargetMessage != null));
+            letterManager.MarkMessageAsDelivered(currentTargetMessage.MessageID);
+        }
+
         currentTargetMessage = null;
         CurrentTarget = "";
 
