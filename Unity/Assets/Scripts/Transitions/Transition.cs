@@ -42,6 +42,11 @@ public class Transition : MonoBehaviour
             GameObject player = GameObject.Find("Player");
 
             GameplayManager gm = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+            if (newScene != "town")
+            {
+                gm.indoorLocation = newScene;
+            }
+
             Vector3 pos = player.transform.position;
             pos.y -= 1.0f;
             gm.CurrentSpawnLocation = pos;

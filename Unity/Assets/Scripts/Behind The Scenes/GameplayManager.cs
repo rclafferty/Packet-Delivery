@@ -40,6 +40,10 @@ public class GameplayManager : MonoBehaviour
 
     int obstacleIndex;
 
+    [SerializeField] public string indoorLocation;
+    string[] locations = { "office", "centralLookupAgency", "localLookupAgencyNE", "localLookupAgencySW" };
+    string[] spawnpointNames = { "Office Spawnpoint", "CLA Spawnpoint", "LLA NE Spawnpoint", "LLA SW Spawnpoint" };
+
     // Start is called before the first frame update
     void Start()
     {
@@ -83,6 +87,15 @@ public class GameplayManager : MonoBehaviour
                 else
                 {
                     g.SetActive(false);
+                }
+            }
+
+            for (int i = 0; i < locations.Length; i++)
+            {
+                if (indoorLocation == locations[i])
+                {
+                    GameObject.Find("Player").transform.position = GameObject.Find(spawnpointNames[i]).transform.position;
+                    break;
                 }
             }
         }

@@ -8,8 +8,9 @@ using System.Text;
 
 public class OfficeComputerManager : MonoBehaviour
 {
-    [SerializeField] Canvas officeComputerCanvas;
+    [SerializeField] GameObject officeComputerCanvas;
     [SerializeField] Text screenText;
+    [SerializeField] Text movementInstructions;
 
     bool isComputerShown;
     GameplayManager gameplayManager;
@@ -38,6 +39,7 @@ public class OfficeComputerManager : MonoBehaviour
     {
         isComputerShown = isShown;
         officeComputerCanvas.gameObject.SetActive(isShown);
+        movementInstructions.gameObject.SetActive(!isShown);
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -68,7 +70,7 @@ public class OfficeComputerManager : MonoBehaviour
             }
             else
             {
-                systemMessage = "Success! You've successfully initiated the following delivery:\n";
+                systemMessage = "Success! You've successfully setup the following delivery:\n";
                 if (LetterManager.isFirstLetter)
                 {
                     gameplayManager.GetStartingMessage();
@@ -121,7 +123,6 @@ public class OfficeComputerManager : MonoBehaviour
     {
         if (gameplayManager.HasCurrentTarget)
         {
-            // TODO: Visualize this
             DisplayDetails();
         }
         else
