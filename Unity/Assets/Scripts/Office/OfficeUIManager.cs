@@ -69,7 +69,7 @@ public class OfficeUIManager : MonoBehaviour
 
     public void AcceptMessage()
     {
-        if (gameplayManager.HasCurrentTarget)
+        if (gameplayManager.HasCurrentTarget())
         {
             StartCoroutine(ShowErrorMessage("Please complete your current delivery before taking on a new one!"));
             return;
@@ -81,7 +81,7 @@ public class OfficeUIManager : MonoBehaviour
 
     public void NextMessage()
     {
-        if (gameplayManager.HasCurrentTarget)
+        if (gameplayManager.HasCurrentTarget())
         {
             StartCoroutine(ShowErrorMessage("Please complete your current delivery before taking on a new one!"));
             return;

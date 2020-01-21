@@ -89,7 +89,7 @@ public class WorkUIManager : MonoBehaviour
     {
         // Find if there is another message to deliver
         hasNextMessage = gameplayManager.HasRemainingTasks;
-        currentlyHasMessage = gameplayManager.HasCurrentTarget;
+        currentlyHasMessage = gameplayManager.HasCurrentTarget();
         
         // if the player currently has a task -- "You're all caught up"
         if (currentlyHasMessage)

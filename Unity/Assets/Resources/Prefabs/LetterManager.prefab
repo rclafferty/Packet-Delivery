@@ -43,4 +43,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccd6910c87ae12c4ca2662eb0dd53001, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  letterTextFiles:
+  - {fileID: 4900000, guid: 11386e6f9684c374f966d81d993e9dd9, type: 3}
+  - {fileID: 4900000, guid: fb65e696d26629044a59458bd08f584e, type: 3}
+  - {fileID: 4900000, guid: 49a67ead4471c7e49a7813f4b9ca77b7, type: 3}
+  - {fileID: 4900000, guid: c9715de98a3a20b41aea60e370e33b05, type: 3}
   letters: []
+  remaining: 0

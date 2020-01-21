@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 using Assets.Scripts.Lookup_Agencies;
+using Assets.Scripts.Behind_The_Scenes;
 
 public class GeneralChatManager : MonoBehaviour
 {
@@ -14,24 +15,17 @@ public class GeneralChatManager : MonoBehaviour
     LevelManager levelManager;
     LookupAgencyManager lookupManager;
 
-    [SerializeField]
-    EventSystem eventSystem;
+    [SerializeField] EventSystem eventSystem;
 
-    [SerializeField]
-    Text chatText;
+    [SerializeField] Text chatText;
 
-    [SerializeField]
-    Button option1Button;
-    [SerializeField]
-    Text option1Text;
+    [SerializeField] Button option1Button;
+    [SerializeField] Text option1Text;
 
-    [SerializeField]
-    Button option2Button;
-    [SerializeField]
-    Text option2Text;
+    [SerializeField] Button option2Button;
+    [SerializeField] Text option2Text;
 
-    [SerializeField]
-    InputField inputField;
+    [SerializeField] InputField inputField;
 
     List<Person> people;
 
@@ -174,9 +168,10 @@ public class GeneralChatManager : MonoBehaviour
             }
             else // if (location == "Office")
             {
-                string[] directions = gameplayManager.Directions;
+                GameplayManager.DeliveryDirections nextStep;
+                nextStep = gameplayManager.NextStep;
 
-                chatText_message = "Please visit the " + directions[0] + " " + directions[1] + " on the " + directions[2] + " side of town for your next step.";
+                chatText_message = "Please visit the " + nextStep.color + " " + nextStep.building + " on the " + nextStep.mapDirection + " side of town for your next step.";
             }
 
             option1_message = "Thank you for your help.";
@@ -332,10 +327,14 @@ public class GeneralChatManager : MonoBehaviour
             }
             else
             {
+                GameplayManager.DeliveryDirections nextStep;
+                nextStep.building = "house";
+                nextStep.color = "yellow";
+                nextStep.mapDirection = "northeast";
+
                 gameplayManager.NextDeliveryLocation = "Home";
 
-                string[] directions = { "yellow", "house", "northeast" };
-                gameplayManager.Directions = directions;
+                gameplayManager.NextStep = nextStep;
             }
 
             WhereToGo();

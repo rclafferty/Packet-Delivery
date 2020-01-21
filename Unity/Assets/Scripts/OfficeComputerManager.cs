@@ -63,7 +63,7 @@ public class OfficeComputerManager : MonoBehaviour
         if (gameplayManager != null)
         {
             string systemMessage = "";
-            if (gameplayManager.HasCurrentTarget)
+            if (gameplayManager.HasCurrentTarget())
             {
                 systemMessage = "Please complete your current delivery before initiating another.\n";
                 Debug.Log("Already has current target: " + gameplayManager.CurrentTarget);
@@ -121,7 +121,7 @@ public class OfficeComputerManager : MonoBehaviour
 
     public void ViewDeliveryDetails()
     {
-        if (gameplayManager.HasCurrentTarget)
+        if (gameplayManager.HasCurrentTarget())
         {
             DisplayDetails();
         }
@@ -135,7 +135,7 @@ public class OfficeComputerManager : MonoBehaviour
     {
         if (gameplayManager != null)
         {
-            if (gameplayManager.HasCurrentTarget)
+            if (gameplayManager.HasCurrentTarget())
             {
                 string nextDestination = "";
                 if (gameplayManager.NextDeliveryLocation == "CLA")
