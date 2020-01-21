@@ -11,108 +11,53 @@ namespace Assets.Scripts.Behind_The_Scenes
     public class Message
     {
         static string[] URGENCY_STATUS = { "Normal", "Expedited", "Urgent" };
-
-        [SerializeField]
-        string recipient;
-        [SerializeField]
-        string sender;
-        [SerializeField]
-        string messageBody;
-        [SerializeField]
-        string urgency;
-        [SerializeField]
-        int urgencyIndex;
-        [SerializeField]
-        bool isDelivered;
-
-        [SerializeField]
-        int messageID;
+        
 
         // For debugging purposes
         string filepath;
 
-        public Message(int i, string r, string s, string m, int u, bool d)
+        public Message(int i, string r, string s, string m, int u, bool d, bool h)
         {
-            messageID = i;
-            recipient = r;
-            sender = s;
-            messageBody = m;
-            urgencyIndex = u;
-            urgency = URGENCY_STATUS[u];
-            isDelivered = d;
+            MessageID = i;
+            Recipient = r;
+            Sender = s;
+            MessageBody = m;
+            UrgencyIndex = u;
+            HasBeenDelivered = d;
         }
 
         // Deep Copy Constructor
         public Message(Message m)
         {
-            messageID = m.ID;
-            recipient = m.Recipient;
-            sender = m.Sender;
-            messageBody = m.MessageBody;
-            urgency = m.Urgency;
-            urgencyIndex = m.UrgencyIndex;
-            isDelivered = m.HasBeenDelivered;
+            MessageID = m.MessageID;
+            Recipient = m.Recipient;
+            Sender = m.Sender;
+            MessageBody = m.MessageBody;
+            UrgencyIndex = m.UrgencyIndex;
+            HasBeenDelivered = m.HasBeenDelivered;
         }
+        
+        public int MessageID { get; private set; }
 
-        public int ID
-        {
-            get
-            {
-                return messageID;
-            }
-        }
+        public string Recipient { get; private set; }
 
-        public string Recipient
-        {
-            get
-            {
-                return recipient;
-            }
-        }
+        public string Sender { get; private set; }
 
-        public string Sender
-        {
-            get
-            {
-                return sender;
-            }
-        }
-
-        public string MessageBody
-        {
-            get
-            {
-                return messageBody;
-            }
-        }
+        public string MessageBody { get; private set; }
 
         public string Urgency
         {
             get
             {
-                return URGENCY_STATUS[urgencyIndex];
+                return URGENCY_STATUS[UrgencyIndex];
             }
         }
 
-        public int UrgencyIndex
-        {
-            get
-            {
-                return urgencyIndex;
-            }
-        }
+        public int UrgencyIndex { get; private set; }
 
-        public bool HasBeenDelivered
-        {
-            get
-            {
-                return isDelivered;
-            }
-            set
-            {
-                isDelivered = value;
-            }
-        }
+        public bool HasBeenDelivered { get; set; }
+
+        public bool IsOnHold { get; set; }
 
         /// <summary>
         /// Helps parse the contents read in from the file into a Message object
@@ -149,7 +94,7 @@ namespace Assets.Scripts.Behind_The_Scenes
                 }
             }
             
-            return new Message(id, recipient, sender, message, urgencyIndex, false);
+            return new Message(id, recipient, sender, message, urgencyIndex, false, false);
         }
 
         /// <summary>
@@ -161,10 +106,11 @@ namespace Assets.Scripts.Behind_The_Scenes
         /// <param name="u">Urgency</param>
         /// <param name="d">Indicates if the message was delivered</param>
         /// <returns></returns>
-        public static Message ParseMessage(int id, string r, string s, string m, string u, bool d)
+        public static Message ParseMessage(int id, string r, string s, string m, string u, bool d, bool h)
         {
             Message thisMessage = ParseMessage(id, r, s, m, u);
             thisMessage.HasBeenDelivered = d;
+            thisMessage.IsOnHold = h;
 
             return thisMessage;
         }

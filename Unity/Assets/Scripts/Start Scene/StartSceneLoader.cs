@@ -42,9 +42,10 @@ public class StartSceneLoader : MonoBehaviour
             startNPC.GetComponent<SpriteRenderer>().sprite = sprite_NPCLeft;
             npcManager.sprite_PlayerDown = sprite_PlayerDown;
 
-            npcManager.MoveNPC(true);
-            npcManager.StartDialogue();
-            npcManager.MoveNPC(false);
+            // Temporarily disabled: NPC enters, talks, exits
+            // npcManager.MoveNPC(true);
+            // npcManager.StartDialogue();
+            // npcManager.MoveNPC(false);
 
             SceneManager.sceneLoaded -= OnSceneWasLoaded;
         }

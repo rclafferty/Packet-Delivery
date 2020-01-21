@@ -1167,4 +1167,5 @@ MonoBehaviour:
   option1Button: {fileID: 1650502387}
   option1Text: {fileID: 474408321}
   nextSceneName: office
+  introDialogueText: {fileID: 4900000, guid: bea156b240ee89e4f9cb7076235aa597, type: 3}
   sprite_PlayerDown: {fileID: 21300002, guid: 784ae767b816a8744bf898998c8ff039, type: 3}

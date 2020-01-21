@@ -82,12 +82,16 @@ public class OfficeComputerManager : MonoBehaviour
                 {
                     gameplayManager.GetStartingMessage();
                     LetterManager.isFirstLetter = false;
+                    Debug.Log("GameplayManager Current Target 3 ? " + (gameplayManager.CurrentTargetMessage != null));
                 }
                 else
                 {
                     gameplayManager.GetNextMessage();
+                    Debug.Log("GameplayManager Current Target 1 ? " + (gameplayManager.CurrentTargetMessage != null));
                 }
             }
+
+            Debug.Log("GameplayManager Current Target 2 ? " + (gameplayManager.CurrentTargetMessage != null));
 
             // TODO: Display the message details
             DisplayDetails(systemMessage);
@@ -97,6 +101,7 @@ public class OfficeComputerManager : MonoBehaviour
     void DisplayDetails(in string systemMessage)
     {
         Message currentMessage = gameplayManager.CurrentTargetMessage;
+        Debug.Log("Current Message ? " + (currentMessage != null));
         string senderLine = "Sender: " + currentMessage.Sender;
         string receiverLine = "Recipient: " + currentMessage.Recipient;
         string bodyLine = "\n" + currentMessage.MessageBody;

@@ -103,7 +103,7 @@ public class GameplayManager : MonoBehaviour
         }
 
         letterManager = lm;
-        RemainingTasks = letterManager.RemainingLetters;
+        RemainingTasks = letterManager.RemainingLetterCount;
     }
     
     public Message CurrentTargetMessage
@@ -180,7 +180,7 @@ public class GameplayManager : MonoBehaviour
     {
         get
         {
-            RemainingTasks = letterManager.RemainingLetters;
+            RemainingTasks = letterManager.RemainingLetterCount;
             Debug.Log(RemainingTasks + " remaining letters");
             return (RemainingTasks > 0);
         }
