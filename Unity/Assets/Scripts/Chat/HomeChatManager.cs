@@ -12,21 +12,15 @@ public class HomeChatManager : MonoBehaviour
     GameplayManager gameplayManager;
     LevelManager levelManager;
 
-    [SerializeField]
-    EventSystem eventSystem;
+    [SerializeField] EventSystem eventSystem;
 
-    [SerializeField]
-    Text chatText;
+    [SerializeField] Text chatText;
 
-    [SerializeField]
-    Button option1Button;
-    [SerializeField]
-    Text option1Text;
+    [SerializeField] Button option1Button;
+    [SerializeField] Text option1Text;
 
-    [SerializeField]
-    Button option2Button;
-    [SerializeField]
-    Text option2Text;
+    [SerializeField] Button option2Button;
+    [SerializeField] Text option2Text;
 
     List<Person> people;
 
@@ -63,14 +57,6 @@ public class HomeChatManager : MonoBehaviour
     {
         gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-
-        chatText = GameObject.Find("ChatText").GetComponent<Text>();
-        option1Text = GameObject.Find("Option1Text").GetComponent<Text>();
-        option1Button = GameObject.Find("Option1Button").GetComponent<Button>();
-        option2Text = GameObject.Find("Option2Text").GetComponent<Text>();
-        option2Button = GameObject.Find("Option2Button").GetComponent<Button>();
-
-        eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
     }
 
     void StartTextAndButtons()

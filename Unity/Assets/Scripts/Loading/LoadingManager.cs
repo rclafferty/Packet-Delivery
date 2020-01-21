@@ -10,11 +10,9 @@ public class LoadingManager : MonoBehaviour
     [SerializeField] LetterManager letterManager;
     [SerializeField] LevelManager levelManager;
     [SerializeField] MusicManager musicManager;
-    // [SerializeField] PlayerController playerController;
     [SerializeField] RespawnManager spawnManager;
     [SerializeField] StartSceneLoader startSceneLoader;
     [SerializeField] Timer timer;
-    // [SerializeField] UpgradeManager upgradeManager;
 
     [SerializeField] AudioClip music;
 
@@ -58,7 +56,6 @@ public class LoadingManager : MonoBehaviour
         spawnManager.name = "SpawnManager";
         startSceneLoader.name = "StartSceneLoader";
         timer.name = "Timer";
-        // upgradeManager.name = "UpgradeManager";
     }
 
     void LinkManagersAndInitializeValues()

@@ -15,13 +15,7 @@ public class StartSceneLoader : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Load Prefabs
-        // startNPC = Resources.Load<GameObject>("Prefabs/StartingNPC");
-        // startNPC = GameObject.Find("Starting NPC");
 
-        // Instantiate prefabs
-
-        // Set a OnSceneWasLoaded event
     }
 
     // Update is called once per frame
