@@ -21,7 +21,7 @@ public class WorkUIManager : MonoBehaviour
 
     Text screenText;
 
-    Message currentMessage;
+    Letter currentMessage;
 
     const string SPACING = "\n\n";
 
@@ -143,7 +143,7 @@ public class WorkUIManager : MonoBehaviour
         currentCoroutine = StartCoroutine(WriteText(text));
     }
 
-    string DisplayMessage(Message m)
+    string DisplayMessage(Letter m)
     {
         const string NONE = "None";
 

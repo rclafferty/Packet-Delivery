@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Assets.Scripts.Behind_The_Scenes
 {
     [Serializable]
-    public class Message
+    public class Letter
     {
         static string[] URGENCY_STATUS = { "Normal", "Expedited", "Urgent" };
         
@@ -16,7 +16,7 @@ namespace Assets.Scripts.Behind_The_Scenes
         // For debugging purposes
         string filepath;
 
-        public Message(int i, string r, string s, string m, int u, bool d, bool h)
+        public Letter(int i, string r, string s, string m, int u, bool d, bool h)
         {
             MessageID = i;
             Recipient = r;
@@ -27,7 +27,7 @@ namespace Assets.Scripts.Behind_The_Scenes
         }
 
         // Deep Copy Constructor
-        public Message(Message m)
+        public Letter(Letter m)
         {
             MessageID = m.MessageID;
             Recipient = m.Recipient;
@@ -67,7 +67,7 @@ namespace Assets.Scripts.Behind_The_Scenes
         /// <param name="m">Message body</param>
         /// <param name="u">Urgency</param>
         /// <returns></returns>
-        public static Message ParseMessage(int id, string r, string s, string m, string u)
+        public static Letter ParseMessage(int id, string r, string s, string m, string u)
         {
             string[] tempParts;
             
@@ -94,7 +94,7 @@ namespace Assets.Scripts.Behind_The_Scenes
                 }
             }
             
-            return new Message(id, recipient, sender, message, urgencyIndex, false, false);
+            return new Letter(id, recipient, sender, message, urgencyIndex, false, false);
         }
 
         /// <summary>
@@ -106,9 +106,9 @@ namespace Assets.Scripts.Behind_The_Scenes
         /// <param name="u">Urgency</param>
         /// <param name="d">Indicates if the message was delivered</param>
         /// <returns></returns>
-        public static Message ParseMessage(int id, string r, string s, string m, string u, bool d, bool h)
+        public static Letter ParseMessage(int id, string r, string s, string m, string u, bool d, bool h)
         {
-            Message thisMessage = ParseMessage(id, r, s, m, u);
+            Letter thisMessage = ParseMessage(id, r, s, m, u);
             thisMessage.HasBeenDelivered = d;
             thisMessage.IsOnHold = h;
 

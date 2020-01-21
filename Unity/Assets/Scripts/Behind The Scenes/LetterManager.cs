@@ -73,14 +73,14 @@ public class LetterManager : MonoBehaviour
 
             message = sb.ToString();
 
-            Message newLetter = Message.ParseMessage(listOfLetters.Count, recipientLine, senderLine, message, urgencyLine);
+            Letter newLetter = Letter.ParseMessage(listOfLetters.Count, recipientLine, senderLine, message, urgencyLine);
             listOfLetters.Add(newLetter);
         }
 
         RemainingLetterCount = listOfLetters.Count;
     }
 
-    public Message GetNextMessage()
+    public Letter GetNextMessage()
     {
         // not initialized
         if (listOfLetters == null)
@@ -95,8 +95,8 @@ public class LetterManager : MonoBehaviour
         }
 
         // Deliver letters in order
-        Message thisLetter = null;
-        foreach (Message letter in listOfLetters)
+        Letter thisLetter = null;
+        foreach (Letter letter in listOfLetters)
         {
             if (!letter.HasBeenDelivered && !letter.IsOnHold)
             {
@@ -111,9 +111,9 @@ public class LetterManager : MonoBehaviour
         return thisLetter;
     }
 
-    public Message GetStartingMessage()
+    public Letter GetStartingMessage()
     {
-        foreach (Message letter in listOfLetters)
+        foreach (Letter letter in listOfLetters)
         {
             if (letter.Recipient.ToLower() == "Uncle Doug".ToLower())
             {
@@ -130,7 +130,7 @@ public class LetterManager : MonoBehaviour
     /// </summary>
     /// <param name="n">Number of messages to retrieve</param>
     /// <returns></returns>
-    public Message[] GetNextMessages(int n)
+    public Letter[] GetNextMessages(int n)
     {
         int numberOfMessages = n;
 
@@ -146,7 +146,7 @@ public class LetterManager : MonoBehaviour
         }
         // else numberOfMessages <= remaining and numberOfMessages > 0, do nothing special
 
-        Message[] toReturn = new Message[numberOfMessages];
+        Letter[] toReturn = new Letter[numberOfMessages];
 
         for (int i = 0; i < numberOfMessages; i++)
         {
@@ -158,7 +158,7 @@ public class LetterManager : MonoBehaviour
 
     public void ClearOnHold()
     {
-        foreach (Message letter in listOfLetters)
+        foreach (Letter letter in listOfLetters)
         {
             letter.IsOnHold = false;
         }

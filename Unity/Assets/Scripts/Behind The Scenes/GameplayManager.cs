@@ -21,7 +21,7 @@ public class GameplayManager : MonoBehaviour
     // Other necessary managers
     [SerializeField] LetterManager letterManager;
 
-    [SerializeField] Message currentTargetMessage;
+    [SerializeField] Letter currentTargetMessage;
 
     int obstacleTilemapIndex;
 
@@ -106,7 +106,7 @@ public class GameplayManager : MonoBehaviour
         RemainingTasks = letterManager.RemainingLetterCount;
     }
     
-    public Message CurrentTargetMessage
+    public Letter CurrentTargetMessage
     {
         get
         {

@@ -40,7 +40,7 @@ public class OfficeUIManager : MonoBehaviour
     [SerializeField]
     Text errorText;
 
-    Message currentMessage;
+    Letter currentMessage;
 
     // Start is called before the first frame update
     void Start()

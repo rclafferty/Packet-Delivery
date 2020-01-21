@@ -100,7 +100,7 @@ public class OfficeComputerManager : MonoBehaviour
 
     void DisplayDetails(in string systemMessage)
     {
-        Message currentMessage = gameplayManager.CurrentTargetMessage;
+        Letter currentMessage = gameplayManager.CurrentTargetMessage;
         Debug.Log("Current Message ? " + (currentMessage != null));
         string senderLine = "Sender: " + currentMessage.Sender;
         string receiverLine = "Recipient: " + currentMessage.Recipient;
@@ -117,7 +117,7 @@ public class OfficeComputerManager : MonoBehaviour
 
     void DisplayDetails()
     {
-        Message currentMessage = gameplayManager.CurrentTargetMessage;
+        Letter currentMessage = gameplayManager.CurrentTargetMessage;
         string senderLine = "Sender: " + currentMessage.Sender;
         string receiverLine = "Recipient: " + currentMessage.Recipient;
         string bodyLine = "\n" + currentMessage.MessageBody;
