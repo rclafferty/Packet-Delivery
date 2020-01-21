@@ -73,6 +73,7 @@ public class GeneralChatManager : MonoBehaviour
         // Dynamic objects -- must look up at runtime
         gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        lookupManager = GameObject.Find("LookupAgencyManager").GetComponent<LookupAgencyManager>();
     }
 
     void SetupBySceneName()
@@ -291,7 +292,8 @@ public class GeneralChatManager : MonoBehaviour
         string target = gameplayManager.CurrentTarget.ToLower();
         if (!lookupManager.HasLoadedPopulationList)
         {
-            lookupManager.LoadPopulationList();
+            lookupManager.LoadPopulationListFromTextAsset();
+            // lookupManager.LoadPopulationList();
         }
 
         if (inputField.text.ToLower() == target)
@@ -320,7 +322,7 @@ public class GeneralChatManager : MonoBehaviour
                 GameplayManager.DeliveryDirections nextStep;
                 nextStep.building = "house";
                 nextStep.color = "yellow";
-                nextStep.mapDirection = "northeast";
+                nextStep.mapDirection = lookupManager.LOCATION_TEXT[lookupManager.LocationLookup(target)];
 
                 gameplayManager.NextDeliveryLocation = "Home";
 

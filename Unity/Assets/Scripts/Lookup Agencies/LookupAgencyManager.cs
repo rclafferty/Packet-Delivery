@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class LookupAgencyManager : MonoBehaviour
 {
+    [SerializeField] TextAsset[] populationListOptions;
+
     public readonly string[] LOCATION_TEXT = { "Northeast", "Southwest" };
 
     static LookupAgencyManager instance = null;
@@ -31,8 +33,8 @@ public class LookupAgencyManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        LoadPopulationList();
         gameObject.name = "LookupAgencyManager";
+        LoadPopulationListFromTextAsset();
     }
 
     // Update is called once per frame
@@ -52,17 +54,15 @@ public class LookupAgencyManager : MonoBehaviour
         }
     }
 
-    public void LoadPopulationList()
+    public void LoadPopulationListFromTextAsset()
     {
-        const int MIN_INDEX = 0;
-        const int MAX_INDEX = 4;
+        if (populationListOptions == null)
+            // Invalid
+            return;
 
-        int index = Mathf.FloorToInt(Random.Range(MIN_INDEX, MAX_INDEX));
-
-        string filepath = "PopulationList/populationList" + index + "_with_index.txt";
-#if UNITY_EDITOR
-        filepath = "Assets/Resources/" + filepath;
-#endif
+        if (populationListOptions.Length == 0)
+            // Invalid
+            return;
 
         listOfPeople = new List<Person>();
         peopleByLocation = new List<Person>[LOCATION_TEXT.Length];
@@ -70,32 +70,27 @@ public class LookupAgencyManager : MonoBehaviour
         {
             peopleByLocation[i] = new List<Person>();
         }
+        
+        // Temporariliy disabled: Get random list
+        // int index = Mathf.FloorToInt(Random.Range(0, populationListOptions.Length));
 
-        Person temp;
+        // Get first list
+        int index = 0;
 
-        string line;
-        string[] parts;
-
-        string location = "";
-        int locationIndex = 0;
-
-        using (StreamReader sr = new StreamReader(filepath))
+        string[] populationListLines = populationListOptions[index].text.Split('\n');
+        int numberOfPeople = System.Convert.ToInt32(populationListLines[0]);
+        for (int i = 1; i < numberOfPeople; i++)
         {
-            int numberOfPeople = System.Convert.ToInt32(sr.ReadLine());
+            string[] lineParts = populationListLines[i].Split('\t');
+            string name = lineParts[0];
+            int locationIndex = System.Convert.ToInt32(lineParts[1]);
+            string location = LOCATION_TEXT[locationIndex];
 
-            for (int i = 0; i < numberOfPeople; i++)
-            {
-                line = sr.ReadLine();
-                parts = line.Split('\t');
+            Person thisPerson = new Person(name, location, locationIndex);
+            listOfPeople.Add(thisPerson);
 
-                name = parts[0];
-                locationIndex = System.Convert.ToInt32(parts[1]);
-                location = LOCATION_TEXT[locationIndex];
-
-                temp = new Person(name, location, locationIndex);
-                listOfPeople.Add(temp);
-                peopleByLocation[locationIndex].Add(temp);
-            }
+            Debug.Log("people list ? " + (peopleByLocation != null) + ", i = " + i);
+            peopleByLocation[locationIndex].Add(thisPerson);
         }
     }
 
@@ -120,6 +115,7 @@ public class LookupAgencyManager : MonoBehaviour
             if (lower == directionLower)
             {
                 // Return the list of people at that location
+                Debug.Log("people list ? " + (peopleByLocation != null) + ", i = " + i);
                 return peopleByLocation[i];
             }
         }

@@ -74,6 +74,19 @@ public class GameplayManager : MonoBehaviour
                 }
             }
 
+            GameObject[] homeTilemapObjects = GameObject.FindGameObjectsWithTag("HomeTilemap");
+            foreach (GameObject g in homeTilemapObjects)
+            {
+                if (NextStep.building == "house" && g.name == "Home (" + (obstacleTilemapIndex + 1) + ")")
+                {
+                    continue;
+                }
+                else
+                {
+                    g.SetActive(false);
+                }
+            }
+
             int spawnIndex = -1;
             for (int i = 0; i < locations.Length; i++)
             {

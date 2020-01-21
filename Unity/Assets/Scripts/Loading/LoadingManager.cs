@@ -12,6 +12,7 @@ public class LoadingManager : MonoBehaviour
     [SerializeField] MusicManager musicManager;
     [SerializeField] RespawnManager spawnManager;
     [SerializeField] StartSceneLoader startSceneLoader;
+    [SerializeField] LookupAgencyManager lookupAgencyManager;
     [SerializeField] Timer timer;
 
     [SerializeField] AudioClip music;
@@ -55,6 +56,7 @@ public class LoadingManager : MonoBehaviour
         musicManager.name = "MusicManager";
         spawnManager.name = "SpawnManager";
         startSceneLoader.name = "StartSceneLoader";
+        lookupAgencyManager.name = "LookupAgencyManager";
         timer.name = "Timer";
     }
 

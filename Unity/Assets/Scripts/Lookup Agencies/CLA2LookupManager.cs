@@ -16,7 +16,8 @@ public class CLA2LookupManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        lookupManager.LoadPopulationList();
+        lookupManager.LoadPopulationListFromTextAsset();
+        // lookupManager.LoadPopulationList();
         listOfPeople = lookupManager.CLAListOfPeople;
 
         Debug.Log("List of people is null ? " + (listOfPeople == null));
