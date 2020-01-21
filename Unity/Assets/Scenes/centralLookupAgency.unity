@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -680,6 +680,46 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5320918329566020836, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: inputField
+      value: 
+      objectReference: {fileID: 1935031413}
+    - target: {fileID: 1983842719592289773, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: lookupManager
+      value: 
+      objectReference: {fileID: 3597648803525239076}
+    - target: {fileID: 1983842719592289773, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: eventSystem
+      value: 
+      objectReference: {fileID: 204124475}
+    - target: {fileID: 1983842719592289773, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: chatText
+      value: 
+      objectReference: {fileID: 561550214}
+    - target: {fileID: 1983842719592289773, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: option1Button
+      value: 
+      objectReference: {fileID: 1160346378}
+    - target: {fileID: 1983842719592289773, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: option1Text
+      value: 
+      objectReference: {fileID: 1255707428}
+    - target: {fileID: 1983842719592289773, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: option2Button
+      value: 
+      objectReference: {fileID: 1158793964}
+    - target: {fileID: 1983842719592289773, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: option2Text
+      value: 
+      objectReference: {fileID: 926892268}
+    - target: {fileID: 1983842719592289773, guid: 1c8503f179b8da3478bd8801c074af09,
         type: 3}
       propertyPath: inputField
       value: 

@@ -49,8 +49,6 @@ public class LetterManager : MonoBehaviour
         string message = "none";
 
         string[] parts = null;
-        string[] lineParts = null;
-        string line = "";
 
         StringBuilder sb = new StringBuilder();
 
@@ -58,7 +56,7 @@ public class LetterManager : MonoBehaviour
         {
             parts = letter.text.Split('\n');
 
-            // Get message parts
+            // Get message header parts
             recipientLine = parts[0].Trim();
             senderLine = parts[1].Trim();
             urgencyLine = parts[2].Trim();

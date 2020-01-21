@@ -13,7 +13,7 @@ public class GeneralChatManager : MonoBehaviour
 {
     GameplayManager gameplayManager;
     LevelManager levelManager;
-    LookupAgencyManager lookupManager;
+    [SerializeField] LookupAgencyManager lookupManager;
 
     [SerializeField] EventSystem eventSystem;
 
@@ -70,19 +70,9 @@ public class GeneralChatManager : MonoBehaviour
 
     void FindObjectsForScene()
     {
+        // Dynamic objects -- must look up at runtime
         gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-        lookupManager = GameObject.Find("LookupAgencyManager").GetComponent<LookupAgencyManager>();
-
-        chatText = GameObject.Find("ChatText").GetComponent<Text>();
-        option1Text = GameObject.Find("Option1Text").GetComponent<Text>();
-        option1Button = GameObject.Find("Option1Button").GetComponent<Button>();
-        option2Text = GameObject.Find("Option2Text").GetComponent<Text>();
-        option2Button = GameObject.Find("Option2Button").GetComponent<Button>();
-
-        eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
-
-        inputField = GameObject.Find("InputField").GetComponent<InputField>();
     }
 
     void SetupBySceneName()
