@@ -5,14 +5,16 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     const float DEAD_VALUE = 0.4f;
-    const float SPEED = 8f;
+    const float SPEED = 5f;
     Rigidbody2D thisRigidbody;
 
     bool activateSpeedModifier;
     float speedModifier;
 
-    [SerializeField]
-    Animator playerAnimator;
+    [SerializeField] Animator playerAnimator;
+
+    string horizontalFloatName = "HorizontalValue";
+    string verticalFloatName = "VerticalValue";
 
     enum Direction {
         Idle,
@@ -58,8 +60,15 @@ public class PlayerController : MonoBehaviour
         // Move
         thisRigidbody.velocity = new Vector2(xMovement * SPEED * speedModifier, yMovement * SPEED * speedModifier);
 
+        if (thisRigidbody.velocity.y > 0.1f)
+        {
+            Debug.Log("Moving up");
+        }
+
+        Animate(thisRigidbody.velocity);
+
         // Animate
-        if (yMovement > DEAD_VALUE)
+        /* if (yMovement > DEAD_VALUE)
         {
             Animate(Direction.Up);
         }
@@ -78,7 +87,13 @@ public class PlayerController : MonoBehaviour
         else
         {
             Animate(Direction.Idle);
-        }
+        } */
+    }
+
+    void Animate(Vector2 direction)
+    {
+        playerAnimator.SetFloat(horizontalFloatName, direction.x);
+        playerAnimator.SetFloat(verticalFloatName, direction.y);
     }
 
     void Animate(Direction direction)

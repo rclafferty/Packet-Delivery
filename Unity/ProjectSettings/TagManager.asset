@@ -19,7 +19,7 @@ TagManager:
   - 
   - PostProcessing
   - Characters
-  - 
+  - Minimap
   - 
   - 
   - 
@@ -59,4 +59,7 @@ TagManager:
     locked: 0
   - name: Characters
     uniqueID: 940787811
+    locked: 0
+  - name: Minimap
+    uniqueID: 2752362229
     locked: 0

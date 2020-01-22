@@ -147,22 +147,22 @@ public class GeneralChatManager : MonoBehaviour
         {
             if (location == "CLA")
             {
-                chatText_message = "Please visit the Central Lookup Agency for further directions.";
+                chatText_message = "Please visit the Central Lookup Agency for further directions";
             }
             if (location == "LLA NE")
             {
-                chatText_message = "Please visit the Northeast Local Lookup Agency for further directions.";
+                chatText_message = FormatChatMessage("Local Lookup Agency", "northeast");
             }
             else if (location == "LLA SW")
             {
-                chatText_message = "Please visit the Southwest Local Lookup Agency for further directions.";
+                chatText_message = FormatChatMessage("Local Lookup Agency", "southwest");
             }
-            else // if (location == "Office")
+            else // if (location == "Office" || location == "Home")
             {
                 GameplayManager.DeliveryDirections nextStep;
                 nextStep = gameplayManager.NextStep;
 
-                chatText_message = "Please visit the " + nextStep.color + " " + nextStep.building + " on the " + nextStep.mapDirection + " side of town for your next step.";
+                chatText_message = FormatChatMessage(nextStep.color + " " + nextStep.building, nextStep.mapDirection);
             }
 
             option1_message = "Thank you for your help.";
@@ -176,6 +176,16 @@ public class GeneralChatManager : MonoBehaviour
                 ShowText();
             };
         }
+    }
+
+    string FormatChatMessage(string building, string direction)
+    {
+        const string chatTemplate = "Please visit the # on the ## side of town for your next step.";
+        string message = chatTemplate;
+        message = message.Replace("##", direction);
+        message = message.Replace("#", building);
+
+        return message;
     }
 
     public void ShowText()

@@ -75,7 +75,7 @@ public class LookupAgencyManager : MonoBehaviour
 
         string[] populationListLines = populationListOptions[index].text.Split('\n');
         int numberOfPeople = System.Convert.ToInt32(populationListLines[0]);
-        for (int i = 1; i < numberOfPeople; i++)
+        for (int i = 1; i <= numberOfPeople; i++)
         {
             string[] lineParts = populationListLines[i].Split('\t');
             string name = lineParts[0];
@@ -84,9 +84,9 @@ public class LookupAgencyManager : MonoBehaviour
 
             Person thisPerson = new Person(name, location, locationIndex);
             listOfPeople.Add(thisPerson);
-
-            Debug.Log("people list ? " + (peopleByLocation != null) + ", i = " + i);
+            
             peopleByLocation[locationIndex].Add(thisPerson);
+            Debug.Log(thisPerson.Name + " " + listOfPeople.Count);
         }
     }
 
@@ -111,7 +111,6 @@ public class LookupAgencyManager : MonoBehaviour
             if (lower == directionLower)
             {
                 // Return the list of people at that location
-                Debug.Log("people list ? " + (peopleByLocation != null) + ", i = " + i);
                 return peopleByLocation[i];
             }
         }
