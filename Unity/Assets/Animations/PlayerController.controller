@@ -63,7 +63,7 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
-  - m_Name: Vertical Value
+  - m_Name: VerticalValue
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -114,7 +114,7 @@ BlendTree:
     m_DirectBlendParameter: HorizontalValue
     m_Mirror: 0
   - serializedVersion: 2
-    m_Motion: {fileID: 7400000, guid: e92316b5dd2f1044eba68d742a3bf1a6, type: 2}
+    m_Motion: {fileID: 7400000, guid: ba889d742bc741d42b59debe1b38953e, type: 2}
     m_Threshold: 0.25
     m_Position: {x: 0, y: 1}
     m_TimeScale: 1
@@ -146,7 +146,7 @@ BlendTree:
     m_DirectBlendParameter: HorizontalValue
     m_Mirror: 0
   m_BlendParameter: HorizontalValue
-  m_BlendParameterY: Vertical Value
+  m_BlendParameterY: VerticalValue
   m_MinThreshold: 0
   m_MaxThreshold: 1
   m_UseAutomaticThresholds: 1

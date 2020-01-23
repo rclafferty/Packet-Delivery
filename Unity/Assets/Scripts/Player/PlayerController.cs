@@ -66,85 +66,12 @@ public class PlayerController : MonoBehaviour
         }
 
         Animate(thisRigidbody.velocity);
-
-        // Animate
-        /* if (yMovement > DEAD_VALUE)
-        {
-            Animate(Direction.Up);
-        }
-        else if (yMovement < 0 - DEAD_VALUE)
-        {
-            Animate(Direction.Down);
-        }
-        else if (xMovement < 0 - DEAD_VALUE)
-        {
-            Animate(Direction.Left);
-        }
-        else if (xMovement > DEAD_VALUE)
-        {
-            Animate(Direction.Right);
-        }
-        else
-        {
-            Animate(Direction.Idle);
-        } */
     }
 
     void Animate(Vector2 direction)
     {
         playerAnimator.SetFloat(horizontalFloatName, direction.x);
         playerAnimator.SetFloat(verticalFloatName, direction.y);
-    }
-
-    void Animate(Direction direction)
-    {
-        if (direction == playerDirection)
-            return;
-
-        playerDirection = direction;
-        if (playerDirection == Direction.Idle)
-        {
-            // Set all release triggers
-            playerAnimator.SetTrigger("UpReleaseTrigger");
-            playerAnimator.SetTrigger("DownReleaseTrigger");
-            playerAnimator.SetTrigger("LeftReleaseTrigger");
-            playerAnimator.SetTrigger("RightReleaseTrigger");
-        }
-        else
-        {
-            // Reset all other triggers
-            playerAnimator.ResetTrigger("UpTrigger");
-            playerAnimator.ResetTrigger("DownTrigger");
-            playerAnimator.ResetTrigger("LeftTrigger");
-            playerAnimator.ResetTrigger("RightTrigger");
-
-            if (playerDirection == Direction.Up)
-            {
-                // Set up trigger
-                playerAnimator.SetTrigger("UpTrigger");
-            }
-            else if (playerDirection == Direction.Down)
-            {
-                // Set down trigger
-                playerAnimator.SetTrigger("DownTrigger");
-            }
-            else if (playerDirection == Direction.Left)
-            {
-                // Set left trigger
-                playerAnimator.SetTrigger("LeftTrigger");
-            }
-            else if (playerDirection == Direction.Right)
-            {
-                // Set right trigger
-                playerAnimator.SetTrigger("RightTrigger");
-            }
-
-            // Reset release triggers
-            playerAnimator.ResetTrigger("UpReleaseTrigger");
-            playerAnimator.ResetTrigger("DownReleaseTrigger");
-            playerAnimator.ResetTrigger("LeftReleaseTrigger");
-            playerAnimator.ResetTrigger("RightReleaseTrigger");
-        }
     }
 
 #if UNITY_EDITOR
