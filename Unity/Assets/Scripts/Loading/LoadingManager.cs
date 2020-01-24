@@ -24,10 +24,10 @@ public class LoadingManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Loading game...");
+        // Debug.Log("Loading game...");
         
         LoadGame_Method();
-        Debug.Log("Done");
+        // Debug.Log("Done");
     }
 
     // Update is called once per frame
@@ -38,7 +38,7 @@ public class LoadingManager : MonoBehaviour
 
     void LoadGame_Method()
     {
-        Debug.Log("Method, not coroutine");
+        // Debug.Log("Method, not coroutine");
 
         AssignInstantiatedObjectNames();
         LinkManagersAndInitializeValues();

@@ -59,12 +59,7 @@ public class PlayerController : MonoBehaviour
 
         // Move
         thisRigidbody.velocity = new Vector2(xMovement * SPEED * speedModifier, yMovement * SPEED * speedModifier);
-
-        if (thisRigidbody.velocity.y > 0.1f)
-        {
-            Debug.Log("Moving up");
-        }
-
+        
         Animate(thisRigidbody.velocity);
     }
 

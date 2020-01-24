@@ -26,8 +26,8 @@ public class GameplayManager : MonoBehaviour
     int obstacleTilemapIndex;
 
     [SerializeField] public string indoorLocation;
-    string[] locations = { "office", "centralLookupAgency", "localLookupAgencyNE", "localLookupAgencySW" };
-    string[] spawnpointNames = { "Office Spawnpoint", "CLA Spawnpoint", "LLA NE Spawnpoint", "LLA SW Spawnpoint" };
+    string[] locations = { "office", "centralLookupAgency", "localLookupAgencyNE", "localLookupAgencySW", "home" };
+    string[] spawnpointNames = { "Office Spawnpoint", "CLA Spawnpoint", "LLA NE Spawnpoint", "LLA SW Spawnpoint", "Home" };
 
     // Start is called before the first frame update
     void Start()
@@ -65,6 +65,35 @@ public class GameplayManager : MonoBehaviour
 
     }
 
+#if UNITY_EDITOR
+    public void DebugChangePlayerPosition(int locationIndex)
+    {
+        if (SceneManager.GetActiveScene().name != "town")
+            return;
+
+        string spawnpointName = spawnpointNames[locationIndex];
+        if (locationIndex == 4)
+        {
+            GameObject[] homeSpawnpoints = GameObject.FindGameObjectsWithTag("HomeSpawnpoint");
+            if (homeSpawnpoints.Length == 0)
+            {
+                Debug.Log("No spawnpoints");
+                return;
+            }
+            else if (homeSpawnpoints.Length == 1)
+            {
+                spawnpointName = homeSpawnpoints[0].name;
+            }
+            else
+            {
+                Debug.Log("OTI = " + obstacleTilemapIndex);
+                spawnpointName = homeSpawnpoints[obstacleTilemapIndex].name;
+            }
+        }
+        GameObject.Find("Player").transform.position = GameObject.Find(spawnpointName).transform.position;
+    }
+#endif
+
     void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)
     {
         if (thisScene.name == "town")
@@ -83,11 +112,65 @@ public class GameplayManager : MonoBehaviour
                 }
             }
 
-            Debug.Log("House ? " + (NextStep.building == "house"));
+            int spawnIndex = -1;
+
+            string locationName = "None";
+
+            if (indoorLocation == "home")
+            {
+                spawnIndex = -2;
+                string spawnpointName = "";
+                GameObject[] homeSpawnpoints = GameObject.FindGameObjectsWithTag("HomeSpawnpoint");
+                if (homeSpawnpoints.Length == 0)
+                {
+                    Debug.Log("No spawnpoints");
+                    // return;
+                    spawnpointName = "Office Spawnpoint";
+                }
+                else if (homeSpawnpoints.Length == 1)
+                {
+                    spawnpointName = homeSpawnpoints[0].name;
+                }
+                else
+                {
+                    Debug.Log("OTI = " + obstacleTilemapIndex);
+                    spawnpointName = homeSpawnpoints[obstacleTilemapIndex - 1].name;
+                }
+                GameObject.Find("Player").transform.position = GameObject.Find(spawnpointName).transform.position;
+                locationName = spawnpointName;
+            }
+            else
+            {
+                for (int i = 0; i < locations.Length; i++)
+                {
+                    if (indoorLocation == locations[i])
+                    {
+                        GameObject.Find("Player").transform.position = GameObject.Find(spawnpointNames[i]).transform.position;
+                        spawnIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            if (spawnIndex > 0)
+            {
+                locationName = spawnpointNames[spawnIndex];
+            }
+            Debug.Log("Spawn index = " + spawnIndex + ", Location = " + locationName);
+
+            // If entered an option not-yet accounted for (home, etc)
+            if (spawnIndex == -1)
+            {
+                // Spawn outside of office
+                int officeIndex = 0;
+                GameObject.Find("Player").transform.position = GameObject.Find(spawnpointNames[officeIndex]).transform.position;
+            }
+
+            // Debug.Log("House ? " + (NextStep.building == "house"));
             GameObject[] homeTilemapObjects = GameObject.FindGameObjectsWithTag("HomeTilemap");
             foreach (GameObject g in homeTilemapObjects)
             {
-                Debug.Log(g.name);
+                // Debug.Log(g.name);
                 if (NextStep.building == "house" && g.name == "Home (" + (obstacleTilemapIndex + 1) + ")")
                 {
                     continue;
@@ -96,25 +179,6 @@ public class GameplayManager : MonoBehaviour
                 {
                     g.SetActive(false);
                 }
-            }
-
-            int spawnIndex = -1;
-            for (int i = 0; i < locations.Length; i++)
-            {
-                if (indoorLocation == locations[i])
-                {
-                    GameObject.Find("Player").transform.position = GameObject.Find(spawnpointNames[i]).transform.position;
-                    spawnIndex = i;
-                    break;
-                }
-            }
-
-            // If entered an option not-yet accounted for (home, etc)
-            if (spawnIndex == -1)
-            {
-                // Spawn outside of office
-                int officeIndex = 0; 
-                GameObject.Find("Player").transform.position = GameObject.Find(spawnpointNames[officeIndex]).transform.position;
             }
         }
     }
@@ -148,7 +212,7 @@ public class GameplayManager : MonoBehaviour
                 currentTargetMessage = value;
                 CurrentTarget = currentTargetMessage.Recipient;
 
-                Debug.Log("Current target: " + CurrentTarget);
+                // Debug.Log("Current target: " + CurrentTarget);
             }
 
             string name = SceneManager.GetActiveScene().name.ToLower();
@@ -166,8 +230,8 @@ public class GameplayManager : MonoBehaviour
     {
         if (HasCurrentTarget())
         {
-            Debug.Log("LetterManager ? " + (letterManager != null));
-            Debug.Log("Current Message ? " + (currentTargetMessage != null));
+            // Debug.Log("LetterManager ? " + (letterManager != null));
+            // Debug.Log("Current Message ? " + (currentTargetMessage != null));
             letterManager.MarkMessageAsDelivered(currentTargetMessage.MessageID);
         }
 

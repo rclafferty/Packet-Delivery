@@ -86,7 +86,7 @@ public class LookupAgencyManager : MonoBehaviour
             listOfPeople.Add(thisPerson);
             
             peopleByLocation[locationIndex].Add(thisPerson);
-            Debug.Log(thisPerson.Name + " " + listOfPeople.Count);
+            // Debug.Log(thisPerson.Name + " " + listOfPeople.Count);
         }
     }
 

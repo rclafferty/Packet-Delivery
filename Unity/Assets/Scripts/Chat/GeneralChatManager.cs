@@ -162,6 +162,15 @@ public class GeneralChatManager : MonoBehaviour
                 GameplayManager.DeliveryDirections nextStep;
                 nextStep = gameplayManager.NextStep;
 
+                if (nextStep.mapDirection == "northeast")
+                {
+                    nextStep.mapDirection = "north";
+                }
+                if (nextStep.mapDirection == "southwest")
+                {
+                    nextStep.mapDirection = "south";
+                }
+
                 chatText_message = FormatChatMessage(nextStep.color + " " + nextStep.building, nextStep.mapDirection);
             }
 
@@ -219,7 +228,7 @@ public class GeneralChatManager : MonoBehaviour
 
         string location = gameplayManager.NextDeliveryLocation;
         string sceneName = SceneManager.GetActiveScene().name.ToLower();
-        Debug.Log("Location = " + location + "\tScene Name = " + sceneName);
+        // Debug.Log("Location = " + location + "\tScene Name = " + sceneName);
 
         bool isCurrentSpot = (
             (sceneName == "centrallookupagency") ||
