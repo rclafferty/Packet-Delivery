@@ -26,6 +26,9 @@ public class PlayerController : MonoBehaviour
 
     Direction playerDirection;
 
+    // Mobile-specific variables
+    Vector2 touchOrigin = -Vector2.one;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -43,8 +46,56 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float xMovement = Input.GetAxis("Horizontal");
-        float yMovement = Input.GetAxis("Vertical");
+        float xMovement = 0;
+        float yMovement = 0;
+
+#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
+        xMovement = Input.GetAxis("Horizontal");
+        yMovement = Input.GetAxis("Vertical");
+#else
+        if (Input.touchCount > 0)
+        {
+            Touch myTouch = Input.touches[0];
+            if (myTouch.phase == TouchPhase.Began)
+            {
+                touchOrigin = myTouch.position;
+            }
+            else if (myTouch.phase == TouchPhase.Ended)
+            {
+                touchOrigin = -Vector2.one;
+            }
+            else if (myTouch.phase == TouchPhase.Moved || myTouch.phase == TouchPhase.Stationary)
+            {
+                // Inside the bounds of the screen
+                Vector2 touchEnd = myTouch.position;
+                float x = touchEnd.x - touchOrigin.x;
+                float y = touchEnd.y - touchOrigin.y;
+                
+                if (Mathf.Abs(x) > Mathf.Abs(y))
+                {
+                    if (x > 0)
+                    {
+                        xMovement = 1;
+                    }
+                    else
+                    {
+                        xMovement = -1;
+                    }
+                }
+                else
+                {
+                    if (y > 0)
+                    {
+                        yMovement = 1;
+                    }
+                    else
+                    {
+                        yMovement = -1;
+                    }
+                }
+            }
+        }
+#endif
 
 #if UNITY_EDITOR
         if (Input.GetKey(KeyCode.LeftShift))

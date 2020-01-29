@@ -53,10 +53,20 @@ public class OfficeComputerManager : MonoBehaviour
     {
         if (!isComputerShown)
         {
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 ShowHideComputerCanvas(true);
             }
+#else
+            if (Input.touches.Length > 0)
+            {
+                if (Input.GetTouch(0).phase == TouchPhase.Stationary)
+                {
+                    ShowHideComputerCanvas(true);
+                }
+            }
+#endif
         }
     }
 

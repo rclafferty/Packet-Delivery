@@ -37,6 +37,8 @@ public class CheatManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.F1))
         {
             levelManager.LoadLevel("office");
@@ -69,5 +71,6 @@ public class CheatManager : MonoBehaviour
         {
             GameObject.Find("GameplayManager").GetComponent<GameplayManager>().DebugChangePlayerPosition(4);
         }
+#endif
     }
 }
