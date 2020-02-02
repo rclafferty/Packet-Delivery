@@ -49,6 +49,7 @@ public class Transition : MonoBehaviour
         if (newScene != "town")
         {
             gameplayManager.indoorLocation = newScene;
+            gameplayManager.lastOutdoorPosition = this.transform.position;
         }
 
         Vector3 playerPosition = player.transform.position;

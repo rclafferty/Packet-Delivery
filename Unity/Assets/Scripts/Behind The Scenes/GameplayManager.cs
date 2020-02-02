@@ -29,6 +29,8 @@ public class GameplayManager : MonoBehaviour
     string[] locations = { "office", "centralLookupAgency", "localLookupAgencyNE", "localLookupAgencySW", "home" };
     string[] spawnpointNames = { "Office Spawnpoint", "CLA Spawnpoint", "LLA NE Spawnpoint", "LLA SW Spawnpoint", "Home" };
 
+    public Vector2 lastOutdoorPosition;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -55,6 +57,8 @@ public class GameplayManager : MonoBehaviour
         GameplayTimer.StopTimerIfRunning();
 
         obstacleTilemapIndex++;
+
+        lastOutdoorPosition = new Vector2(-14, 11);
 
         SceneManager.sceneLoaded += OnSceneLoad;
     }
@@ -98,7 +102,7 @@ public class GameplayManager : MonoBehaviour
     {
         if (thisScene.name == "town")
         {
-            GameObject[] obstacleTilemapObjects = GameObject.FindGameObjectsWithTag("ObstacleTilemap");
+            /* GameObject[] obstacleTilemapObjects = GameObject.FindGameObjectsWithTag("ObstacleTilemap");
 
             foreach (GameObject tilemap in obstacleTilemapObjects)
             {
@@ -150,7 +154,7 @@ public class GameplayManager : MonoBehaviour
                         break;
                     }
                 }
-            }
+            } 
 
             if (spawnIndex > 0)
             {
@@ -179,7 +183,9 @@ public class GameplayManager : MonoBehaviour
                 {
                     g.SetActive(false);
                 }
-            }
+            } */
+
+            GameObject.Find("Player").transform.position = lastOutdoorPosition + (Vector2.down * 1);
         }
     }
 
