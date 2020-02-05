@@ -111,6 +111,8 @@ public class StartingNPCManager : MonoBehaviour
             return;
         }
 
+        eventSystem.SetSelectedGameObject(null);
+
         DialogueLine thisLine = (DialogueLine)dialogueLines[dialogueIndex];
         string nextSpeakerLine = thisLine.speaker + ":\n" + thisLine.line;
         string nextResponseLine = thisLine.response;

@@ -31,7 +31,7 @@ public class HomeChatManager : MonoBehaviour
     UnityAction option1Action;
     UnityAction option2Action;
 
-    readonly float CHAT_DELAY = 0.02f;
+    readonly float CHAT_DELAY = 0.005f;
 
     Coroutine currentCoroutine;
 
@@ -79,13 +79,16 @@ public class HomeChatManager : MonoBehaviour
     {
         if (gameplayManager.NextDeliveryLocation.ToLower() != "home")
         {
-            chatText_message = "I wasn't expecting a package.";
-            option1_message = "Sorry. I must have the wrong house.";
-
-            option1Action = delegate {
-                DepartTextAndButtons();
-                ShowText();
-            };
+            WrongLocation();
+        }
+        // Implicit dependence -- Revisit later
+        else if (gameplayManager.currentAddress != gameplayManager.deliveryAddress)
+        {
+            WrongLocation();
+        }
+        else if (gameplayManager.currentAddress == gameplayManager.deliveryAddress && gameplayManager.currentAddress == "")
+        {
+            WrongLocation();
         }
         else
         {
@@ -101,6 +104,17 @@ public class HomeChatManager : MonoBehaviour
                 gameplayManager.CompleteTask();
             };
         }
+    }
+
+    void WrongLocation()
+    {
+        chatText_message = "I wasn't expecting a package.";
+        option1_message = "Sorry. I must have the wrong house.";
+
+        option1Action = delegate {
+            DepartTextAndButtons();
+            ShowText();
+        };
     }
 
     void MorePackagesText()
@@ -150,6 +164,8 @@ public class HomeChatManager : MonoBehaviour
         isClickable = false;
 
         ClearText();
+
+        chat = "[Name Goes Here]:\n" + chat;
 
         // Disable button 1 if null or ""
         if (string.IsNullOrEmpty(option1))

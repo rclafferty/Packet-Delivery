@@ -202,6 +202,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Timer
       objectReference: {fileID: 0}
+    - target: {fileID: 6188327445888640670, guid: 19020fcc842b5ab43b05e5519a569063,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6188327445888640664, guid: 19020fcc842b5ab43b05e5519a569063,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -261,6 +266,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6188327445888640671, guid: 19020fcc842b5ab43b05e5519a569063,
+        type: 3}
+      propertyPath: object_timerText
+      value: 
+      objectReference: {fileID: 876117411}
+    - target: {fileID: 6188327445888640671, guid: 19020fcc842b5ab43b05e5519a569063,
+        type: 3}
+      propertyPath: timerText
+      value: 
+      objectReference: {fileID: 876117412}
+    - target: {fileID: 6188327445304911934, guid: 19020fcc842b5ab43b05e5519a569063,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 532.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6188327445304911934, guid: 19020fcc842b5ab43b05e5519a569063,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -564.4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 19020fcc842b5ab43b05e5519a569063, type: 3}
@@ -762,6 +787,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &876117411 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6163232116684960207, guid: 19020fcc842b5ab43b05e5519a569063,
+    type: 3}
+  m_PrefabInstance: {fileID: 121347819}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &876117412 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8308089692248577437, guid: 19020fcc842b5ab43b05e5519a569063,
+    type: 3}
+  m_PrefabInstance: {fileID: 121347819}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 876117411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &885267476 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6862180605236893454, guid: be4f5758e21e1f440828e1891e01bd64,

@@ -11,16 +11,18 @@ namespace Assets.Scripts.Behind_The_Scenes
     public class Letter
     {
         static string[] URGENCY_STATUS = { "Normal", "Expedited", "Urgent" };
-        
+
+        static string[] DESTINATIONS = { "103A", "301D", "403B", "403D" };
 
         // For debugging purposes
         string filepath;
 
-        public Letter(int i, string r, string s, string m, int u, bool d, bool h)
+        public Letter(int i, string r, string s, string a, string m, int u, bool d, bool h)
         {
             MessageID = i;
             Recipient = r;
             Sender = s;
+            Address = a;
             MessageBody = m;
             UrgencyIndex = u;
             HasBeenDelivered = d;
@@ -42,6 +44,8 @@ namespace Assets.Scripts.Behind_The_Scenes
         public string Recipient { get; private set; }
 
         public string Sender { get; private set; }
+
+        public string Address { get; set; }
 
         public string MessageBody { get; private set; }
 
@@ -94,7 +98,7 @@ namespace Assets.Scripts.Behind_The_Scenes
                 }
             }
             
-            return new Letter(id, recipient, sender, message, urgencyIndex, false, false);
+            return new Letter(id, recipient, sender, DESTINATIONS[id], message, urgencyIndex, false, false);
         }
 
         /// <summary>

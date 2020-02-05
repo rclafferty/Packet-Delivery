@@ -31,6 +31,9 @@ public class GameplayManager : MonoBehaviour
 
     public Vector2 lastOutdoorPosition;
 
+    public string currentAddress = "";
+    public string deliveryAddress = "";
+
     // Start is called before the first frame update
     void Start()
     {
@@ -58,7 +61,7 @@ public class GameplayManager : MonoBehaviour
 
         obstacleTilemapIndex++;
 
-        lastOutdoorPosition = new Vector2(-14, 11);
+        lastOutdoorPosition = new Vector2(-14, 12);
 
         SceneManager.sceneLoaded += OnSceneLoad;
     }
@@ -98,93 +101,18 @@ public class GameplayManager : MonoBehaviour
     }
 #endif
 
+    public string GetLetterAddress()
+    {
+        if (CurrentTargetMessage == null)
+            return "NONE";
+
+        return CurrentTargetMessage.Address;
+    }
+
     void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)
     {
         if (thisScene.name == "town")
         {
-            /* GameObject[] obstacleTilemapObjects = GameObject.FindGameObjectsWithTag("ObstacleTilemap");
-
-            foreach (GameObject tilemap in obstacleTilemapObjects)
-            {
-                if (tilemap.name.Contains(obstacleTilemapIndex.ToString()))
-                {
-                    tilemap.SetActive(true);
-                }
-                else
-                {
-                    tilemap.SetActive(false);
-                }
-            }
-
-            int spawnIndex = -1;
-
-            string locationName = "None";
-
-            if (indoorLocation == "home")
-            {
-                spawnIndex = -2;
-                string spawnpointName = "";
-                GameObject[] homeSpawnpoints = GameObject.FindGameObjectsWithTag("HomeSpawnpoint");
-                if (homeSpawnpoints.Length == 0)
-                {
-                    Debug.Log("No spawnpoints");
-                    // return;
-                    spawnpointName = "Office Spawnpoint";
-                }
-                else if (homeSpawnpoints.Length == 1)
-                {
-                    spawnpointName = homeSpawnpoints[0].name;
-                }
-                else
-                {
-                    Debug.Log("OTI = " + obstacleTilemapIndex);
-                    spawnpointName = homeSpawnpoints[obstacleTilemapIndex - 1].name;
-                }
-                GameObject.Find("Player").transform.position = GameObject.Find(spawnpointName).transform.position;
-                locationName = spawnpointName;
-            }
-            else
-            {
-                for (int i = 0; i < locations.Length; i++)
-                {
-                    if (indoorLocation == locations[i])
-                    {
-                        GameObject.Find("Player").transform.position = GameObject.Find(spawnpointNames[i]).transform.position;
-                        spawnIndex = i;
-                        break;
-                    }
-                }
-            } 
-
-            if (spawnIndex > 0)
-            {
-                locationName = spawnpointNames[spawnIndex];
-            }
-            Debug.Log("Spawn index = " + spawnIndex + ", Location = " + locationName);
-
-            // If entered an option not-yet accounted for (home, etc)
-            if (spawnIndex == -1)
-            {
-                // Spawn outside of office
-                int officeIndex = 0;
-                GameObject.Find("Player").transform.position = GameObject.Find(spawnpointNames[officeIndex]).transform.position;
-            }
-
-            // Debug.Log("House ? " + (NextStep.building == "house"));
-            GameObject[] homeTilemapObjects = GameObject.FindGameObjectsWithTag("HomeTilemap");
-            foreach (GameObject g in homeTilemapObjects)
-            {
-                // Debug.Log(g.name);
-                if (NextStep.building == "house" && g.name == "Home (" + (obstacleTilemapIndex + 1) + ")")
-                {
-                    continue;
-                }
-                else
-                {
-                    g.SetActive(false);
-                }
-            } */
-
             GameObject.Find("Player").transform.position = lastOutdoorPosition + (Vector2.down * 1);
         }
     }
@@ -217,8 +145,6 @@ public class GameplayManager : MonoBehaviour
             {
                 currentTargetMessage = value;
                 CurrentTarget = currentTargetMessage.Recipient;
-
-                // Debug.Log("Current target: " + CurrentTarget);
             }
 
             string name = SceneManager.GetActiveScene().name.ToLower();

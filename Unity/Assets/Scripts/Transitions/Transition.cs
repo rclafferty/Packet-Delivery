@@ -25,7 +25,7 @@ public class Transition : MonoBehaviour
         }
 
         LevelManager levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-
+        
         string newScene = gameObject.name;
         bool isLowerCase = (newScene[0] >= 'a' && newScene[0] <= 'z');
 
@@ -46,10 +46,26 @@ public class Transition : MonoBehaviour
         GameObject player = GameObject.Find("Player");
 
         GameplayManager gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+        if (newScene.Contains("home"))
+        {
+            string[] newSceneDetails = newScene.Split('-');
+            newScene = "home";
+
+            if (newSceneDetails.Length == 1)
+            {
+                Debug.Log("Not enough parts in the name");
+            }
+            else
+            {
+                gameplayManager.currentAddress = newSceneDetails[1].Trim();
+                Debug.Log("Entering " + gameplayManager.currentAddress + " -- " + gameplayManager.GetLetterAddress());
+            }
+        }
+
         if (newScene != "town")
         {
             gameplayManager.indoorLocation = newScene;
-            gameplayManager.lastOutdoorPosition = this.transform.position;
+            gameplayManager.lastOutdoorPosition = this.transform.position;  
         }
 
         Vector3 playerPosition = player.transform.position;
