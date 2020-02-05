@@ -187,80 +187,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 71142202}
   m_CullTransparentMesh: 0
---- !u!1001 &82494226
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 8277691167035726197, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_Name
-      value: CLA Lookup Manager
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 873.47174
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 486.43747
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -12.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035725451, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8277691167035726196, guid: ac0b23aebcfb61946bf6acd7d2e25666,
-        type: 3}
-      propertyPath: manager
-      value: 
-      objectReference: {fileID: 3597648803525239076}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: ac0b23aebcfb61946bf6acd7d2e25666, type: 3}
 --- !u!1 &126915419
 GameObject:
   m_ObjectHideFlags: 0
@@ -1209,8 +1135,39 @@ PrefabInstance:
       propertyPath: inputField
       value: 
       objectReference: {fileID: 1935031413}
+    - target: {fileID: 1983842719592289773, guid: 1c8503f179b8da3478bd8801c074af09,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1c8503f179b8da3478bd8801c074af09, type: 3}
+--- !u!1 &1043409772 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2698441112740837597, guid: 1c8503f179b8da3478bd8801c074af09,
+    type: 3}
+  m_PrefabInstance: {fileID: 1043409771}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1043409773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043409772}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 622cb5aacdb6ef94bb130937f020bc46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lookupAgencyManager: {fileID: 3597648803525239076}
+  eventSystem: {fileID: 204124475}
+  chatText: {fileID: 561550214}
+  option1Text: {fileID: 1255707428}
+  option2Text: {fileID: 926892268}
+  option1Button: {fileID: 1160346378}
+  option2Button: {fileID: 1158793964}
+  inputField: {fileID: 1935031413}
 --- !u!1 &1093820694
 GameObject:
   m_ObjectHideFlags: 0
