@@ -41,6 +41,8 @@ public class PlayerController : MonoBehaviour
         playerAnimator = gameObject.GetComponent<Animator>();
 
         playerDirection = Direction.Idle;
+
+        IsWalkingEnabled = true;
     }
 
     // Update is called once per frame
@@ -49,69 +51,76 @@ public class PlayerController : MonoBehaviour
         float xMovement = 0;
         float yMovement = 0;
 
-#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
-        xMovement = Input.GetAxis("Horizontal");
-        yMovement = Input.GetAxis("Vertical");
-#else
-        if (Input.touchCount > 0)
+        if (IsWalkingEnabled)
         {
-            Touch myTouch = Input.touches[0];
-            if (myTouch.phase == TouchPhase.Began)
+#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
+            xMovement = Input.GetAxis("Horizontal");
+            yMovement = Input.GetAxis("Vertical");
+#else
+            if (Input.touchCount > 0)
             {
-                touchOrigin = myTouch.position;
-            }
-            else if (myTouch.phase == TouchPhase.Ended)
-            {
-                touchOrigin = -Vector2.one;
-            }
-            else if (myTouch.phase == TouchPhase.Moved || myTouch.phase == TouchPhase.Stationary)
-            {
-                // Inside the bounds of the screen
-                Vector2 touchEnd = myTouch.position;
-                float x = touchEnd.x - touchOrigin.x;
-                float y = touchEnd.y - touchOrigin.y;
+                Touch myTouch = Input.touches[0];
+                if (myTouch.phase == TouchPhase.Began)
+                {
+                    touchOrigin = myTouch.position;
+                }
+                else if (myTouch.phase == TouchPhase.Ended)
+                {
+                    touchOrigin = -Vector2.one;
+                }
+                else if (myTouch.phase == TouchPhase.Moved || myTouch.phase == TouchPhase.Stationary)
+                {
+                    // Inside the bounds of the screen
+                    Vector2 touchEnd = myTouch.position;
+                    float x = touchEnd.x - touchOrigin.x;
+                    float y = touchEnd.y - touchOrigin.y;
                 
-                if (Mathf.Abs(x) > Mathf.Abs(y))
-                {
-                    if (x > 0)
+                    if (Mathf.Abs(x) > Mathf.Abs(y))
                     {
-                        xMovement = 1;
+                        if (x > 0)
+                        {
+                            xMovement = 1;
+                        }
+                        else
+                        {
+                            xMovement = -1;
+                        }
                     }
                     else
                     {
-                        xMovement = -1;
-                    }
-                }
-                else
-                {
-                    if (y > 0)
-                    {
-                        yMovement = 1;
-                    }
-                    else
-                    {
-                        yMovement = -1;
+                        if (y > 0)
+                        {
+                            yMovement = 1;
+                        }
+                        else
+                        {
+                            yMovement = -1;
+                        }
                     }
                 }
             }
-        }
 #endif
 
 #if UNITY_EDITOR
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            DebugActivateSpeedModifier(3f);
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                DebugActivateSpeedModifier(3f);
+            }
+            else
+            {
+                DebugActivateSpeedModifier(1f);
+            }
+#endif
+
+            // Move
+            thisRigidbody.velocity = new Vector2(xMovement * SPEED * speedModifier, yMovement * SPEED * speedModifier);
+
+            Animate(thisRigidbody.velocity);
         }
         else
         {
-            DebugActivateSpeedModifier(1f);
+            Animate(Vector2.zero);
         }
-#endif
-
-        // Move
-        thisRigidbody.velocity = new Vector2(xMovement * SPEED * speedModifier, yMovement * SPEED * speedModifier);
-        
-        Animate(thisRigidbody.velocity);
     }
 
     void Animate(Vector2 direction)
@@ -126,4 +135,6 @@ public class PlayerController : MonoBehaviour
         speedModifier = mod;
     }
 #endif
+
+    public bool IsWalkingEnabled { get; set; }
 }

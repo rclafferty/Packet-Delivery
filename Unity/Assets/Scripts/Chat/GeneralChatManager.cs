@@ -152,12 +152,16 @@ public class GeneralChatManager : MonoBehaviour
             if (location == "LLA NE")
             {
                 chatText_message = FormatChatMessage("Local Lookup Agency", "northeast");
+
+                gameplayManager.AddTodoItem("NE Local Lookup Agency");
             }
             else if (location == "LLA SW")
             {
                 chatText_message = FormatChatMessage("Local Lookup Agency", "southwest");
+
+                gameplayManager.AddTodoItem("SW Local Lookup Agency");
             }
-            else // if (location == "Office" || location == "Home")
+            else if (location == "Office")
             {
                 GameplayManager.DeliveryDirections nextStep;
                 nextStep = gameplayManager.NextStep;
@@ -172,6 +176,27 @@ public class GeneralChatManager : MonoBehaviour
                 }
 
                 chatText_message = FormatChatMessage(nextStep.color + " " + nextStep.building, nextStep.mapDirection);
+            }
+            else // if (location == "Home")
+            {
+                GameplayManager.DeliveryDirections nextStep;
+                nextStep = gameplayManager.NextStep;
+
+                if (nextStep.mapDirection == "northeast")
+                {
+                    nextStep.mapDirection = "north";
+                }
+                if (nextStep.mapDirection == "southwest")
+                {
+                    nextStep.mapDirection = "south";
+                }
+
+                // chatText_message = FormatChatMessage(nextStep.color + " " + nextStep.building, nextStep.mapDirection);
+                string displayedAddress = gameplayManager.CurrentTargetMessage.Address;
+                displayedAddress = displayedAddress[0].ToString() + displayedAddress[1].ToString() + displayedAddress[2].ToString() + " " + displayedAddress[3].ToString();
+                chatText_message = "Please visit the " + nextStep.color + " " + nextStep.building + " at " + displayedAddress + " St";
+
+                gameplayManager.AddTodoItem("Deliver to " + displayedAddress);
             }
 
             option1_message = "Thank you for your help.";

@@ -77,17 +77,25 @@ public class HomeChatManager : MonoBehaviour
 
     void DeliverPackage()
     {
-        if (gameplayManager.NextDeliveryLocation.ToLower() != "home")
+        gameplayManager.NextDeliveryLocation = gameplayManager.NextDeliveryLocation.Trim();
+        gameplayManager.currentAddress = gameplayManager.currentAddress.Trim();
+        gameplayManager.deliveryAddress = gameplayManager.deliveryAddress.Trim();
+
+        Debug.Log("Next: " + gameplayManager.NextDeliveryLocation);
+        if (gameplayManager.NextDeliveryLocation.ToLower().Trim() != "home")
         {
+            Debug.Log("Not home");
             WrongLocation();
         }
         // Implicit dependence -- Revisit later
         else if (gameplayManager.currentAddress != gameplayManager.deliveryAddress)
         {
+            Debug.Log("Not same address -- " + gameplayManager.currentAddress + " vs " + gameplayManager.deliveryAddress);
             WrongLocation();
         }
         else if (gameplayManager.currentAddress == gameplayManager.deliveryAddress && gameplayManager.currentAddress == "")
         {
+            Debug.Log("Empty address");
             WrongLocation();
         }
         else
@@ -165,7 +173,20 @@ public class HomeChatManager : MonoBehaviour
 
         ClearText();
 
-        chat = "[Name Goes Here]:\n" + chat;
+        string[] locations = { "103A", "403B", "301D", "403D" };
+        string[] names = { "Uncle Doug", "Rebecca Lee", "Mayor Clark", "Mrs. Daily" };
+
+        string thisName = "";
+        for (int i = 0; i < locations.Length; i++)
+        {
+            if (gameplayManager.currentAddress == locations[i])
+            {
+                thisName = names[i];
+                break;
+            }
+        }
+
+        chat = thisName + ":\n" + chat;
 
         // Disable button 1 if null or ""
         if (string.IsNullOrEmpty(option1))

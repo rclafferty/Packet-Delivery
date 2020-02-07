@@ -58,7 +58,7 @@ public class Transition : MonoBehaviour
             else
             {
                 gameplayManager.currentAddress = newSceneDetails[1].Trim();
-                Debug.Log("Entering " + gameplayManager.currentAddress + " -- " + gameplayManager.GetLetterAddress());
+                Debug.Log("Entering " + gameplayManager.currentAddress + " -- " + gameplayManager.GetLetterAddress() + " -- Next: " + gameplayManager.NextDeliveryLocation);
             }
         }
 

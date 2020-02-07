@@ -8,14 +8,24 @@ using System.Text;
 
 public class OfficeComputerManager : MonoBehaviour
 {
+    [SerializeField] PlayerController player;
     [SerializeField] GameObject officeComputerCanvas;
     [SerializeField] Text screenText;
-    [SerializeField] Text movementInstructions;
+    // [SerializeField] Text movementInstructions;
+
+    [SerializeField] Button[] logisticsButtons;
+    [SerializeField] Button taskTrackerButton;
+    [SerializeField] Text taskTrackerPriceText;
+    [SerializeField] Button exitMatrixButton;
+    [SerializeField] Text exitMatrixPriceText;
 
     bool isComputerShown;
     GameplayManager gameplayManager;
 
     Dictionary<string, string> abbreviationLookupTable;
+
+    const int TASK_TRACKER_COST = 10;
+    const int EXIT_THE_MATRIX_COST = 40;
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +44,8 @@ public class OfficeComputerManager : MonoBehaviour
         abbreviationLookupTable.Add("CLA", "Central Lookup Agency");
         abbreviationLookupTable.Add("LLA SW", "Southwest Local Lookup Agency");
         abbreviationLookupTable.Add("LLA NE", "Northeast Local Lookup Agency");
+
+        ShowHideLogisticsButtons(false);
     }
 
     // Update is called once per frame
@@ -46,10 +58,17 @@ public class OfficeComputerManager : MonoBehaviour
     {
         isComputerShown = isShown;
         officeComputerCanvas.gameObject.SetActive(isShown);
-        movementInstructions.gameObject.SetActive(!isShown);
+        // movementInstructions.gameObject.SetActive(!isShown);
+
+        player.IsWalkingEnabled = !isShown;
     }
 
     private void OnTriggerStay2D(Collider2D collision)
+    {
+        ShowHideComputerUI();
+    }
+
+    private void ShowHideComputerUI()
     {
         if (!isComputerShown)
         {
@@ -106,6 +125,9 @@ public class OfficeComputerManager : MonoBehaviour
             // TODO: Display the message details
             DisplayDetails(systemMessage);
         }
+
+        ShowHideLogisticsButtons(false);
+        screenText.gameObject.SetActive(true);
     }
 
     void DisplayDetails(in string systemMessage)
@@ -151,6 +173,9 @@ public class OfficeComputerManager : MonoBehaviour
         {
             DisplayNoActiveDeliveryError();
         }
+        
+        ShowHideLogisticsButtons(false);
+        screenText.gameObject.SetActive(true);
     }
 
     public void NextDestination()
@@ -177,10 +202,79 @@ public class OfficeComputerManager : MonoBehaviour
 
             // Debug.Log(gameplayManager.NextDeliveryLocation);
         }
+
+        ShowHideLogisticsButtons(false);
+        screenText.gameObject.SetActive(true);
     }
 
     public void Logistics()
     {
         screenText.text = "No logistics yet, sorry.";
+
+        if (gameplayManager.HasStartingLetter)
+        {
+            screenText.text = "Upgrades will be available after your first delivery is complete.";
+        }
+        else
+        {
+            ShowHideLogisticsButtons(true);
+        }
+    }
+
+    void ShowHideLogisticsButtons(bool isShown)
+    {
+        foreach (Button b in logisticsButtons)
+        {
+            b.gameObject.SetActive(isShown);
+        }
+
+        if (isShown)
+        {
+            screenText.gameObject.SetActive(false);
+        }
+    }
+
+    public void PurchaseTaskTracker()
+    {
+        string instructions = "To use the Task Tracker, press TAB to display your current target and your next delivery location.";
+        if (PurchaseUpgrade("Task Tracker", TASK_TRACKER_COST, instructions, gameplayManager.HasTaskTracker))
+        {
+            gameplayManager.HasTaskTracker = true;
+            taskTrackerPriceText.text = "Purchased";
+            taskTrackerPriceText.fontStyle = FontStyle.Italic;
+        }
+    }
+
+    public void PurchaseExitTheMatrix()
+    {
+        string instructions = "Now all addresses will be IP addresses and all lookup agencies will be based on real domain lookups.";
+        if (PurchaseUpgrade("Exit the Matrix", EXIT_THE_MATRIX_COST, instructions, gameplayManager.HasExitedTheMatrix))
+        {
+            gameplayManager.HasExitedTheMatrix = true;
+            exitMatrixPriceText.text = "Purchased";
+            exitMatrixPriceText.fontStyle = FontStyle.Italic;
+        }
+    }
+
+    bool PurchaseUpgrade(in string upgradeTitle, in int cost, in string instructions, bool hasPurchasedAlready)
+    {
+        if (hasPurchasedAlready)
+        {
+            screenText.gameObject.SetActive(true);
+            screenText.text = "You've already purchased the " + upgradeTitle + " upgrade.\n" + instructions; // TODO: Add some snarky "No need to buy the same thing twice, right?" comment
+            return false;
+        }
+        else if (gameplayManager.Money >= cost)
+        {
+            gameplayManager.Money -= cost;
+            screenText.gameObject.SetActive(true);
+            screenText.text = "You successfully purchased the " + upgradeTitle + " upgrade.\n" + instructions;
+            return true;
+        }
+        else
+        {
+            screenText.text = "You need $" + cost + " to purchase the " + upgradeTitle + " upgrade.";
+            return false;
+        }
     }
 }

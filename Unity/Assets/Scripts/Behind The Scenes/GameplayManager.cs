@@ -6,10 +6,13 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameplayManager : MonoBehaviour
 {
     static GameplayManager instance = null;
+
+    const int DELIVERY_PAYMENT = 10; // Equivalent to 10 dollars
 
     public struct DeliveryDirections
     {
@@ -20,19 +23,28 @@ public class GameplayManager : MonoBehaviour
 
     // Other necessary managers
     [SerializeField] LetterManager letterManager;
+    [SerializeField] NotepadManager notepadManager;
+
+    [SerializeField] GameObject moneyBackdrop;
+    [SerializeField] Text moneyText;
 
     [SerializeField] Letter currentTargetMessage;
 
     int obstacleTilemapIndex;
 
     [SerializeField] public string indoorLocation;
+    
     string[] locations = { "office", "centralLookupAgency", "localLookupAgencyNE", "localLookupAgencySW", "home" };
+
+    [System.Obsolete("Should not be using spawnpoints anymore")]
     string[] spawnpointNames = { "Office Spawnpoint", "CLA Spawnpoint", "LLA NE Spawnpoint", "LLA SW Spawnpoint", "Home" };
 
     public Vector2 lastOutdoorPosition;
 
     public string currentAddress = "";
     public string deliveryAddress = "";
+
+    int money = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -51,17 +63,15 @@ public class GameplayManager : MonoBehaviour
         }
         
         HasStartingLetter = true;
-        currentTargetMessage = null;
 
-        CurrentTarget = "";
-
-        ResetDirectionsToOffice();
-
-        GameplayTimer.StopTimerIfRunning();
-
-        obstacleTilemapIndex++;
+        GameplayTimer = GameObject.Find("Timer").GetComponent<Timer>();
 
         lastOutdoorPosition = new Vector2(-14, 12);
+
+        Money = 10;
+        moneyBackdrop.SetActive(false);
+
+        ResetDeliveryDetails();
 
         SceneManager.sceneLoaded += OnSceneLoad;
     }
@@ -115,6 +125,10 @@ public class GameplayManager : MonoBehaviour
         {
             GameObject.Find("Player").transform.position = lastOutdoorPosition + (Vector2.down * 1);
         }
+        else if (thisScene.name == "instructions")
+        {
+            moneyBackdrop.SetActive(true);
+        }
     }
 
     public void SetLetterManager(LetterManager lm)
@@ -165,8 +179,19 @@ public class GameplayManager : MonoBehaviour
             // Debug.Log("LetterManager ? " + (letterManager != null));
             // Debug.Log("Current Message ? " + (currentTargetMessage != null));
             letterManager.MarkMessageAsDelivered(currentTargetMessage.MessageID);
+
+            if (HasStartingLetter)
+            {
+                HasStartingLetter = false;
+            }
         }
 
+        Money += DELIVERY_PAYMENT;
+        ResetDeliveryDetails();
+    }
+
+    private void ResetDeliveryDetails()
+    {
         currentTargetMessage = null;
         CurrentTarget = "";
 
@@ -175,6 +200,8 @@ public class GameplayManager : MonoBehaviour
         GameplayTimer.StopTimerIfRunning();
 
         obstacleTilemapIndex++;
+
+        notepadManager.ClearNotepad();
     }
 
     DeliveryDirections ResetDirectionsToOffice()
@@ -188,6 +215,7 @@ public class GameplayManager : MonoBehaviour
         deliveryDirections.mapDirection = "northwest";
 
         NextStep = deliveryDirections;
+
         return deliveryDirections;
     }
 
@@ -195,12 +223,23 @@ public class GameplayManager : MonoBehaviour
     {
         this.CurrentTargetMessage = letterManager.GetNextMessage();
         NextDeliveryLocation = "CLA";
+        deliveryAddress = currentTargetMessage.Address;
+
+        notepadManager.AddItemToNotepad("Central Lookup Agency");
     }
 
     public void GetStartingMessage()
     {
         this.CurrentTargetMessage = letterManager.GetStartingMessage();
         NextDeliveryLocation = "CLA";
+        deliveryAddress = currentTargetMessage.Address;
+
+        notepadManager.AddItemToNotepad("Central Lookup Agency");
+    }
+
+    public void AddTodoItem(string item)
+    {
+        notepadManager.AddItemToNotepad(item);
     }
 
     public bool HasRemainingTasks
@@ -213,6 +252,18 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
+    public int Money {
+        get
+        {
+            return money;
+        }
+        set
+        {
+            money = value;
+            moneyText.text = "$" + money;
+        }
+    }
+
     // Auto property
     public Vector3 CurrentSpawnLocation { get; set; }
     public bool HasStartingLetter { get; set; }
@@ -222,4 +273,7 @@ public class GameplayManager : MonoBehaviour
     public DeliveryDirections NextStep { get; set; }
     public string NextDeliveryLocation { get; set; }
     public Timer GameplayTimer { get; set; }
+
+    public bool HasTaskTracker { get; set; }
+    public bool HasExitedTheMatrix { get; set; }
 }

@@ -90,6 +90,54 @@ public class LookupAgencyManager : MonoBehaviour
         }
     }
 
+    public void LoadPopulationListFromTextAsset2()
+    {
+        if (populationListOptions == null)
+            // Invalid
+            return;
+
+        if (populationListOptions.Length == 0)
+            // Invalid
+            return;
+
+        listOfPeople = new List<Person>();
+        peopleByLocation = new List<Person>[LOCATION_TEXT.Length];
+
+        for (int i = 0; i < LOCATION_TEXT.Length; i++)
+        {
+            peopleByLocation[i] = new List<Person>();
+        }
+
+        // Get first list
+        int index = 0;
+
+        string[] populationListLines = populationListOptions[index].text.Split('\n');
+        int numberOfPeople = System.Convert.ToInt32(populationListLines[0]);
+        for (int i = 1; i <= numberOfPeople; i++)
+        {
+            string[] lineParts = populationListLines[i].Split('\t');
+            string name = lineParts[0];
+            string address = lineParts[1];
+            string url = lineParts[2];
+
+            Person thisPerson = new Person(name, address, url);
+            listOfPeople.Add(thisPerson);
+
+            int locationIndex = -1;
+            // if (address.Contains("A") || address.Contains("B"))
+            if (address[address.Length - 1] == 'A' || address[address.Length - 1] == 'B')
+            {
+                locationIndex = 0;
+            }
+            else
+            {
+                locationIndex = 1;
+            }
+
+            peopleByLocation[locationIndex].Add(thisPerson);
+        }
+    }
+
     public List<Person> GetNamesByLocation(string location)
     {
         string lower = location.ToLower();
