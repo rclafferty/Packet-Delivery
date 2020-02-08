@@ -36,7 +36,7 @@ public class GeneralChatManager : MonoBehaviour
     UnityAction option1Action;
     UnityAction option2Action;
 
-    readonly float CHAT_DELAY = 0.02f;
+    readonly float CHAT_DELAY = 0.005f;
 
     bool isClickable;
 
@@ -432,6 +432,12 @@ public class GeneralChatManager : MonoBehaviour
             option2Button.interactable = false;
         }
 
+        // Enable button 1 if not empty
+        option1Button.interactable = option1ButtonInteractable;
+
+        // Enable button 2 if not empty
+        option2Button.interactable = option2ButtonInteractable;
+
         // Write chat text
         for (int i = 0; i < chat.Length; i++)
         {
@@ -455,12 +461,6 @@ public class GeneralChatManager : MonoBehaviour
             yield return new WaitForSeconds(CHAT_DELAY);
             option2Text.text += option2[i];
         }
-
-        // Enable button 1 if not empty
-        option1Button.interactable = option1ButtonInteractable;
-
-        // Enable button 2 if not empty
-        option2Button.interactable = option2ButtonInteractable;
 
         isClickable = true;
     }

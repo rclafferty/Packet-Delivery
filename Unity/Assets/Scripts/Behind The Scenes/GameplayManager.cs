@@ -68,7 +68,7 @@ public class GameplayManager : MonoBehaviour
 
         lastOutdoorPosition = new Vector2(-14, 12);
 
-        Money = 10;
+        Money = 0;
         moneyBackdrop.SetActive(false);
 
         ResetDeliveryDetails();
@@ -184,9 +184,10 @@ public class GameplayManager : MonoBehaviour
             {
                 HasStartingLetter = false;
             }
+
+            Money += DELIVERY_PAYMENT;
         }
 
-        Money += DELIVERY_PAYMENT;
         ResetDeliveryDetails();
     }
 

@@ -21,7 +21,7 @@ public class StartingNPCManager : MonoBehaviour
     const float RIGHT_X = -4.0f;
     const float LEFT_X = -13.0f;
 
-    const float CHAT_DELAY = 0.02f;
+    const float CHAT_DELAY = 0.005f;
 
     int dialogueIndex;
 

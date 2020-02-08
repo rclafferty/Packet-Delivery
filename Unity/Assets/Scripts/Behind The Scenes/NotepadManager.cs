@@ -44,14 +44,32 @@ public class NotepadManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            if (gameplayManager.HasTaskTracker)
+            ToggleTaskTracker();
+        }
+    }
+
+    public void ToggleTaskTracker()
+    {
+        if (gameplayManager.HasTaskTracker)
+        {
+            string sceneName = SceneManager.GetActiveScene().name;
+            if (sceneName != "loading" && sceneName != "title" && sceneName != "start_town")
             {
-                string sceneName = SceneManager.GetActiveScene().name;
-                if (sceneName != "loading" && sceneName != "title" && sceneName != "start_town")
-                {
-                    backgroundImage.gameObject.SetActive(!backgroundImage.gameObject.activeInHierarchy);
-                    DisplayText();
-                }
+                backgroundImage.gameObject.SetActive(!backgroundImage.gameObject.activeInHierarchy);
+                DisplayText();
+            }
+        }
+    }
+
+    public void ToggleTaskTracker(bool isShown)
+    {
+        if (gameplayManager.HasTaskTracker)
+        {
+            string sceneName = SceneManager.GetActiveScene().name;
+            if (sceneName != "loading" && sceneName != "title" && sceneName != "start_town")
+            {
+                backgroundImage.gameObject.SetActive(isShown);
+                DisplayText();
             }
         }
     }

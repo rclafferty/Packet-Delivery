@@ -25,14 +25,12 @@ public class OfficeComputerManager : MonoBehaviour
     Dictionary<string, string> abbreviationLookupTable;
 
     const int TASK_TRACKER_COST = 10;
-    const int EXIT_THE_MATRIX_COST = 40;
+    const int EXIT_THE_MATRIX_COST = 30;
 
     // Start is called before the first frame update
     void Start()
     {
         screenText.text = "";
-
-        ShowHideComputerCanvas(false);
 
         GameObject object_gameplayManager = GameObject.Find("GameplayManager");
         if (object_gameplayManager != null)
@@ -45,7 +43,12 @@ public class OfficeComputerManager : MonoBehaviour
         abbreviationLookupTable.Add("LLA SW", "Southwest Local Lookup Agency");
         abbreviationLookupTable.Add("LLA NE", "Northeast Local Lookup Agency");
 
+        taskTrackerPriceText.text = "$" + TASK_TRACKER_COST;
+        exitMatrixPriceText.text = "$" + EXIT_THE_MATRIX_COST;
+
         ShowHideLogisticsButtons(false);
+
+        ShowHideComputerCanvas(false);
     }
 
     // Update is called once per frame
@@ -61,6 +64,18 @@ public class OfficeComputerManager : MonoBehaviour
         // movementInstructions.gameObject.SetActive(!isShown);
 
         player.IsWalkingEnabled = !isShown;
+
+        if (gameplayManager.HasTaskTracker)
+        {
+            taskTrackerPriceText.text = "Purchased";
+            taskTrackerPriceText.fontStyle = FontStyle.Italic;
+        }
+
+        if (gameplayManager.HasExitedTheMatrix)
+        {
+            exitMatrixPriceText.text = "Purchased";
+            exitMatrixPriceText.fontStyle = FontStyle.Italic;
+        }
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -180,6 +195,9 @@ public class OfficeComputerManager : MonoBehaviour
 
     public void NextDestination()
     {
+        string[] streetNames = { "A St", "C St", "D St" };
+        string[] locationName = { "Northeast Local Lookup Agency", "Central Lookup Agency", "Southwest Local Lookup Agency" };
+
         if (gameplayManager != null)
         {
             if (gameplayManager.HasCurrentTarget())
@@ -187,13 +205,29 @@ public class OfficeComputerManager : MonoBehaviour
                 string nextDestination = "";
 
                 // Attempt to lookup the abbreviation
-                if (!abbreviationLookupTable.TryGetValue(gameplayManager.NextDeliveryLocation, out nextDestination))
+                bool isValidAbbreviation = abbreviationLookupTable.TryGetValue(gameplayManager.NextDeliveryLocation.Trim(), out nextDestination);
+                if (!isValidAbbreviation)
                 {
                     // If not found, display the stored location
                     nextDestination = gameplayManager.NextDeliveryLocation;
                 }
+
+                string nextDisplayDestination = nextDestination;
+                Debug.Log("isValid: " + isValidAbbreviation + " -- " + gameplayManager.NextDeliveryLocation);
+                if (isValidAbbreviation)
+                {
+                    for (int i = 0; i < streetNames.Length; i++)
+                    {
+                        Debug.Log("Location: " + nextDestination + " vs " + locationName);
+                        if (locationName[i] == nextDestination)
+                        {
+                            nextDisplayDestination = nextDestination + " on " + streetNames[i];
+                            break;
+                        }
+                    }
+                }   
                 
-                screenText.text = "You should try stopping by the " + nextDestination + " next";
+                screenText.text = "You should try stopping by the " + nextDisplayDestination + " next";
             }
             else
             {
@@ -242,6 +276,8 @@ public class OfficeComputerManager : MonoBehaviour
             gameplayManager.HasTaskTracker = true;
             taskTrackerPriceText.text = "Purchased";
             taskTrackerPriceText.fontStyle = FontStyle.Italic;
+
+            GameObject.FindObjectOfType<NotepadManager>().ToggleTaskTracker(true);
         }
     }
 
