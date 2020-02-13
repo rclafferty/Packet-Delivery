@@ -27,6 +27,8 @@ public class OfficeComputerManager : MonoBehaviour
     const int TASK_TRACKER_COST = 10;
     const int EXIT_THE_MATRIX_COST = 30;
 
+    bool isAtComputer;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -46,6 +48,8 @@ public class OfficeComputerManager : MonoBehaviour
         taskTrackerPriceText.text = "$" + TASK_TRACKER_COST;
         exitMatrixPriceText.text = "$" + EXIT_THE_MATRIX_COST;
 
+        isAtComputer = false;
+
         ShowHideLogisticsButtons(false);
 
         ShowHideComputerCanvas(false);
@@ -54,7 +58,14 @@ public class OfficeComputerManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (!isComputerShown && isAtComputer)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                // ShowHideComputerUI();
+                ShowHideComputerCanvas(true);
+            }
+        }
     }
 
     void ShowHideComputerCanvas(bool isShown)
@@ -80,28 +91,17 @@ public class OfficeComputerManager : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        ShowHideComputerUI();
+        isAtComputer = true;
     }
 
-    private void ShowHideComputerUI()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!isComputerShown)
-        {
-#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBPLAYER
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                ShowHideComputerCanvas(true);
-            }
-#else
-            if (Input.touches.Length > 0)
-            {
-                if (Input.GetTouch(0).phase == TouchPhase.Stationary)
-                {
-                    ShowHideComputerCanvas(true);
-                }
-            }
-#endif
-        }
+        isAtComputer = true;
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        isAtComputer = false;
     }
 
     public void TurnOffComputer()
