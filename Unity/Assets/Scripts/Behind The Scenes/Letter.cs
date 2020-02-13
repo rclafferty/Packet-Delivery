@@ -17,11 +17,13 @@ namespace Assets.Scripts.Behind_The_Scenes
         // For debugging purposes
         string filepath;
 
-        public Letter(int i, string r, string s, string a, string m, int u, bool d, bool h)
+        public Letter(int i, string r, string ru, string s, string su, string a, string m, int u, bool d, bool h)
         {
             MessageID = i;
             Recipient = r;
+            RecipientURL = ru;
             Sender = s;
+            SenderURL = su;
             Address = a;
             MessageBody = m;
             UrgencyIndex = u;
@@ -33,7 +35,9 @@ namespace Assets.Scripts.Behind_The_Scenes
         {
             MessageID = m.MessageID;
             Recipient = m.Recipient;
+            RecipientURL = m.RecipientURL;
             Sender = m.Sender;
+            SenderURL = m.SenderURL;
             MessageBody = m.MessageBody;
             UrgencyIndex = m.UrgencyIndex;
             HasBeenDelivered = m.HasBeenDelivered;
@@ -43,7 +47,11 @@ namespace Assets.Scripts.Behind_The_Scenes
 
         public string Recipient { get; private set; }
 
+        public string RecipientURL { get; private set; }
+
         public string Sender { get; private set; }
+
+        public string SenderURL { get; private set; }
 
         public string Address { get; set; }
 
@@ -71,15 +79,21 @@ namespace Assets.Scripts.Behind_The_Scenes
         /// <param name="m">Message body</param>
         /// <param name="u">Urgency</param>
         /// <returns></returns>
-        public static Letter ParseMessage(int id, string r, string s, string m, string u)
+        public static Letter ParseMessage(int id, string r, string ru, string s, string su, string m, string u)
         {
             string[] tempParts;
             
             tempParts = r.Split(':');
             string recipient = tempParts[1].Trim();
 
+            tempParts = ru.Split(':');
+            string recipientURL = tempParts[1].Trim();
+
             tempParts = s.Split(':');
             string sender = tempParts[1].Trim();
+
+            tempParts = su.Split(':');
+            string senderURL = tempParts[1].Trim();
 
             string message = m;
 
@@ -98,7 +112,7 @@ namespace Assets.Scripts.Behind_The_Scenes
                 }
             }
             
-            return new Letter(id, recipient, sender, DESTINATIONS[id], message, urgencyIndex, false, false);
+            return new Letter(id, recipient, recipientURL, sender, senderURL, DESTINATIONS[id], message, urgencyIndex, false, false);
         }
 
         /// <summary>
@@ -110,13 +124,13 @@ namespace Assets.Scripts.Behind_The_Scenes
         /// <param name="u">Urgency</param>
         /// <param name="d">Indicates if the message was delivered</param>
         /// <returns></returns>
-        public static Letter ParseMessage(int id, string r, string s, string m, string u, bool d, bool h)
+        /* public static Letter ParseMessage(int id, string r, string s, string m, string u, bool d, bool h)
         {
             Letter thisMessage = ParseMessage(id, r, s, m, u);
             thisMessage.HasBeenDelivered = d;
             thisMessage.IsOnHold = h;
 
             return thisMessage;
-        }
+        } */
     }
 }

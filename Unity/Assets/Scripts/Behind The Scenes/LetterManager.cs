@@ -44,7 +44,9 @@ public class LetterManager : MonoBehaviour
     void LoadLettersFromTextAsset()
     {
         string recipientLine = "none";
+        string recipientLineURL = "none";
         string senderLine = "none";
+        string senderLineURL = "none";
         string urgencyLine = "Normal";
         string message = "none";
 
@@ -58,14 +60,18 @@ public class LetterManager : MonoBehaviour
 
             // Get message header parts
             recipientLine = parts[0].Trim();
-            senderLine = parts[1].Trim();
-            urgencyLine = parts[2].Trim();
+            recipientLineURL = parts[1].Trim();
+            senderLine = parts[2].Trim();
+            senderLineURL = parts[3].Trim();
+            urgencyLine = parts[4].Trim();
 
-            // Parts[3] is a blank line
+            Debug.Log("RL: " + recipientLine + ", RLU: " + recipientLineURL + ", SL: " + senderLine + ", SLU: " + senderLineURL);
+
+            // Parts[5] is a blank line
 
             // Body
             sb.Clear();
-            for (int i = 4; i < parts.Length; i++)
+            for (int i = 6; i < parts.Length; i++)
             {
                 sb.Append(parts[i].Trim());
                 sb.Append("\n");
@@ -73,7 +79,7 @@ public class LetterManager : MonoBehaviour
 
             message = sb.ToString();
 
-            Letter newLetter = Letter.ParseMessage(listOfLetters.Count, recipientLine, senderLine, message, urgencyLine);
+            Letter newLetter = Letter.ParseMessage(listOfLetters.Count, recipientLine, recipientLineURL, senderLine, senderLineURL, message, urgencyLine);
             listOfLetters.Add(newLetter);
         }
 
@@ -122,6 +128,14 @@ public class LetterManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void ResetMessages()
+    {
+        foreach (Letter letter in listOfLetters)
+        {
+            letter.HasBeenDelivered = false;
+        }
     }
 
     /// <summary>

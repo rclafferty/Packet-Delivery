@@ -149,8 +149,19 @@ public class OfficeComputerManager : MonoBehaviour
     {
         Letter currentMessage = gameplayManager.CurrentTargetMessage;
         // Debug.Log("Current Message ? " + (currentMessage != null));
-        string senderLine = "Sender: " + currentMessage.Sender;
-        string receiverLine = "Recipient: " + currentMessage.Recipient;
+
+        string sender = currentMessage.Sender;
+        string recipient = currentMessage.Recipient;
+
+        if (gameplayManager.HasExitedTheMatrix)
+        {
+            sender = currentMessage.SenderURL;
+            Debug.Log("Sender: " + sender);
+            recipient = currentMessage.RecipientURL;
+        }
+
+        string senderLine = "Sender: " + sender;
+        string receiverLine = "Recipient: " + recipient;
         string bodyLine = "\n" + currentMessage.MessageBody;
 
         string displayText = "";
@@ -159,17 +170,6 @@ public class OfficeComputerManager : MonoBehaviour
             displayText = systemMessage + "\n";
         }
         displayText += senderLine + "\n" + receiverLine + "\n" + bodyLine;
-        screenText.text = displayText;
-    }
-
-    void DisplayDetails()
-    {
-        Letter currentMessage = gameplayManager.CurrentTargetMessage;
-        string senderLine = "Sender: " + currentMessage.Sender;
-        string receiverLine = "Recipient: " + currentMessage.Recipient;
-        string bodyLine = "\n" + currentMessage.MessageBody;
-
-        string displayText = senderLine + "\n" + receiverLine + "\n" + bodyLine;
         screenText.text = displayText;
     }
 
@@ -182,7 +182,7 @@ public class OfficeComputerManager : MonoBehaviour
     {
         if (gameplayManager.HasCurrentTarget())
         {
-            DisplayDetails();
+            DisplayDetails("");
         }
         else
         {
@@ -286,7 +286,7 @@ public class OfficeComputerManager : MonoBehaviour
         string instructions = "Now all addresses will be IP addresses and all lookup agencies will be based on real domain lookups.";
         if (PurchaseUpgrade("Exit the Matrix", EXIT_THE_MATRIX_COST, instructions, gameplayManager.HasExitedTheMatrix))
         {
-            gameplayManager.HasExitedTheMatrix = true;
+            gameplayManager.ExitTheMatrix();
             exitMatrixPriceText.text = "Purchased";
             exitMatrixPriceText.fontStyle = FontStyle.Italic;
         }

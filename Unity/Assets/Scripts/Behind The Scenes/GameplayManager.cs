@@ -73,6 +73,8 @@ public class GameplayManager : MonoBehaviour
 
         ResetDeliveryDetails();
 
+        HasExitedTheMatrix = false; // Set true for testing
+
         SceneManager.sceneLoaded += OnSceneLoad;
     }
 
@@ -124,11 +126,29 @@ public class GameplayManager : MonoBehaviour
         if (thisScene.name == "town")
         {
             GameObject.Find("Player").transform.position = lastOutdoorPosition + (Vector2.down * 1);
+
+            if (HasExitedTheMatrix)
+            {
+                GameObject addressManagerObject = GameObject.Find("AddressManager");
+                if (addressManagerObject != null)
+                {
+                    // Debug --> Exit the matrix to test
+                    Debug.Log("Enabling exit the matrix mode");
+                    AddressManager addressManager = addressManagerObject.GetComponent<AddressManager>();
+                    addressManager.EnableExitTheMatrix();
+                }
+            }
         }
         else if (thisScene.name == "instructions")
         {
             moneyBackdrop.SetActive(true);
         }
+    }
+
+    public void ExitTheMatrix()
+    {
+        HasExitedTheMatrix = true;
+        letterManager.ResetMessages();
     }
 
     public void SetLetterManager(LetterManager lm)
@@ -158,7 +178,14 @@ public class GameplayManager : MonoBehaviour
             else
             {
                 currentTargetMessage = value;
-                CurrentTarget = currentTargetMessage.Recipient;
+                if (HasExitedTheMatrix)
+                {
+                    CurrentTarget = currentTargetMessage.RecipientURL;
+                }
+                else
+                {
+                    CurrentTarget = currentTargetMessage.Recipient;
+                }
             }
 
             string name = SceneManager.GetActiveScene().name.ToLower();

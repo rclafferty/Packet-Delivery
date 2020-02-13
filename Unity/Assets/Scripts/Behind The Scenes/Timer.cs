@@ -126,7 +126,7 @@ public class Timer : MonoBehaviour
         }
 
         timerText.text = "";
-        object_timerText.SetActive(false);
+        // object_timerText.SetActive(false);
     }
 
     void Timeout()

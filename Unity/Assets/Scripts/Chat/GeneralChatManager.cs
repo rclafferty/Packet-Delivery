@@ -194,7 +194,19 @@ public class GeneralChatManager : MonoBehaviour
                 // chatText_message = FormatChatMessage(nextStep.color + " " + nextStep.building, nextStep.mapDirection);
                 string displayedAddress = gameplayManager.CurrentTargetMessage.Address;
                 displayedAddress = displayedAddress[0].ToString() + displayedAddress[1].ToString() + displayedAddress[2].ToString() + " " + displayedAddress[3].ToString();
-                chatText_message = "Please visit the " + nextStep.color + " " + nextStep.building + " at " + displayedAddress + " St";
+                if (gameplayManager.HasExitedTheMatrix)
+                {
+                    string[] parts = displayedAddress.Split(' ');
+                    int streetNumber = System.Convert.ToInt32(parts[0]);
+                    int streetSubnet = (int)(parts[1][0]);
+                    displayedAddress = "192.168." + streetSubnet + "." + streetNumber;
+
+                    chatText_message = "Please visit " + displayedAddress;
+                }
+                else
+                {
+                    chatText_message = "Please visit the " + nextStep.color + " " + nextStep.building + " at " + displayedAddress + " St";
+                }
 
                 gameplayManager.AddTodoItem("Deliver to " + displayedAddress);
             }
@@ -342,8 +354,10 @@ public class GeneralChatManager : MonoBehaviour
 
         if (inputField.text.ToLower() == target)
         {
+            string targetName = gameplayManager.CurrentTargetMessage.Recipient;
+
             // Lookup
-            int index = lookupManager.LocationLookup(target); // NOT case-sensitive
+            int index = lookupManager.LocationLookup(targetName); // NOT case-sensitive
             Debug.Log(target + " is at index " + index);
 
             // This line throws errors!!!!!!!!!!!!!!!!!!!
@@ -366,7 +380,7 @@ public class GeneralChatManager : MonoBehaviour
                 GameplayManager.DeliveryDirections nextStep;
                 nextStep.building = "house";
                 nextStep.color = "yellow";
-                nextStep.mapDirection = lookupManager.LOCATION_TEXT[lookupManager.LocationLookup(target)];
+                nextStep.mapDirection = lookupManager.LOCATION_TEXT[lookupManager.LocationLookup(targetName)];
 
                 gameplayManager.NextDeliveryLocation = "Home";
 
