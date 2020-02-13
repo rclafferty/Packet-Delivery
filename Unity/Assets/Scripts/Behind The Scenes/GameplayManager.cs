@@ -132,7 +132,7 @@ public class GameplayManager : MonoBehaviour
                 GameObject addressManagerObject = GameObject.Find("AddressManager");
                 if (addressManagerObject != null)
                 {
-                    // Debug --> Exit the matrix to test
+                    // Exit the matrix
                     Debug.Log("Enabling exit the matrix mode");
                     AddressManager addressManager = addressManagerObject.GetComponent<AddressManager>();
                     addressManager.EnableExitTheMatrix();
