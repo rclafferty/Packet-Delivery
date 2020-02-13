@@ -6,39 +6,37 @@ using UnityEngine;
 
 public class LookupAgencyManager : MonoBehaviour
 {
-    public readonly string[] LOCATION_TEXT = { "Northeast", "Southwest" };
-
     static LookupAgencyManager instance = null;
+
+    [SerializeField] TextAsset[] populationListOptions;
+
+    public readonly string[] LOCATION_TEXT = { "Northeast", "Southwest" };
 
     List<Person> listOfPeople;
 
     List<Person>[] peopleByLocation;
 
+    // New variables
+    List<Person> comprehensivePersonList;
+    List<Person>[] peopleByQuadrant;
+
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (instance != null)
         {
             Destroy(gameObject);
             return;
         }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+        gameObject.name = "LookupAgencyManager";
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        LoadPopulationList();
-        gameObject.name = "LookupAgencyManager";
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        LoadPopulationListFromTextAsset();
     }
 
     public bool HasLoadedPopulationList
@@ -52,17 +50,15 @@ public class LookupAgencyManager : MonoBehaviour
         }
     }
 
-    public void LoadPopulationList()
+    public void LoadPopulationListFromTextAsset()
     {
-        const int MIN_INDEX = 0;
-        const int MAX_INDEX = 4;
+        if (populationListOptions == null)
+            // Invalid
+            return;
 
-        int index = Mathf.FloorToInt(Random.Range(MIN_INDEX, MAX_INDEX));
-
-        string filepath = "PopulationList/populationList" + index + "_with_index.txt";
-#if UNITY_EDITOR
-        filepath = "Assets/Resources/" + filepath;
-#endif
+        if (populationListOptions.Length == 0)
+            // Invalid
+            return;
 
         listOfPeople = new List<Person>();
         peopleByLocation = new List<Person>[LOCATION_TEXT.Length];
@@ -70,32 +66,75 @@ public class LookupAgencyManager : MonoBehaviour
         {
             peopleByLocation[i] = new List<Person>();
         }
+        
+        // Temporariliy disabled: Get random list
+        // int index = Mathf.FloorToInt(Random.Range(0, populationListOptions.Length));
 
-        Person temp;
+        // Get first list
+        int index = 0;
 
-        string line;
-        string[] parts;
-
-        string location = "";
-        int locationIndex = 0;
-
-        using (StreamReader sr = new StreamReader(filepath))
+        string[] populationListLines = populationListOptions[index].text.Split('\n');
+        int numberOfPeople = System.Convert.ToInt32(populationListLines[0]);
+        for (int i = 1; i <= numberOfPeople; i++)
         {
-            int numberOfPeople = System.Convert.ToInt32(sr.ReadLine());
+            string[] lineParts = populationListLines[i].Split('\t');
+            string name = lineParts[0];
+            int locationIndex = System.Convert.ToInt32(lineParts[1]);
+            string location = LOCATION_TEXT[locationIndex];
 
-            for (int i = 0; i < numberOfPeople; i++)
+            Person thisPerson = new Person(name, location, locationIndex);
+            listOfPeople.Add(thisPerson);
+            
+            peopleByLocation[locationIndex].Add(thisPerson);
+            // Debug.Log(thisPerson.Name + " " + listOfPeople.Count);
+        }
+    }
+
+    public void LoadPopulationListFromTextAsset2()
+    {
+        if (populationListOptions == null)
+            // Invalid
+            return;
+
+        if (populationListOptions.Length == 0)
+            // Invalid
+            return;
+
+        listOfPeople = new List<Person>();
+        peopleByLocation = new List<Person>[LOCATION_TEXT.Length];
+
+        for (int i = 0; i < LOCATION_TEXT.Length; i++)
+        {
+            peopleByLocation[i] = new List<Person>();
+        }
+
+        // Get first list
+        int index = 0;
+
+        string[] populationListLines = populationListOptions[index].text.Split('\n');
+        int numberOfPeople = System.Convert.ToInt32(populationListLines[0]);
+        for (int i = 1; i <= numberOfPeople; i++)
+        {
+            string[] lineParts = populationListLines[i].Split('\t');
+            string name = lineParts[0];
+            string address = lineParts[1];
+            string url = lineParts[2];
+
+            Person thisPerson = new Person(name, address, url);
+            listOfPeople.Add(thisPerson);
+
+            int locationIndex = -1;
+            // if (address.Contains("A") || address.Contains("B"))
+            if (address[address.Length - 1] == 'A' || address[address.Length - 1] == 'B')
             {
-                line = sr.ReadLine();
-                parts = line.Split('\t');
-
-                name = parts[0];
-                locationIndex = System.Convert.ToInt32(parts[1]);
-                location = LOCATION_TEXT[locationIndex];
-
-                temp = new Person(name, location, locationIndex);
-                listOfPeople.Add(temp);
-                peopleByLocation[locationIndex].Add(temp);
+                locationIndex = 0;
             }
+            else
+            {
+                locationIndex = 1;
+            }
+
+            peopleByLocation[locationIndex].Add(thisPerson);
         }
     }
 
@@ -143,15 +182,16 @@ public class LookupAgencyManager : MonoBehaviour
         string lowerTempName = "";
         string[] parts = lowerName.Split(' ');
 
+        List<Person> personList = null;
+
         for (int index = 0; index < peopleByLocation.Length; index++)
         {
-            List<Person> list = peopleByLocation[index];
+            personList = peopleByLocation[index];
 
-            for (int i = 0; i < list.Count; i++)
+            for (int i = 0; i < personList.Count; i++)
             {
-                temp = list[i];
+                temp = personList[i];
                 lowerTempName = temp.Name.ToLower();
-                Debug.Log("Comparing " + name + " to " + temp.Name);
 
                 for (int j = 0; j < parts.Length; j++)
                 {
@@ -165,4 +205,8 @@ public class LookupAgencyManager : MonoBehaviour
 
         return -1;
     }
+
+    // TODO: Change lookup system to 4 quadrants (NE, NW, SE, SW)
+    // The NE LLA handles NE and NW quadrants
+    // The SW LLA handles SE and SW quadrants
 }

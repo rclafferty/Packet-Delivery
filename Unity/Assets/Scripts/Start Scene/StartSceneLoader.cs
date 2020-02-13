@@ -15,13 +15,7 @@ public class StartSceneLoader : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Load Prefabs
-        // startNPC = Resources.Load<GameObject>("Prefabs/StartingNPC");
-        // startNPC = GameObject.Find("Starting NPC");
 
-        // Instantiate prefabs
-
-        // Set a OnSceneWasLoaded event
     }
 
     // Update is called once per frame
@@ -42,9 +36,10 @@ public class StartSceneLoader : MonoBehaviour
             startNPC.GetComponent<SpriteRenderer>().sprite = sprite_NPCLeft;
             npcManager.sprite_PlayerDown = sprite_PlayerDown;
 
-            npcManager.MoveNPC(true);
-            npcManager.StartDialogue();
-            npcManager.MoveNPC(false);
+            // Temporarily disabled: NPC enters, talks, exits
+            // npcManager.MoveNPC(true);
+            // npcManager.StartDialogue();
+            // npcManager.MoveNPC(false);
 
             SceneManager.sceneLoaded -= OnSceneWasLoaded;
         }

@@ -1,43 +1,56 @@
 ﻿// using System;
 using Assets.Scripts.Behind_The_Scenes;
 // using Assets.Scripts.Chat;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameplayManager : MonoBehaviour
 {
     static GameplayManager instance = null;
+
+    const int DELIVERY_PAYMENT = 10; // Equivalent to 10 dollars
+
+    public struct DeliveryDirections
+    {
+        public string building;
+        public string color;
+        public string mapDirection;
+    }
+
+    // Other necessary managers
+    [SerializeField] LetterManager letterManager;
+    [SerializeField] NotepadManager notepadManager;
+
+    [SerializeField] GameObject moneyBackdrop;
+    [SerializeField] Text moneyText;
+
+    [SerializeField] Letter currentTargetMessage;
+
+    int obstacleTilemapIndex;
+
+    [SerializeField] public string indoorLocation;
     
-    [SerializeField]
-    string currentTarget;
+    string[] locations = { "office", "centralLookupAgency", "localLookupAgencyNE", "localLookupAgencySW", "home" };
 
-    [SerializeField]
-    Message currentTargetMessage;
-    bool hasVisitedCLA;
+    [System.Obsolete("Should not be using spawnpoints anymore")]
+    string[] spawnpointNames = { "Office Spawnpoint", "CLA Spawnpoint", "LLA NE Spawnpoint", "LLA SW Spawnpoint", "Home" };
 
-    string currentLocation;
+    public Vector2 lastOutdoorPosition;
 
-    [SerializeField]
-    LetterManager letterManager;
-    UpgradeManager upgradeManager;
+    public string currentAddress = "";
+    public string deliveryAddress = "";
 
-    int remainingTasks;
-
-    string nextDeliveryLocation;
-
-    string direction_building = "";
-    string direction_color = "";
-    string direction_direction = "";
-
-    Vector3 spawnLocation;
-
-    Timer timer;
-
-    bool startingLetter;
+    int money = 0;
 
     // Start is called before the first frame update
     void Start()
     {
+        obstacleTilemapIndex = -1;
+
         if (instance == null)
         {
             instance = this;
@@ -48,9 +61,19 @@ public class GameplayManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+        
+        HasStartingLetter = true;
 
-        hasVisitedCLA = false;
-        startingLetter = true;
+        GameplayTimer = GameObject.Find("Timer").GetComponent<Timer>();
+
+        lastOutdoorPosition = new Vector2(-14, 12);
+
+        Money = 0;
+        moneyBackdrop.SetActive(false);
+
+        ResetDeliveryDetails();
+
+        SceneManager.sceneLoaded += OnSceneLoad;
     }
 
     // Update is called once per frame
@@ -59,15 +82,52 @@ public class GameplayManager : MonoBehaviour
 
     }
 
-    public bool HasStartingLetter
+#if UNITY_EDITOR
+    public void DebugChangePlayerPosition(int locationIndex)
     {
-        get
+        if (SceneManager.GetActiveScene().name != "town")
+            return;
+
+        string spawnpointName = spawnpointNames[locationIndex];
+        if (locationIndex == 4)
         {
-            return startingLetter;
+            GameObject[] homeSpawnpoints = GameObject.FindGameObjectsWithTag("HomeSpawnpoint");
+            if (homeSpawnpoints.Length == 0)
+            {
+                Debug.Log("No spawnpoints");
+                return;
+            }
+            else if (homeSpawnpoints.Length == 1)
+            {
+                spawnpointName = homeSpawnpoints[0].name;
+            }
+            else
+            {
+                Debug.Log("OTI = " + obstacleTilemapIndex);
+                spawnpointName = homeSpawnpoints[obstacleTilemapIndex].name;
+            }
         }
-        set
+        GameObject.Find("Player").transform.position = GameObject.Find(spawnpointName).transform.position;
+    }
+#endif
+
+    public string GetLetterAddress()
+    {
+        if (CurrentTargetMessage == null)
+            return "NONE";
+
+        return CurrentTargetMessage.Address;
+    }
+
+    void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)
+    {
+        if (thisScene.name == "town")
         {
-            startingLetter = value;
+            GameObject.Find("Player").transform.position = lastOutdoorPosition + (Vector2.down * 1);
+        }
+        else if (thisScene.name == "instructions")
+        {
+            moneyBackdrop.SetActive(true);
         }
     }
 
@@ -79,64 +139,10 @@ public class GameplayManager : MonoBehaviour
         }
 
         letterManager = lm;
-        remainingTasks = letterManager.RemainingLetters;
+        RemainingTasks = letterManager.RemainingLetterCount;
     }
-
-    public void SetUpgradeManager(UpgradeManager um)
-    {
-        if (um == null)
-        {
-            return;
-        }
-
-        upgradeManager = um;
-    }
-
-    public void SetTimer(Timer t)
-    {
-        timer = t;
-    }
-
-    public string NextDeliveryLocation
-    {
-        get
-        {
-            return nextDeliveryLocation;
-        }
-        set
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                nextDeliveryLocation = "Office";
-            }
-            else
-            {
-                nextDeliveryLocation = value;
-            }
-        }
-    }
-
-    public string CurrentTarget
-    {
-        get
-        {
-            return currentTarget;
-        }
-        // set
-        // {
-        //     if (string.IsNullOrEmpty(value))
-        //     {
-        //         currentTarget = "";
-        //         return;
-        //     }
-        //     else
-        //     {
-        //         currentTarget = value;
-        //     }
-        // }
-    }
-
-    public Message CurrentTargetMessage
+    
+    public Letter CurrentTargetMessage
     {
         get
         {
@@ -147,14 +153,12 @@ public class GameplayManager : MonoBehaviour
             if (value == null)
             {
                 currentTargetMessage = null;
-                currentTarget = "";
+                CurrentTarget = "";
             }
             else
             {
                 currentTargetMessage = value;
-                currentTarget = currentTargetMessage.Recipient;
-
-                Debug.Log("Current target: " + currentTarget);
+                CurrentTarget = currentTargetMessage.Recipient;
             }
 
             string name = SceneManager.GetActiveScene().name.ToLower();
@@ -163,121 +167,114 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    public bool HasCurrentTarget
+    public bool HasCurrentTarget()
     {
-        get
-        {
-            return (currentTarget != "");
-        }
-    }
-
-    public bool VisitedCLA
-    {
-        get
-        {
-            return hasVisitedCLA;
-        }
-        set
-        {
-            hasVisitedCLA = value;
-        }
-    }
-
-    public string CurrentLocation
-    {
-        get
-        {
-            return currentLocation;
-        }
-        set
-        {
-            currentLocation = value;
-        }
+        return (CurrentTarget != "");
     }
 
     public void CompleteTask()
     {
+        if (HasCurrentTarget())
+        {
+            // Debug.Log("LetterManager ? " + (letterManager != null));
+            // Debug.Log("Current Message ? " + (currentTargetMessage != null));
+            letterManager.MarkMessageAsDelivered(currentTargetMessage.MessageID);
+
+            if (HasStartingLetter)
+            {
+                HasStartingLetter = false;
+            }
+
+            Money += DELIVERY_PAYMENT;
+        }
+
+        ResetDeliveryDetails();
+    }
+
+    private void ResetDeliveryDetails()
+    {
         currentTargetMessage = null;
-        currentTarget = "";
+        CurrentTarget = "";
 
         ResetDirectionsToOffice();
 
-        timer.StopTimerIfRunning();
+        GameplayTimer.StopTimerIfRunning();
+
+        obstacleTilemapIndex++;
+
+        notepadManager.ClearNotepad();
     }
 
-    void ResetDirectionsToOffice()
+    DeliveryDirections ResetDirectionsToOffice()
     {
-        nextDeliveryLocation = "Office";
+        NextDeliveryLocation = "Office";
 
-        direction_color = "red";
-        direction_color = "office";
-        direction_direction = "northwest";
+        DeliveryDirections deliveryDirections;
+
+        deliveryDirections.building = "office";
+        deliveryDirections.color = "red";
+        deliveryDirections.mapDirection = "northwest";
+
+        NextStep = deliveryDirections;
+
+        return deliveryDirections;
     }
 
     public void GetNextMessage()
     {
         this.CurrentTargetMessage = letterManager.GetNextMessage();
-        nextDeliveryLocation = "CLA";
+        NextDeliveryLocation = "CLA";
+        deliveryAddress = currentTargetMessage.Address;
+
+        notepadManager.AddItemToNotepad("Central Lookup Agency");
     }
 
-    public int RemainingTasks
+    public void GetStartingMessage()
     {
-        get
-        {
-            return remainingTasks;
-        }
-        set
-        {
-            remainingTasks = value;
-        }
+        this.CurrentTargetMessage = letterManager.GetStartingMessage();
+        NextDeliveryLocation = "CLA";
+        deliveryAddress = currentTargetMessage.Address;
+
+        notepadManager.AddItemToNotepad("Central Lookup Agency");
+    }
+
+    public void AddTodoItem(string item)
+    {
+        notepadManager.AddItemToNotepad(item);
     }
 
     public bool HasRemainingTasks
     {
         get
         {
-            remainingTasks = letterManager.RemainingLetters;
-            Debug.Log(remainingTasks + " remaining letters");
-            return (remainingTasks > 0);
+            RemainingTasks = letterManager.RemainingLetterCount;
+            Debug.Log(RemainingTasks + " remaining letters");
+            return (RemainingTasks > 0);
         }
     }
 
-    public string[] Directions
-    {
+    public int Money {
         get
         {
-            string[] directions = { direction_color, direction_building, direction_direction };
-            return directions;
+            return money;
         }
         set
         {
-            string[] directions = value;
-            if (directions == null)
-            {
-                ResetDirectionsToOffice();
-            }
-            else if (directions.Length < 3)
-            {
-                ResetDirectionsToOffice();
-            }
-            else
-            {
-                direction_color = directions[0];
-                direction_building = directions[1];
-                direction_direction = directions[2];
-            }
+            money = value;
+            moneyText.text = "$" + money;
         }
     }
 
-    public Vector3 CurrentSpawnLocation
-    {
-        get
-        {
-            return spawnLocation;
-        }
-        set
-        {
-            spawnLocation = value;
-        }
-    }
+    // Auto property
+    public Vector3 CurrentSpawnLocation { get; set; }
+    public bool HasStartingLetter { get; set; }
+    public string CurrentLocation { get; set; }
+    public int RemainingTasks { get; set; }
+    public string CurrentTarget { get; private set; }
+    public DeliveryDirections NextStep { get; set; }
+    public string NextDeliveryLocation { get; set; }
+    public Timer GameplayTimer { get; set; }
+
+    public bool HasTaskTracker { get; set; }
+    public bool HasExitedTheMatrix { get; set; }
 }

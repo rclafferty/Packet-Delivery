@@ -7,31 +7,25 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 using Assets.Scripts.Lookup_Agencies;
+using Assets.Scripts.Behind_The_Scenes;
 
 public class GeneralChatManager : MonoBehaviour
 {
     GameplayManager gameplayManager;
     LevelManager levelManager;
-    LookupAgencyManager lookupManager;
+    [SerializeField] LookupAgencyManager lookupManager;
 
-    [SerializeField]
-    EventSystem eventSystem;
+    [SerializeField] EventSystem eventSystem;
 
-    [SerializeField]
-    Text chatText;
+    [SerializeField] Text chatText;
 
-    [SerializeField]
-    Button option1Button;
-    [SerializeField]
-    Text option1Text;
+    [SerializeField] Button option1Button;
+    [SerializeField] Text option1Text;
 
-    [SerializeField]
-    Button option2Button;
-    [SerializeField]
-    Text option2Text;
+    [SerializeField] Button option2Button;
+    [SerializeField] Text option2Text;
 
-    [SerializeField]
-    InputField inputField;
+    [SerializeField] InputField inputField;
 
     List<Person> people;
 
@@ -42,7 +36,7 @@ public class GeneralChatManager : MonoBehaviour
     UnityAction option1Action;
     UnityAction option2Action;
 
-    readonly float CHAT_DELAY = 0.02f;
+    readonly float CHAT_DELAY = 0.005f;
 
     bool isClickable;
 
@@ -76,19 +70,10 @@ public class GeneralChatManager : MonoBehaviour
 
     void FindObjectsForScene()
     {
+        // Dynamic objects -- must look up at runtime
         gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
         lookupManager = GameObject.Find("LookupAgencyManager").GetComponent<LookupAgencyManager>();
-
-        chatText = GameObject.Find("ChatText").GetComponent<Text>();
-        option1Text = GameObject.Find("Option1Text").GetComponent<Text>();
-        option1Button = GameObject.Find("Option1Button").GetComponent<Button>();
-        option2Text = GameObject.Find("Option2Text").GetComponent<Text>();
-        option2Button = GameObject.Find("Option2Button").GetComponent<Button>();
-
-        eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
-
-        inputField = GameObject.Find("InputField").GetComponent<InputField>();
     }
 
     void SetupBySceneName()
@@ -162,21 +147,56 @@ public class GeneralChatManager : MonoBehaviour
         {
             if (location == "CLA")
             {
-                chatText_message = "Please visit the Central Lookup Agency for further directions.";
+                chatText_message = "Please visit the Central Lookup Agency for further directions";
             }
             if (location == "LLA NE")
             {
-                chatText_message = "Please visit the Northeast Local Lookup Agency for further directions.";
+                chatText_message = FormatChatMessage("Local Lookup Agency", "northeast");
+
+                gameplayManager.AddTodoItem("NE Local Lookup Agency");
             }
             else if (location == "LLA SW")
             {
-                chatText_message = "Please visit the Southwest Local Lookup Agency for further directions.";
-            }
-            else // if (location == "Office")
-            {
-                string[] directions = gameplayManager.Directions;
+                chatText_message = FormatChatMessage("Local Lookup Agency", "southwest");
 
-                chatText_message = "Please visit the " + directions[0] + " " + directions[1] + " on the " + directions[2] + " side of town for your next step.";
+                gameplayManager.AddTodoItem("SW Local Lookup Agency");
+            }
+            else if (location == "Office")
+            {
+                GameplayManager.DeliveryDirections nextStep;
+                nextStep = gameplayManager.NextStep;
+
+                if (nextStep.mapDirection == "northeast")
+                {
+                    nextStep.mapDirection = "north";
+                }
+                if (nextStep.mapDirection == "southwest")
+                {
+                    nextStep.mapDirection = "south";
+                }
+
+                chatText_message = FormatChatMessage(nextStep.color + " " + nextStep.building, nextStep.mapDirection);
+            }
+            else // if (location == "Home")
+            {
+                GameplayManager.DeliveryDirections nextStep;
+                nextStep = gameplayManager.NextStep;
+
+                if (nextStep.mapDirection == "northeast")
+                {
+                    nextStep.mapDirection = "north";
+                }
+                if (nextStep.mapDirection == "southwest")
+                {
+                    nextStep.mapDirection = "south";
+                }
+
+                // chatText_message = FormatChatMessage(nextStep.color + " " + nextStep.building, nextStep.mapDirection);
+                string displayedAddress = gameplayManager.CurrentTargetMessage.Address;
+                displayedAddress = displayedAddress[0].ToString() + displayedAddress[1].ToString() + displayedAddress[2].ToString() + " " + displayedAddress[3].ToString();
+                chatText_message = "Please visit the " + nextStep.color + " " + nextStep.building + " at " + displayedAddress + " St";
+
+                gameplayManager.AddTodoItem("Deliver to " + displayedAddress);
             }
 
             option1_message = "Thank you for your help.";
@@ -190,6 +210,16 @@ public class GeneralChatManager : MonoBehaviour
                 ShowText();
             };
         }
+    }
+
+    string FormatChatMessage(string building, string direction)
+    {
+        const string chatTemplate = "Please visit the # on the ## side of town for your next step.";
+        string message = chatTemplate;
+        message = message.Replace("##", direction);
+        message = message.Replace("#", building);
+
+        return message;
     }
 
     public void ShowText()
@@ -223,7 +253,7 @@ public class GeneralChatManager : MonoBehaviour
 
         string location = gameplayManager.NextDeliveryLocation;
         string sceneName = SceneManager.GetActiveScene().name.ToLower();
-        Debug.Log("Location = " + location + "\tScene Name = " + sceneName);
+        // Debug.Log("Location = " + location + "\tScene Name = " + sceneName);
 
         bool isCurrentSpot = (
             (sceneName == "centrallookupagency") ||
@@ -306,7 +336,8 @@ public class GeneralChatManager : MonoBehaviour
         string target = gameplayManager.CurrentTarget.ToLower();
         if (!lookupManager.HasLoadedPopulationList)
         {
-            lookupManager.LoadPopulationList();
+            lookupManager.LoadPopulationListFromTextAsset();
+            // lookupManager.LoadPopulationList();
         }
 
         if (inputField.text.ToLower() == target)
@@ -315,52 +346,34 @@ public class GeneralChatManager : MonoBehaviour
             int index = lookupManager.LocationLookup(target); // NOT case-sensitive
             Debug.Log(target + " is at index " + index);
 
-            if (index < 0 || index > lookupManager.LOCATION_TEXT.Length)
+            // This line throws errors!!!!!!!!!!!!!!!!!!!
+            string location = lookupManager.LOCATION_TEXT[index];
+
+            if (SceneManager.GetActiveScene().name.ToLower().Contains("central"))
             {
-                chatText_message = "Hmmm... I didn't catch that. Who was it again?";
-                option1_message = "Let me try again.";
-                option2_message = "I'll try again later";
-
-                option1Action = delegate
+                // Set next location
+                if (location.ToLower() == "northeast")
                 {
-                    ShowInputField(true);
-                    ShowText();
-                };
-
-                // a2 = StartTextAndButtons;
-                option2Action = delegate
+                    gameplayManager.NextDeliveryLocation = "LLA NE";
+                }
+                else if (location.ToLower() == "southwest")
                 {
-                    DepartTextAndButtons();
-                    ShowText();
-                };
+                    gameplayManager.NextDeliveryLocation = "LLA SW";
+                }
             }
             else
             {
-                // This line throws errors!!!!!!!!!!!!!!!!!!!
-                string location = lookupManager.LOCATION_TEXT[index];
+                GameplayManager.DeliveryDirections nextStep;
+                nextStep.building = "house";
+                nextStep.color = "yellow";
+                nextStep.mapDirection = lookupManager.LOCATION_TEXT[lookupManager.LocationLookup(target)];
 
-                if (SceneManager.GetActiveScene().name.ToLower().Contains("central"))
-                {
-                    // Set next location
-                    if (location.ToLower() == "northeast")
-                    {
-                        gameplayManager.NextDeliveryLocation = "LLA NE";
-                    }
-                    else if (location.ToLower() == "southwest")
-                    {
-                        gameplayManager.NextDeliveryLocation = "LLA SW";
-                    }
-                }
-                else
-                {
-                    gameplayManager.NextDeliveryLocation = "Home";
+                gameplayManager.NextDeliveryLocation = "Home";
 
-                    string[] directions = { "yellow", "house", "northeast" };
-                    gameplayManager.Directions = directions;
-                }
-
-                WhereToGo();
+                gameplayManager.NextStep = nextStep;
             }
+
+            WhereToGo();
         }
         else
         {
@@ -419,6 +432,12 @@ public class GeneralChatManager : MonoBehaviour
             option2Button.interactable = false;
         }
 
+        // Enable button 1 if not empty
+        option1Button.interactable = option1ButtonInteractable;
+
+        // Enable button 2 if not empty
+        option2Button.interactable = option2ButtonInteractable;
+
         // Write chat text
         for (int i = 0; i < chat.Length; i++)
         {
@@ -442,12 +461,6 @@ public class GeneralChatManager : MonoBehaviour
             yield return new WaitForSeconds(CHAT_DELAY);
             option2Text.text += option2[i];
         }
-
-        // Enable button 1 if not empty
-        option1Button.interactable = option1ButtonInteractable;
-
-        // Enable button 2 if not empty
-        option2Button.interactable = option2ButtonInteractable;
 
         isClickable = true;
     }

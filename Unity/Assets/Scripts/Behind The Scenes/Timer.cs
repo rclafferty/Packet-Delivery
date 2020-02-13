@@ -7,28 +7,23 @@ public class Timer : MonoBehaviour
 {
     static Timer instance = null;
 
-    const float EASY_MINUTES = 4.5f;
-    const float DEFAULT_MINUTES = 3.0f;
-    const float HARD_MINUTES = 1.5f;
+    Dictionary<int, string> difficultyIndexLookup;
+    readonly float[] TIMER_LENGTHS = { 7.0f, 5.0f, 3.0f };
     const float DEBUG_MINUTES = 0.2f;
+    int difficultyIndex = 0;
 
     float difficultyMinutes;
 
-    [SerializeField]
-    float runningTime;
-    [SerializeField]
-    bool running;
+    [SerializeField] float runningTime;
+    [SerializeField] bool running;
 
     float startTime;
     float currentTime;
 
     Coroutine currentTimer;
 
-    [SerializeField]
-    Text timerText;
-
-    [SerializeField]
-    GameObject object_timerText;
+    [SerializeField] Text timerText;
+    [SerializeField] GameObject object_timerText;
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +36,11 @@ public class Timer : MonoBehaviour
 
         instance = this;
         DontDestroyOnLoad(gameObject);
+
+        difficultyIndexLookup = new Dictionary<int, string>();
+        difficultyIndexLookup.Add(0, "easy");
+        difficultyIndexLookup.Add(1, "medium");
+        difficultyIndexLookup.Add(2, "hard");
 
         runningTime = 0.0f;
         running = false;
@@ -150,19 +150,21 @@ public class Timer : MonoBehaviour
         }
 
         string lower = difficulty.ToLower().Trim();
+
         if (lower == "easy")
         {
-            runningTime = EASY_MINUTES * 60.0f;
+            difficultyIndex = 0;
         }
         else if (lower == "medium" || lower == "default")
         {
-            runningTime = DEFAULT_MINUTES * 60.0f;
+            difficultyIndex = 1;
         }
         else if (lower == "hard")
         {
-            runningTime = HARD_MINUTES * 60.0f;
+            difficultyIndex = 2;
         }
 
+        runningTime = TIMER_LENGTHS[difficultyIndex] * 60.0f;
         difficultyMinutes = runningTime;
     }
 }

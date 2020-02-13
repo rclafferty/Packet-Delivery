@@ -5,14 +5,16 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     const float DEAD_VALUE = 0.4f;
-    const float SPEED = 8f;
+    const float SPEED = 5f;
     Rigidbody2D thisRigidbody;
 
     bool activateSpeedModifier;
     float speedModifier;
 
-    [SerializeField]
-    Animator playerAnimator;
+    [SerializeField] Animator playerAnimator;
+
+    string horizontalFloatName = "HorizontalValue";
+    string verticalFloatName = "VerticalValue";
 
     enum Direction {
         Idle,
@@ -23,6 +25,9 @@ public class PlayerController : MonoBehaviour
     };
 
     Direction playerDirection;
+
+    // Mobile-specific variables
+    Vector2 touchOrigin = -Vector2.one;
 
     // Start is called before the first frame update
     void Start()
@@ -36,100 +41,92 @@ public class PlayerController : MonoBehaviour
         playerAnimator = gameObject.GetComponent<Animator>();
 
         playerDirection = Direction.Idle;
+
+        IsWalkingEnabled = true;
     }
 
     // Update is called once per frame
     void Update()
     {
-        float xMovement = Input.GetAxis("Horizontal");
-        float yMovement = Input.GetAxis("Vertical");
+        float xMovement = 0;
+        float yMovement = 0;
 
-#if UNITY_EDITOR
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (IsWalkingEnabled)
         {
-            DebugActivateSpeedModifier(3f);
-        }
-        else
-        {
-            DebugActivateSpeedModifier(1f);
-        }
+#if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
+            xMovement = Input.GetAxis("Horizontal");
+            yMovement = Input.GetAxis("Vertical");
+#else
+            if (Input.touchCount > 0)
+            {
+                Touch myTouch = Input.touches[0];
+                if (myTouch.phase == TouchPhase.Began)
+                {
+                    touchOrigin = myTouch.position;
+                }
+                else if (myTouch.phase == TouchPhase.Ended)
+                {
+                    touchOrigin = -Vector2.one;
+                }
+                else if (myTouch.phase == TouchPhase.Moved || myTouch.phase == TouchPhase.Stationary)
+                {
+                    // Inside the bounds of the screen
+                    Vector2 touchEnd = myTouch.position;
+                    float x = touchEnd.x - touchOrigin.x;
+                    float y = touchEnd.y - touchOrigin.y;
+                
+                    if (Mathf.Abs(x) > Mathf.Abs(y))
+                    {
+                        if (x > 0)
+                        {
+                            xMovement = 1;
+                        }
+                        else
+                        {
+                            xMovement = -1;
+                        }
+                    }
+                    else
+                    {
+                        if (y > 0)
+                        {
+                            yMovement = 1;
+                        }
+                        else
+                        {
+                            yMovement = -1;
+                        }
+                    }
+                }
+            }
 #endif
 
-        // Move
-        thisRigidbody.velocity = new Vector2(xMovement * SPEED * speedModifier, yMovement * SPEED * speedModifier);
+#if UNITY_EDITOR
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                DebugActivateSpeedModifier(3f);
+            }
+            else
+            {
+                DebugActivateSpeedModifier(1f);
+            }
+#endif
 
-        // Animate
-        if (yMovement > DEAD_VALUE)
-        {
-            Animate(Direction.Up);
-        }
-        else if (yMovement < 0 - DEAD_VALUE)
-        {
-            Animate(Direction.Down);
-        }
-        else if (xMovement < 0 - DEAD_VALUE)
-        {
-            Animate(Direction.Left);
-        }
-        else if (xMovement > DEAD_VALUE)
-        {
-            Animate(Direction.Right);
+            // Move
+            thisRigidbody.velocity = new Vector2(xMovement * SPEED * speedModifier, yMovement * SPEED * speedModifier);
+
+            Animate(thisRigidbody.velocity);
         }
         else
         {
-            Animate(Direction.Idle);
+            Animate(Vector2.zero);
         }
     }
 
-    void Animate(Direction direction)
+    void Animate(Vector2 direction)
     {
-        if (direction == playerDirection)
-            return;
-
-        playerDirection = direction;
-        if (playerDirection == Direction.Idle)
-        {
-            // Set all release triggers
-            playerAnimator.SetTrigger("UpReleaseTrigger");
-            playerAnimator.SetTrigger("DownReleaseTrigger");
-            playerAnimator.SetTrigger("LeftReleaseTrigger");
-            playerAnimator.SetTrigger("RightReleaseTrigger");
-        }
-        else
-        {
-            // Reset all other triggers
-            playerAnimator.ResetTrigger("UpTrigger");
-            playerAnimator.ResetTrigger("DownTrigger");
-            playerAnimator.ResetTrigger("LeftTrigger");
-            playerAnimator.ResetTrigger("RightTrigger");
-
-            if (playerDirection == Direction.Up)
-            {
-                // Set up trigger
-                playerAnimator.SetTrigger("UpTrigger");
-            }
-            else if (playerDirection == Direction.Down)
-            {
-                // Set down trigger
-                playerAnimator.SetTrigger("DownTrigger");
-            }
-            else if (playerDirection == Direction.Left)
-            {
-                // Set left trigger
-                playerAnimator.SetTrigger("LeftTrigger");
-            }
-            else if (playerDirection == Direction.Right)
-            {
-                // Set right trigger
-                playerAnimator.SetTrigger("RightTrigger");
-            }
-
-            // Reset release triggers
-            playerAnimator.ResetTrigger("UpReleaseTrigger");
-            playerAnimator.ResetTrigger("DownReleaseTrigger");
-            playerAnimator.ResetTrigger("LeftReleaseTrigger");
-            playerAnimator.ResetTrigger("RightReleaseTrigger");
-        }
+        playerAnimator.SetFloat(horizontalFloatName, direction.x);
+        playerAnimator.SetFloat(verticalFloatName, direction.y);
     }
 
 #if UNITY_EDITOR
@@ -138,4 +135,6 @@ public class PlayerController : MonoBehaviour
         speedModifier = mod;
     }
 #endif
+
+    public bool IsWalkingEnabled { get; set; }
 }

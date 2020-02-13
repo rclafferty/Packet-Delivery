@@ -12,21 +12,15 @@ public class HomeChatManager : MonoBehaviour
     GameplayManager gameplayManager;
     LevelManager levelManager;
 
-    [SerializeField]
-    EventSystem eventSystem;
+    [SerializeField] EventSystem eventSystem;
 
-    [SerializeField]
-    Text chatText;
+    [SerializeField] Text chatText;
 
-    [SerializeField]
-    Button option1Button;
-    [SerializeField]
-    Text option1Text;
+    [SerializeField] Button option1Button;
+    [SerializeField] Text option1Text;
 
-    [SerializeField]
-    Button option2Button;
-    [SerializeField]
-    Text option2Text;
+    [SerializeField] Button option2Button;
+    [SerializeField] Text option2Text;
 
     List<Person> people;
 
@@ -37,7 +31,7 @@ public class HomeChatManager : MonoBehaviour
     UnityAction option1Action;
     UnityAction option2Action;
 
-    readonly float CHAT_DELAY = 0.02f;
+    readonly float CHAT_DELAY = 0.005f;
 
     Coroutine currentCoroutine;
 
@@ -63,14 +57,6 @@ public class HomeChatManager : MonoBehaviour
     {
         gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-
-        chatText = GameObject.Find("ChatText").GetComponent<Text>();
-        option1Text = GameObject.Find("Option1Text").GetComponent<Text>();
-        option1Button = GameObject.Find("Option1Button").GetComponent<Button>();
-        option2Text = GameObject.Find("Option2Text").GetComponent<Text>();
-        option2Button = GameObject.Find("Option2Button").GetComponent<Button>();
-
-        eventSystem = GameObject.Find("EventSystem").GetComponent<EventSystem>();
     }
 
     void StartTextAndButtons()
@@ -91,15 +77,26 @@ public class HomeChatManager : MonoBehaviour
 
     void DeliverPackage()
     {
-        if (gameplayManager.NextDeliveryLocation.ToLower() != "home")
-        {
-            chatText_message = "I wasn't expecting a package.";
-            option1_message = "Sorry. I must have the wrong house.";
+        gameplayManager.NextDeliveryLocation = gameplayManager.NextDeliveryLocation.Trim();
+        gameplayManager.currentAddress = gameplayManager.currentAddress.Trim();
+        gameplayManager.deliveryAddress = gameplayManager.deliveryAddress.Trim();
 
-            option1Action = delegate {
-                DepartTextAndButtons();
-                ShowText();
-            };
+        Debug.Log("Next: " + gameplayManager.NextDeliveryLocation);
+        if (gameplayManager.NextDeliveryLocation.ToLower().Trim() != "home")
+        {
+            Debug.Log("Not home");
+            WrongLocation();
+        }
+        // Implicit dependence -- Revisit later
+        else if (gameplayManager.currentAddress != gameplayManager.deliveryAddress)
+        {
+            Debug.Log("Not same address -- " + gameplayManager.currentAddress + " vs " + gameplayManager.deliveryAddress);
+            WrongLocation();
+        }
+        else if (gameplayManager.currentAddress == gameplayManager.deliveryAddress && gameplayManager.currentAddress == "")
+        {
+            Debug.Log("Empty address");
+            WrongLocation();
         }
         else
         {
@@ -115,6 +112,17 @@ public class HomeChatManager : MonoBehaviour
                 gameplayManager.CompleteTask();
             };
         }
+    }
+
+    void WrongLocation()
+    {
+        chatText_message = "I wasn't expecting a package.";
+        option1_message = "Sorry. I must have the wrong house.";
+
+        option1Action = delegate {
+            DepartTextAndButtons();
+            ShowText();
+        };
     }
 
     void MorePackagesText()
@@ -164,6 +172,21 @@ public class HomeChatManager : MonoBehaviour
         isClickable = false;
 
         ClearText();
+
+        string[] locations = { "103A", "403B", "301D", "403D" };
+        string[] names = { "Uncle Doug", "Rebecca Lee", "Mayor Clark", "Mrs. Daily" };
+
+        string thisName = "";
+        for (int i = 0; i < locations.Length; i++)
+        {
+            if (gameplayManager.currentAddress == locations[i])
+            {
+                thisName = names[i];
+                break;
+            }
+        }
+
+        chat = thisName + ":\n" + chat;
 
         // Disable button 1 if null or ""
         if (string.IsNullOrEmpty(option1))

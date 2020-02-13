@@ -8,56 +8,32 @@ using UnityEngine.UI;
 
 public class StartingNPCManager : MonoBehaviour
 {
-    [SerializeField]
-    EventSystem eventSystem;
+    [SerializeField] EventSystem eventSystem;
 
-    [SerializeField]
-    Text chatText;
+    [SerializeField] Text chatText;
+    [SerializeField] Button option1Button;
+    [SerializeField] Text option1Text;
 
-    [SerializeField]
-    Button option1Button;
-    [SerializeField]
-    Text option1Text;
+    [SerializeField] string nextSceneName;
 
-    [SerializeField] string nextScene;
+    [SerializeField] TextAsset introDialogueText;
 
     const float RIGHT_X = -4.0f;
     const float LEFT_X = -13.0f;
 
-    const float CHAT_DELAY = 0.02f;
+    const float CHAT_DELAY = 0.005f;
 
     int dialogueIndex;
 
     Coroutine currentCoroutine;
 
-    string[] dialogue =
+    ArrayList dialogueLines;
+    struct DialogueLine
     {
-        "Hey there! I REALLY need this letter delivered today but I am too busy to do this.",
-        "Can you deliver it for me? I'll pay you!",
-        "Sure. Where is it going to?",
-        "I need you to bring it to my Uncle Doug for me.",
-        "I can do that.",
-        "I already emailed you the rest of the details.",
-        "Ok but...",
-        "Thanks!",
-        "But...",
-        "...",
-        "I don't know where his Uncle Doug lives..."
-    };
-    string[] names =
-    {
-        "Tanner",
-        "Tanner",
-        "Me",
-        "Tanner",
-        "Me",
-        "Tanner",
-        "Me",
-        "Tanner",
-        "Me",
-        "Me",
-        "Me"
-    };
+        public string speaker;
+        public string line;
+        public string response;
+    }
 
     string message_ChatText;
     string message_Option1Text;
@@ -67,28 +43,42 @@ public class StartingNPCManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (string.IsNullOrEmpty(nextScene))
+        if (string.IsNullOrEmpty(nextSceneName))
         {
-            nextScene = "office";
+            nextSceneName = "office";
         }
 
-        FindObjectsForScene();
+        ParseDialogueText();
+
+        option1Button.onClick.RemoveAllListeners();
+        option1Button.onClick.AddListener(ModifiedDialogue);
 
         dialogueIndex = 0;
-        Dialogue();
+        ModifiedDialogue();
+    }
+
+    private void ParseDialogueText()
+    {
+        string[] parts = introDialogueText.text.Split('\n');
+        string[] speakerParts = parts[0].Split(':');
+        string speaker = speakerParts[1].Trim();
+
+        dialogueLines = new ArrayList();
+
+        DialogueLine dialogueLine;
+        dialogueLine.speaker = speaker;
+        for (int i = 2 /* line 1 is blank */; i < parts.Length; i += 2)
+        {
+            dialogueLine.line = parts[i].Trim();
+            dialogueLine.response = parts[i + 1].Trim();
+            dialogueLines.Add(dialogueLine);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
 
-    }
-
-    void FindObjectsForScene()
-    {
-        chatText = GameObject.Find("ChatText").GetComponent<Text>();
-        option1Text = GameObject.Find("Option1Text").GetComponent<Text>();
-        option1Button = GameObject.Find("Option1Button").GetComponent<Button>();
     }
 
     public void MoveNPC(bool direction)
@@ -113,52 +103,32 @@ public class StartingNPCManager : MonoBehaviour
         // Vector3.Lerp(start, end, 3.0f);
     }
 
-    public void StartDialogue()
+    public void ModifiedDialogue()
     {
-        Debug.Log("Starting dialogue...");
-    }
-
-    public void Dialogue()
-    {
-        Debug.Log("Dialogue Index: " + dialogueIndex);
-        if (dialogueIndex >= dialogue.Length)
+        if (dialogueIndex >= dialogueLines.Count)
         {
-            SceneManager.LoadScene(nextScene);
+            SceneManager.LoadScene(nextSceneName);
             return;
         }
 
-        message_ChatText = names[dialogueIndex] + ":\n" + dialogue[dialogueIndex];
-        message_Option1Text = "Next";
+        eventSystem.SetSelectedGameObject(null);
+
+        DialogueLine thisLine = (DialogueLine)dialogueLines[dialogueIndex];
+        string nextSpeakerLine = thisLine.speaker + ":\n" + thisLine.line;
+        string nextResponseLine = thisLine.response;
+        
+        if (thisLine.line == "Thanks! I've got to run now!")
+        {
+            Destroy(gameObject.GetComponent<SpriteRenderer>());
+        }
 
         if (currentCoroutine != null)
         {
             StopCoroutine(currentCoroutine);
         }
-        currentCoroutine = StartCoroutine(WriteText(message_ChatText, message_Option1Text));
-
-        option1Button.onClick.RemoveAllListeners();
-        option1Button.onClick.AddListener(Dialogue);
-
-        if (dialogue[dialogueIndex] == "But...")
-        {
-            if (dialogue[dialogueIndex + 1] == "...")
-                Destroy(gameObject.GetComponent<SpriteRenderer>());
-        }
-
-        if (dialogue[dialogueIndex] == "...")
-        {
-            GameObject.Find("Player").GetComponent<SpriteRenderer>().sprite = sprite_PlayerDown;
-        }
+        currentCoroutine = StartCoroutine(WriteText(nextSpeakerLine, nextResponseLine));
 
         dialogueIndex++;
-    }
-
-    public bool Complete
-    {
-        get
-        {
-            return dialogueIndex >= dialogue.Length;
-        }
     }
 
     IEnumerator WriteText(string chat, string option1)
@@ -192,6 +162,5 @@ public class StartingNPCManager : MonoBehaviour
 
         // Enable button 1 if not empty
         option1Button.interactable = option1ButtonInteractable;
-
     }
 }

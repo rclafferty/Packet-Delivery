@@ -6,6 +6,9 @@ TagManager:
   tags:
   - LocationLabel
   - PersonLabel
+  - ObstacleTilemap
+  - HomeTilemap
+  - HomeSpawnpoint
   layers:
   - Default
   - TransparentFX
@@ -16,8 +19,8 @@ TagManager:
   - 
   - 
   - PostProcessing
-  - 
-  - 
+  - Characters
+  - Minimap
   - 
   - 
   - 
@@ -54,4 +57,10 @@ TagManager:
     locked: 0
   - name: Building
     uniqueID: 2363452849
+    locked: 0
+  - name: Characters
+    uniqueID: 940787811
+    locked: 0
+  - name: Minimap
+    uniqueID: 2752362229
     locked: 0

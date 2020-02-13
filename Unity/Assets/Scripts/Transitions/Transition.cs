@@ -18,35 +18,60 @@ public class Transition : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.name == "Player")
+        // Only concerned with the player
+        if (collision.name != "Player")
         {
-            LevelManager lm = GameObject.Find("LevelManager").GetComponent<LevelManager>();
-
-            string newScene = gameObject.name;
-            bool isLowerCase = (newScene[0] >= 'a' && newScene[0] <= 'z');
-
-            if (!isLowerCase)
-            {
-                bool isUpperCase = (newScene[0] >= 'A' && newScene[0] <= 'Z');
-
-                if (isUpperCase)
-                {
-                    char c = newScene[0];
-                    int index = c - 'A';
-                    c = (char)('a' + index);
-
-                    newScene = c + newScene.Substring(1);
-                }
-            }
-
-            GameObject player = GameObject.Find("Player");
-
-            GameplayManager gm = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
-            Vector3 pos = player.transform.position;
-            pos.y -= 1.0f;
-            gm.CurrentSpawnLocation = pos;
-
-            lm.LoadLevel(newScene);
+            return;
         }
+
+        LevelManager levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        
+        string newScene = gameObject.name;
+        bool isLowerCase = (newScene[0] >= 'a' && newScene[0] <= 'z');
+
+        if (!isLowerCase)
+        {
+            bool isUpperCase = (newScene[0] >= 'A' && newScene[0] <= 'Z');
+
+            if (isUpperCase)
+            {
+                char firstCharacter = newScene[0];
+                int index = firstCharacter - 'A';
+                firstCharacter = (char)('a' + index);
+
+                newScene = firstCharacter + newScene.Substring(1);
+            }
+        }
+
+        GameObject player = GameObject.Find("Player");
+
+        GameplayManager gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+        if (newScene.Contains("home"))
+        {
+            string[] newSceneDetails = newScene.Split('-');
+            newScene = "home";
+
+            if (newSceneDetails.Length == 1)
+            {
+                Debug.Log("Not enough parts in the name");
+            }
+            else
+            {
+                gameplayManager.currentAddress = newSceneDetails[1].Trim();
+                Debug.Log("Entering " + gameplayManager.currentAddress + " -- " + gameplayManager.GetLetterAddress() + " -- Next: " + gameplayManager.NextDeliveryLocation);
+            }
+        }
+
+        if (newScene != "town")
+        {
+            gameplayManager.indoorLocation = newScene;
+            gameplayManager.lastOutdoorPosition = this.transform.position;  
+        }
+
+        Vector3 playerPosition = player.transform.position;
+        playerPosition.y -= 1.0f;
+        gameplayManager.CurrentSpawnLocation = playerPosition;
+
+        levelManager.LoadLevel(newScene);
     }
 }

@@ -8,39 +8,29 @@ namespace Assets.Scripts.Lookup_Agencies
 {
     public class Person
     {
-        string name;
-        string location;
-        int locationIndex;
-
+        [Obsolete("Please include the address, not the location / index")]
         public Person(string n, string l, int li)
         {
-            name = n;
-            location = l;
-            locationIndex = li;
+            Name = n;
+            Location = l;
+            LocationIndex = li;
         }
 
-        public string Name
+        public Person(string n, string a, string u)
         {
-            get
-            {
-                return name;
-            }
+            Name = n;
+            Address = a;
+            URL = u;
         }
 
-        public string Location
-        {
-            get
-            {
-                return location;
-            }
-        }
+        public string Name { get; private set; }
 
-        public int LocationIndex
-        {
-            get
-            {
-                return locationIndex;
-            }
-        }
+        public string Location { get; private set;}
+
+        public int LocationIndex { get; private set;}
+
+        public string Address { get; private set; }
+
+        public string URL { get; private set; }
     }
 }

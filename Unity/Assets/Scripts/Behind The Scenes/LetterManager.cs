@@ -12,15 +12,12 @@ public class LetterManager : MonoBehaviour
 {
     static LetterManager instance = null;
 
-    [SerializeField]
-    Message[] letters;
-    bool[] isDelivered;
-    bool[] onHold;
-
-    [SerializeField]
-    int remaining;
+    [SerializeField] TextAsset[] letterTextFiles;
+    ArrayList listOfLetters;
 
     string[] URGENCY_STATUS = { "Normal", "Expedited", "Urgent" };
+
+    public static bool isFirstLetter = true;
 
     void Awake()
     {
@@ -29,138 +26,111 @@ public class LetterManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        
+
         instance = this;
         DontDestroyOnLoad(gameObject);
+
+        listOfLetters = new ArrayList();
+
+        RemainingLetterCount = 0;
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        LoadLettersFromTextAsset();
     }
 
-    // Update is called once per frame
-    void Update()
+    void LoadLettersFromTextAsset()
     {
-        
-    }
+        string recipientLine = "none";
+        string senderLine = "none";
+        string urgencyLine = "Normal";
+        string message = "none";
 
-    public void LoadLetterFromFile()
-    {
-        LoadLetters();
-    }
+        string[] parts = null;
 
-    private void LoadLetters()
-    {
-        // Define the first and last index for letters
-        const int MIN_INDEX = 1;
-        const int MAX_INDEX = 4;
+        StringBuilder sb = new StringBuilder();
 
-        // Calculate the difference in the indexes
-        int diff = MAX_INDEX - MIN_INDEX + 1;
-
-        letters = new Message[diff];
-        isDelivered = new bool[diff];
-        onHold = new bool[diff];
-        
-        string filepath = "";
-        for (int index = MIN_INDEX - 1; index < MAX_INDEX; index++)
+        foreach (TextAsset letter in letterTextFiles)
         {
-#if UNITY_EDITOR
-            filepath = "Assets/Resources/Letters/letter" + (index + 1).ToString("00") + ".txt";
-#else
-            filepath = "Assets/Resources/Letters/letter" + (index + 1).ToString("00") + ".txt";
-#endif
+            parts = letter.text.Split('\n');
 
-            string target = "none";
-            string sender = "none";
-            string urgent = "Normal";
-            string message = "none";
+            // Get message header parts
+            recipientLine = parts[0].Trim();
+            senderLine = parts[1].Trim();
+            urgencyLine = parts[2].Trim();
 
-            StringBuilder sb = new StringBuilder();
-            string line = "";
+            // Parts[3] is a blank line
 
-            using (StreamReader sr = new StreamReader(filepath))
+            // Body
+            sb.Clear();
+            for (int i = 4; i < parts.Length; i++)
             {
-                target = sr.ReadLine();
-                sender = sr.ReadLine();
-                urgent = sr.ReadLine();
-
-                // Blank line
-                sr.ReadLine();
-
-                do
-                {
-                    line = sr.ReadLine();
-                    if (line == "")
-                    {
-                        line = "\n\n";
-                    }
-                    sb.Append(line);
-                } while (!sr.EndOfStream);
-            } // End StreamReader
+                sb.Append(parts[i].Trim());
+                sb.Append("\n");
+            }
 
             message = sb.ToString();
 
-            letters[index] = Message.ParseMessage(index, target, sender, message, urgent, false);
-            isDelivered[index] = false;
+            Letter newLetter = Letter.ParseMessage(listOfLetters.Count, recipientLine, senderLine, message, urgencyLine);
+            listOfLetters.Add(newLetter);
         }
 
-        remaining = letters.Length;
+        RemainingLetterCount = listOfLetters.Count;
     }
 
-    public Message GetNextMessage()
+    public Letter GetNextMessage()
     {
         // not initialized
-        if (isDelivered == null)
+        if (listOfLetters == null)
         {
             return null;
         }
 
-        if (remaining <= 0)
+        // No more messages
+        if (RemainingLetterCount <= 0)
         {
             return null;
         }
 
-        int index = -1;
-
-        do
+        // Deliver letters in order
+        Letter thisLetter = null;
+        foreach (Letter letter in listOfLetters)
         {
-            index = (int)Random.Range(0, letters.Length);
-
-            if (isDelivered[index])
+            if (!letter.HasBeenDelivered && !letter.IsOnHold)
             {
-                index = -1;
+                thisLetter = letter;
+                letter.IsOnHold = true;
+                break;
             }
-            if (onHold[index])
-            {
-                index = -1;
-            }
-        } while (index == -1);
+        }
 
-        Message thisMessage = letters[index];
-        onHold[index] = true;
+        RemainingLetterCount--;
 
-        remaining--;
-
-        return thisMessage;
+        return thisLetter;
     }
 
-    public Message GetStartingMessage()
+    public Letter GetStartingMessage()
     {
-        for (int i = 0; i < letters.Length; i++)
+        foreach (Letter letter in listOfLetters)
         {
-            if (letters[i].Recipient.ToLower() == "Uncle Doug".ToLower())
+            if (letter.Recipient.ToLower() == "Uncle Doug".ToLower())
             {
-                return letters[i];
+                return letter;
             }
         }
 
         return null;
     }
 
-    public Message[] GetNextMessages(int n)
+    /// <summary>
+    /// Get n number of messages at a time
+    /// To be used in Logistics after upgrading the bag size
+    /// </summary>
+    /// <param name="n">Number of messages to retrieve</param>
+    /// <returns></returns>
+    public Letter[] GetNextMessages(int n)
     {
         int numberOfMessages = n;
 
@@ -170,13 +140,13 @@ public class LetterManager : MonoBehaviour
             return null;
         }
         // Return only the amount remaining
-        else if (numberOfMessages > remaining)
+        else if (numberOfMessages > RemainingLetterCount)
         {
-            numberOfMessages = remaining;
+            numberOfMessages = RemainingLetterCount;
         }
         // else numberOfMessages <= remaining and numberOfMessages > 0, do nothing special
 
-        Message[] toReturn = new Message[numberOfMessages];
+        Letter[] toReturn = new Letter[numberOfMessages];
 
         for (int i = 0; i < numberOfMessages; i++)
         {
@@ -188,20 +158,23 @@ public class LetterManager : MonoBehaviour
 
     public void ClearOnHold()
     {
-        for (int i = 0; i < onHold.Length; i++)
+        foreach (Letter letter in listOfLetters)
         {
-            if (onHold[i] == true)
+            letter.IsOnHold = false;
+        }
+    }
+
+    public void MarkMessageAsDelivered(int messageID)
+    {
+        for (int i = 0; i < listOfLetters.Count; i++)
+        {
+            Letter thisLetter = (Letter)listOfLetters[i];
+            if (thisLetter.MessageID == messageID)
             {
-                onHold[i] = false;
+                ((Letter)listOfLetters[i]).HasBeenDelivered = true;
             }
         }
     }
 
-    public int RemainingLetters
-    {
-        get
-        {
-            return remaining;
-        }
-    }
+    public int RemainingLetterCount { get; private set; }
 }

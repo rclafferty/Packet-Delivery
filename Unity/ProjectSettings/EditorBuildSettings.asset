@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Scenes/styleTitle.unity
     guid: d5f3e8128c3eab14bace67b2a0b0b777
   - enabled: 1
+    path: Assets/Scenes/instructions.unity
+    guid: 3b791993832c4e14383aeaee98f2a8b8
+  - enabled: 1
     path: Assets/Scenes/town.unity
     guid: 4d1f4dc7d1e6b4a47b4ee00d4a75ff5f
   - enabled: 1
