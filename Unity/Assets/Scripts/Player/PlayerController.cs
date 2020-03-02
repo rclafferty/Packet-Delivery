@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     const float DEAD_VALUE = 0.4f;
-    const float SPEED = 5f;
+    public static readonly float SPEED = 5f;
     Rigidbody2D thisRigidbody;
 
     bool activateSpeedModifier;
@@ -123,7 +123,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Animate(Vector2 direction)
+    public void Animate(Vector2 direction)
     {
         playerAnimator.SetFloat(horizontalFloatName, direction.x);
         playerAnimator.SetFloat(verticalFloatName, direction.y);

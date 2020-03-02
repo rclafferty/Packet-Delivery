@@ -12,50 +12,64 @@ public class NotepadManager : MonoBehaviour
 
     [SerializeField] RawImage backgroundImage;
     [SerializeField] Text notepadText;
-    string startingText = "To-Do Delivery List\n\nRecipient: None\n\n";
-    string templateText = "To-Do Delivery List\n\nRecipient: None\n\n- Receive Package From Office\n- Central Lookup Agency\n- Local Lookup Agency\n- Home";
 
     List<string> todoList;
 
     private void Awake()
     {
+        // If there is already a Notepad Manager -- Only need one
         if (instance != null)
         {
             Destroy(gameObject);
             return;
         }
 
+        // Set this as the Notepad Manager instance
         instance = this;
+
+        // Persist across scenes
         DontDestroyOnLoad(gameObject);
 
+        // Initialize the To-Do list
         todoList = new List<string>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        // Set default empty text
         ClearNotepad();
 
+        // Hide the Task Tracker
         backgroundImage.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
+        // If the user presses Tab
         if (Input.GetKeyDown(KeyCode.Tab))
         {
+            // Show or hide the task tracker
             ToggleTaskTracker();
         }
     }
 
     public void ToggleTaskTracker()
     {
+        // If the player has purchased the upgrade
         if (gameplayManager.HasTaskTracker)
         {
+            // Get the active scene name
             string sceneName = SceneManager.GetActiveScene().name;
+
+            // If it's not a restricted scene
             if (sceneName != "loading" && sceneName != "title" && sceneName != "start_town")
             {
+                // Toggle the task tracker
                 backgroundImage.gameObject.SetActive(!backgroundImage.gameObject.activeInHierarchy);
+
+                // Update the text
                 DisplayText();
             }
         }
@@ -63,12 +77,19 @@ public class NotepadManager : MonoBehaviour
 
     public void ToggleTaskTracker(bool isShown)
     {
+        // If the player has purchased the upgrade
         if (gameplayManager.HasTaskTracker)
         {
+            // Get the active scene name
             string sceneName = SceneManager.GetActiveScene().name;
+
+            // Ift it's not a restricted scene
             if (sceneName != "loading" && sceneName != "title" && sceneName != "start_town")
             {
+                // Toggle the task tracker
                 backgroundImage.gameObject.SetActive(isShown);
+
+                // Update the text
                 DisplayText();
             }
         }
@@ -76,14 +97,19 @@ public class NotepadManager : MonoBehaviour
 
     public void ClearNotepad()
     {
-        notepadText.text = startingText;
+        // Clear the To-Do list
         todoList.Clear();
+
+        // Set the default empty text
         DisplayText();
     }
 
     public void AddItemToNotepad(string item)
     {
+        // Add item to the To-Do list
         todoList.Add(item);
+
+        // Update the GUI to reflect new item
         DisplayText();
     }
 
@@ -91,26 +117,33 @@ public class NotepadManager : MonoBehaviour
     {
         string displayText = "Recipient: ";
 
+        // If there is NOT an active delivery
         if (string.IsNullOrEmpty(gameplayManager.CurrentTarget))
         {
             displayText += "None";
         }
+        // If there IS an active delivery
         else
         {
+            // Display the recipient's name
             displayText += gameplayManager.CurrentTarget;
         }
-
+        
         displayText += "\nNext Step: ";
 
+        // If the To-Do list is empty
         if (todoList.Count == 0)
         {
             displayText += "None";
         }
+        // If the todo list is NOT empty
         else
         {
+            // Display the last item on the To-Do list
             displayText += todoList[todoList.Count - 1];
         }
 
+        // Display the formatted text
         notepadText.text = displayText;
     }
 }

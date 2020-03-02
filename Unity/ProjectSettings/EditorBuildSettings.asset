@@ -41,4 +41,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/testAnimation.unity
     guid: d293b7f530d2dcb48a96295cbf535b63
+  - enabled: 1
+    path: Assets/Scenes/neighborhood.unity
+    guid: 08672ab1dc1746141b53456c64018b0d
   m_configObjects: {}

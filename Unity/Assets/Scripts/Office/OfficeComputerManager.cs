@@ -121,6 +121,15 @@ public class OfficeComputerManager : MonoBehaviour
         ToggleComputerCanvas(false);
     }
 
+    bool HasValidActiveDelivery()
+    {
+        // If Gameplay Manager is invalid
+        if (gameplayManager == null)
+            return false;
+        
+        return gameplayManager.HasCurrentTarget();
+    }
+
     public void NewDeliveryRequest()
     {
         // If Gameplay Manager is valid
@@ -207,7 +216,7 @@ public class OfficeComputerManager : MonoBehaviour
     public void ViewDeliveryDetails()
     {
         // If the player has an active delivery
-        if (gameplayManager.HasCurrentTarget())
+        if (HasValidActiveDelivery())
         {
             // Display delivery details
             DisplayDetails("");
@@ -229,119 +238,163 @@ public class OfficeComputerManager : MonoBehaviour
     public void NextDestination()
     {
         // Current display locations of the lookup agencies
-        string[] streetNames = { "A St", "C St", "D St" };
+        string[] streetNames = { "A St", "C St", "D St" }; // TODO: Add cross streets
         string[] locationName = { "Northeast Local Lookup Agency", "Central Lookup Agency", "Southwest Local Lookup Agency" };
 
-        if (gameplayManager != null)
+        // If valid Gameplay Manager and if there is an active delivery
+        if (HasValidActiveDelivery())
         {
-            if (gameplayManager.HasCurrentTarget())
+            string nextDestination = "";
+
+            // Attempt to lookup the abbreviation
+            bool isValidAbbreviation = abbreviationLookupTable.TryGetValue(gameplayManager.NextDeliveryLocation.Trim(), out nextDestination);
+
+            string nextDisplayDestination = "";
+
+            // If no valid abbreviation is found
+            if (isValidAbbreviation)
             {
-                string nextDestination = "";
-
-                // Attempt to lookup the abbreviation
-                bool isValidAbbreviation = abbreviationLookupTable.TryGetValue(gameplayManager.NextDeliveryLocation.Trim(), out nextDestination);
-                if (!isValidAbbreviation)
+                // Find the appropriate street name to display
+                for (int i = 0; i < streetNames.Length; i++)
                 {
-                    // If not found, display the stored location
-                    nextDestination = gameplayManager.NextDeliveryLocation;
-                }
-
-                string nextDisplayDestination = nextDestination;
-                Debug.Log("isValid: " + isValidAbbreviation + " -- " + gameplayManager.NextDeliveryLocation);
-                if (isValidAbbreviation)
-                {
-                    for (int i = 0; i < streetNames.Length; i++)
+                    if (locationName[i] == nextDestination)
                     {
-                        Debug.Log("Location: " + nextDestination + " vs " + locationName);
-                        if (locationName[i] == nextDestination)
-                        {
-                            nextDisplayDestination = nextDestination + " on " + streetNames[i];
-                            break;
-                        }
+                        // Format output to include street name
+                        nextDisplayDestination = nextDestination + " on " + streetNames[i];
+                        break;
                     }
-                }   
-                
-                screenText.text = "You should try stopping by the " + nextDisplayDestination + " next";
-            }
+                }
+            }   
             else
             {
-                DisplayNoActiveDeliveryError();
+                // Display the stored location
+                nextDestination = gameplayManager.NextDeliveryLocation;
+                nextDisplayDestination = nextDestination;
             }
+                
+            // Display next location
+            screenText.text = "You should try stopping by the " + nextDisplayDestination + " next";
+        }
+        else
+        {
+            // Display error
+           DisplayNoActiveDeliveryError();
         }
 
+        // Hide the logistics buttons
         ToggleDisplayLogisticsButtons(false);
+
+        // Show the on-screen text
         screenText.gameObject.SetActive(true);
     }
 
     public void Logistics()
     {
-        screenText.text = "No logistics yet, sorry.";
-
-        if (gameplayManager.HasStartingLetter)
+        // If the Gameplay Manager is valid
+        if (gameplayManager != null)
         {
-            screenText.text = "Upgrades will be available after your first delivery is complete.";
-        }
-        else
-        {
-            ToggleDisplayLogisticsButtons(true);
+            // If there is an active delivery
+            if (gameplayManager.HasStartingLetter)
+            {
+                screenText.text = "Upgrades will be available after your first delivery is complete.";
+            }
+            // There is no active delivery
+            else
+            {
+                ToggleDisplayLogisticsButtons(true);
+            }
         }
     }
 
     void ToggleDisplayLogisticsButtons(bool isShown)
     {
+        // Enable/Disable each logistics button
         foreach (Button b in logisticsButtons)
         {
             b.gameObject.SetActive(isShown);
         }
 
+        // If showing the logistics screen
         if (isShown)
         {
+            // Hide the message text
             screenText.gameObject.SetActive(false);
         }
     }
 
     public void PurchaseTaskTracker()
     {
+        // Task Tracker instructions to display on purchase
         string instructions = "To use the Task Tracker, press TAB to display your current target and your next delivery location.";
-        if (PurchaseUpgrade("Task Tracker", TASK_TRACKER_COST, instructions, gameplayManager.HasTaskTracker))
+
+        // Attempt to purchase the task tracker
+        if (AttemptPurchaseUpgrade("Task Tracker", TASK_TRACKER_COST, instructions, gameplayManager.HasTaskTracker))
         {
+            // Set task tracker flag in Gameplay Manager
             gameplayManager.HasTaskTracker = true;
+
+            // Display purchased text
             taskTrackerPriceText.text = "Purchased";
             taskTrackerPriceText.fontStyle = FontStyle.Italic;
 
+            // Activate the Notepad Manager's task tracker
             GameObject.FindObjectOfType<NotepadManager>().ToggleTaskTracker(true);
         }
     }
 
     public void PurchaseExitTheMatrix()
     {
+        // Exit the Matrix instructions to display on purchase
         string instructions = "Now all addresses will be IP addresses and all lookup agencies will be based on real domain lookups.";
-        if (PurchaseUpgrade("Exit the Matrix", EXIT_THE_MATRIX_COST, instructions, gameplayManager.HasExitedTheMatrix))
+
+        // Attempt to purchase the exit the matrix upgrade
+        if (AttemptPurchaseUpgrade("Exit the Matrix", EXIT_THE_MATRIX_COST, instructions, gameplayManager.HasExitedTheMatrix))
         {
+            // Set flags in the Gameplay Manager
             gameplayManager.ExitTheMatrix();
+
+            // Display purchased text
             exitMatrixPriceText.text = "Purchased";
             exitMatrixPriceText.fontStyle = FontStyle.Italic;
         }
     }
 
-    bool PurchaseUpgrade(in string upgradeTitle, in int cost, in string instructions, bool hasPurchasedAlready)
+    bool AttemptPurchaseUpgrade(in string upgradeTitle, in int cost, in string instructions, bool hasPurchasedAlready)
     {
+        // If the upgrade is already purchased
         if (hasPurchasedAlready)
         {
-            screenText.gameObject.SetActive(true);
+            // Set error message
             screenText.text = "You've already purchased the " + upgradeTitle + " upgrade.\n" + instructions; // TODO: Add some snarky "No need to buy the same thing twice, right?" comment
+
+            // Show on-screen message
+            screenText.gameObject.SetActive(true);
+
+            // Failed to purchase
             return false;
         }
+        // If the player has enough money
         else if (gameplayManager.Money >= cost)
         {
+            // Deduct the cost
             gameplayManager.Money -= cost;
-            screenText.gameObject.SetActive(true);
+
+            // Set success message
             screenText.text = "You successfully purchased the " + upgradeTitle + " upgrade.\n" + instructions;
+
+            // Show on-screen message
+            screenText.gameObject.SetActive(true);
+
+            // Successful purchase
             return true;
         }
+        // If the player does NOT have enough money
         else
         {
+            // Set error message
             screenText.text = "You need $" + cost + " to purchase the " + upgradeTitle + " upgrade.";
+
+            // Failed purchase
             return false;
         }
     }

@@ -66,7 +66,8 @@ public class GameplayManager : MonoBehaviour
 
         GameplayTimer = GameObject.Find("Timer").GetComponent<Timer>();
 
-        lastOutdoorPosition = new Vector2(-14, 12);
+        // lastOutdoorPosition = new Vector2(-14, 12);
+        lastOutdoorPosition = new Vector2(265, -21.5f);
 
         Money = 0;
         moneyBackdrop.SetActive(false);

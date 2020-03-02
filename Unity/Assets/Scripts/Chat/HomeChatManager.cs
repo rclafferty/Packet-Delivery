@@ -55,6 +55,7 @@ public class HomeChatManager : MonoBehaviour
 
     void FindObjectsForScene()
     {
+        // Find necessary persistent managers in scene
         gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
     }
@@ -77,27 +78,30 @@ public class HomeChatManager : MonoBehaviour
 
     void DeliverPackage()
     {
+        // Trim all values
         gameplayManager.NextDeliveryLocation = gameplayManager.NextDeliveryLocation.Trim();
         gameplayManager.currentAddress = gameplayManager.currentAddress.Trim();
         gameplayManager.deliveryAddress = gameplayManager.deliveryAddress.Trim();
-
-        Debug.Log("Next: " + gameplayManager.NextDeliveryLocation);
-        if (gameplayManager.NextDeliveryLocation.ToLower().Trim() != "home")
+        
+        // If the next stop is not "home"
+        if (gameplayManager.NextDeliveryLocation.ToLower() != "home")
         {
-            Debug.Log("Not home");
+            // "I wasn't expecting a package" type of message
             WrongLocation();
         }
-        // Implicit dependence -- Revisit later
+        // If the player is not at the right address
         else if (gameplayManager.currentAddress != gameplayManager.deliveryAddress)
         {
-            Debug.Log("Not same address -- " + gameplayManager.currentAddress + " vs " + gameplayManager.deliveryAddress);
+            // "I wasn't expecting a package" type of message
             WrongLocation();
         }
+        // If at an empty address -- Error catching
         else if (gameplayManager.currentAddress == gameplayManager.deliveryAddress && gameplayManager.currentAddress == "")
         {
-            Debug.Log("Empty address");
+            // "I wasn't expecting a package" type of message
             WrongLocation();
         }
+        // In the correct spot
         else
         {
             chatText_message = "Thank you very much!";
@@ -116,6 +120,7 @@ public class HomeChatManager : MonoBehaviour
 
     void WrongLocation()
     {
+        // Display some error message in chat
         chatText_message = "I wasn't expecting a package.";
         option1_message = "Sorry. I must have the wrong house.";
 
@@ -127,6 +132,7 @@ public class HomeChatManager : MonoBehaviour
 
     void MorePackagesText()
     {
+        // Premise for returning and delivering another package
         chatText_message = "I want to hire you to send another package. I'll email you the details.";
         option1_message = "Thank you!";
         option2_message = "";
@@ -137,46 +143,66 @@ public class HomeChatManager : MonoBehaviour
         };
         option2Action = delegate { ShowText(); };
 
+        // No longer has first letter
         gameplayManager.HasStartingLetter = false;
     }
     
     public void ShowText()
     {
+        // Disable buttons
         isClickable = false;
 
+        // If there is already a coroutine running
         if (currentCoroutine != null)
         {
+            // Stop it
             StopCoroutine(currentCoroutine);
         }
+
+        // Start this coroutine instead
         currentCoroutine = StartCoroutine(WriteText(chatText_message, option1_message, option2_message));
 
+        // Make the buttons do what they need to
         AddEventListeners(option1Action, option2Action);
 
+        // Enable buttons
         isClickable = true;
     }
 
     public void DisplayText(string c, string o1, string o2, UnityAction a1, UnityAction a2, out bool isClickable)
     {
+        // Freeze UI buttons
         isClickable = false;
 
+        // If there is a coroutine currently running
         if (currentCoroutine != null)
         {
+            // Stop it
             StopCoroutine(currentCoroutine);
         }
+
+        // Start this coroutine instead
         currentCoroutine = StartCoroutine(WriteText(c, o1, o2));
+
+        // Make the buttons do what they need to
         AddEventListeners(a1, a2);
     }
 
     IEnumerator WriteText(string chat, string option1, string option2)
     {
+        // Disable the UI buttons
         isClickable = false;
 
+        // Erase all UI text
         ClearText();
 
+        // Hardcoded locations
         string[] locations = { "103A", "403B", "301D", "403D" };
         string[] names = { "Uncle Doug", "Rebecca Lee", "Mayor Clark", "Mrs. Daily" };
 
         string thisName = "";
+        
+        // Find the current person's name
         for (int i = 0; i < locations.Length; i++)
         {
             if (gameplayManager.currentAddress == locations[i])
@@ -224,16 +250,17 @@ public class HomeChatManager : MonoBehaviour
             option2Text.text += option2[i];
         }
 
+        // Enable UI buttons
         isClickable = true;
     }
 
     void AddEventListeners(UnityAction a1, UnityAction a2)
     {
-        // Add option 1 listener
+        // Add option 1 (button 1) listener
         option1Button.onClick.RemoveAllListeners();
         option1Button.onClick.AddListener(a1);
 
-        // Add option 2 listener
+        // Add option 2 (button 2) listener
         option2Button.onClick.RemoveAllListeners();
         option2Button.onClick.AddListener(a2);
     }
@@ -244,6 +271,7 @@ public class HomeChatManager : MonoBehaviour
         option1Text.text = "";
         option2Text.text = "";
 
+        // Deselect any previously selected buttons
         eventSystem.SetSelectedGameObject(null);
     }
 
@@ -253,12 +281,14 @@ public class HomeChatManager : MonoBehaviour
         option1_message = "Bye.";
         option2_message = "";
 
+        // Make both buttons redirect to town
         option1Action = delegate { GoToTown(); };
-        option2Action = delegate { ShowText(); };
+        option2Action = delegate { GoToTown(); };
     }
 
     public void GoToTown()
     {
+        // Use Level Manager to change scenes
         levelManager.LoadLevel("town");
     }
 }

@@ -18,13 +18,10 @@ public class GeneralChatManager : MonoBehaviour
     [SerializeField] EventSystem eventSystem;
 
     [SerializeField] Text chatText;
-
     [SerializeField] Button option1Button;
     [SerializeField] Text option1Text;
-
     [SerializeField] Button option2Button;
     [SerializeField] Text option2Text;
-
     [SerializeField] InputField inputField;
 
     List<Person> people;
@@ -32,14 +29,12 @@ public class GeneralChatManager : MonoBehaviour
     string chatText_message;
     string option1_message;
     string option2_message;
-
     UnityAction option1Action;
     UnityAction option2Action;
 
     readonly float CHAT_DELAY = 0.005f;
 
     bool isClickable;
-
     bool inputFieldActive;
 
     Coroutine currentCoroutine;
@@ -70,7 +65,7 @@ public class GeneralChatManager : MonoBehaviour
 
     void FindObjectsForScene()
     {
-        // Dynamic objects -- must look up at runtime
+        // Persistent objects -- must look up at runtime
         gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
         lookupManager = GameObject.Find("LookupAgencyManager").GetComponent<LookupAgencyManager>();
