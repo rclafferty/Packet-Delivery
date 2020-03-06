@@ -10,10 +10,9 @@ public class LoadingManager : MonoBehaviour
     [SerializeField] LetterManager letterManager;
     [SerializeField] LevelManager levelManager;
     [SerializeField] MusicManager musicManager;
-    [SerializeField] RespawnManager spawnManager;
     [SerializeField] StartSceneLoader startSceneLoader;
     [SerializeField] LookupAgencyManager lookupAgencyManager;
-    [SerializeField] Timer timer;
+    // [SerializeField] Timer timer;
 
     [SerializeField] AudioClip music;
 
@@ -40,7 +39,7 @@ public class LoadingManager : MonoBehaviour
     {
         // Debug.Log("Method, not coroutine");
 
-        AssignInstantiatedObjectNames();
+        // AssignInstantiatedObjectNames();
         LinkManagersAndInitializeValues();
         
         levelManager.LoadLevel("title");
@@ -54,10 +53,9 @@ public class LoadingManager : MonoBehaviour
         letterManager.name = "LetterManager";
         levelManager.name = "LevelManager";
         musicManager.name = "MusicManager";
-        spawnManager.name = "SpawnManager";
         startSceneLoader.name = "StartSceneLoader";
         lookupAgencyManager.name = "LookupAgencyManager";
-        timer.name = "Timer";
+        // timer.name = "Timer";
     }
 
     void LinkManagersAndInitializeValues()
@@ -65,9 +63,10 @@ public class LoadingManager : MonoBehaviour
         // ORDER SENSITIVE
         musicManager.SetAudioClip(music);
         musicManager.Play();
-        gameplayManager.GameplayTimer = timer;
-        gameplayManager.SetLetterManager(letterManager);
-        gameplayManager.CompleteTask();
+        // gameplayManager.GameplayTimer = timer;
+        // gameplayManager.SetLetterManager(letterManager);
+        gameplayManager.ResetDeliveryDetails();
+
         // Disabled temporarily: Start with a message already
         // gameplayManager.CurrentTargetMessage = letterManager.GetStartingMessage();
 
@@ -75,9 +74,8 @@ public class LoadingManager : MonoBehaviour
         // gameplayManager.SetUpgradeManager(upgradeManager);
 
         // NOT order sensitive
-        gameplayManager.CurrentSpawnLocation = spawnManager.GetSpawnPointByName("Office");
         cheatManager.SetLevelManager(levelManager);
-        timer.SetDifficulty("Default");
+        // timer.SetDifficulty("Default");
         startSceneLoader.sprite_PlayerDown = sprite_PlayerDown;
         startSceneLoader.sprite_PlayerRight = sprite_PlayerRight;
         startSceneLoader.sprite_NPCLeft = sprite_NPCLeft;

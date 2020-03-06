@@ -15,7 +15,7 @@ public class NeighborhoodTransition : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(Fade(1, 0, 0.5f));
+
     }
 
     // Update is called once per frame
@@ -26,6 +26,7 @@ public class NeighborhoodTransition : MonoBehaviour
 
     public IEnumerator Fade(float start, float end, float timeToFade)
     {
+        fadeImage.enabled = true;
         Color currentFadeColor = fadeImage.color;
 
         // Set starting alpha
@@ -41,6 +42,11 @@ public class NeighborhoodTransition : MonoBehaviour
             yield return new WaitForEndOfFrame();
 
             Debug.Log("Fade Transitioning");
+        }
+
+        if (end == 0.0f)
+        {
+            fadeImage.enabled = false;
         }
     }
 

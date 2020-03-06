@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 580854362150100373}
-  - component: {fileID: 1983842719592289773}
+  - component: {fileID: 1729606484570662493}
   m_Layer: 0
   m_Name: ChatManager
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1983842719592289773
+--- !u!114 &1729606484570662493
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,13 +40,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 2698441112740837597}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5139e3b67c9f3042aaff27c493afa5e, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b45d611e78e4a14c868e8c870908508, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameplayManager: {fileID: 0}
+  lookupAgencyManager: {fileID: 0}
+  listOfPeople: []
+  neighborhoodID: 0
   eventSystem: {fileID: 0}
-  chatText: {fileID: 0}
-  option1Button: {fileID: 0}
+  chatPromptText: {fileID: 0}
   option1Text: {fileID: 0}
-  option2Button: {fileID: 0}
   option2Text: {fileID: 0}
+  option1Button: {fileID: 0}
+  option2Button: {fileID: 0}
   inputField: {fileID: 0}
+  fadeTransitionObject: {fileID: 0}

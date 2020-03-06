@@ -1,3 +1,5 @@
 # Ignore sass-cache
-
 PHP/.sass-cache/
+
+# Ignore CoreCode (redo of Unity Scripts)
+CoreCode/

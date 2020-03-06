@@ -22,11 +22,13 @@ public class HomeChatManager : MonoBehaviour
     [SerializeField] Button option2Button;
     [SerializeField] Text option2Text;
 
+    [SerializeField] Transition fadeTransitionObject;
+
     List<Person> people;
 
-    string chatText_message;
-    string option1_message;
-    string option2_message;
+    string chatTextMessage;
+    string option1Message;
+    string option2Message;
 
     UnityAction option1Action;
     UnityAction option2Action;
@@ -40,17 +42,17 @@ public class HomeChatManager : MonoBehaviour
     void Start()
     {
         FindObjectsForScene();
-        StartTextAndButtons();
+        StartDialogue();
 
         isClickable = false;
 
-        ShowText();
+        DisplayText();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     void FindObjectsForScene()
@@ -60,226 +62,125 @@ public class HomeChatManager : MonoBehaviour
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
     }
 
-    void StartTextAndButtons()
+    void StartDialogue()
     {
-        chatText_message = "Hello there! What brings you to my home?";
-        option1_message = "I have a package for you.";
-        option2_message = "I'm sorry. I think I am at the wrong house.";
+        chatTextMessage = "Are you the one with my package?";
+        option1Message = "I am!";
+        option2Message = "I'm sorry. I think I am at the wrong house.";
 
         option1Action = delegate {
             DeliverPackage();
-            ShowText();
+            DisplayText();
         };
         option2Action = delegate {
-            DepartTextAndButtons();
-            ShowText();
+            DepartDialogue();
+            DisplayText();
         };
     }
 
     void DeliverPackage()
     {
-        // Trim all values
-        gameplayManager.NextDeliveryLocation = gameplayManager.NextDeliveryLocation.Trim();
-        gameplayManager.currentAddress = gameplayManager.currentAddress.Trim();
-        gameplayManager.deliveryAddress = gameplayManager.deliveryAddress.Trim();
-        
-        // If the next stop is not "home"
-        if (gameplayManager.NextDeliveryLocation.ToLower() != "home")
+        Debug.Log("Current Address: " + gameplayManager.currentAddress);
+        if (!gameplayManager.NextStep.nextStep.Contains("Residence #"))
         {
-            // "I wasn't expecting a package" type of message
             WrongLocation();
         }
-        // If the player is not at the right address
-        else if (gameplayManager.currentAddress != gameplayManager.deliveryAddress)
+        else if (gameplayManager.currentAddress != gameplayManager.CurrentMessage.Recipient.HouseNumber.ToString())
         {
-            // "I wasn't expecting a package" type of message
             WrongLocation();
         }
-        // If at an empty address -- Error catching
-        else if (gameplayManager.currentAddress == gameplayManager.deliveryAddress && gameplayManager.currentAddress == "")
-        {
-            // "I wasn't expecting a package" type of message
-            WrongLocation();
-        }
-        // In the correct spot
         else
         {
-            chatText_message = "Thank you very much!";
-            option1_message = "Enjoy!";
+            chatTextMessage = "Thank you very much!";
+            option1Message = "Enjoy!";
 
             option1Action = delegate {
-                if (gameplayManager.HasStartingLetter)
-                    MorePackagesText();
-                else
-                    DepartTextAndButtons();
-                ShowText();
+                DepartDialogue();
+                DisplayText();
                 gameplayManager.CompleteTask();
             };
         }
     }
 
+    [System.Obsolete("Instead, change to UI notification BEFORE entering house.")]
     void WrongLocation()
     {
         // Display some error message in chat
-        chatText_message = "I wasn't expecting a package.";
-        option1_message = "Sorry. I must have the wrong house.";
+        chatTextMessage = "I wasn't expecting a package.";
+        option1Message = "Sorry. I must have the wrong house.";
+        option2Message = "";
 
         option1Action = delegate {
-            DepartTextAndButtons();
-            ShowText();
+            DepartDialogue();
+            DisplayText();
         };
-    }
-
-    void MorePackagesText()
-    {
-        // Premise for returning and delivering another package
-        chatText_message = "I want to hire you to send another package. I'll email you the details.";
-        option1_message = "Thank you!";
-        option2_message = "";
-
-        option1Action = delegate {
-            DepartTextAndButtons();
-            ShowText();
-        };
-        option2Action = delegate { ShowText(); };
-
-        // No longer has first letter
-        gameplayManager.HasStartingLetter = false;
-    }
-    
-    public void ShowText()
-    {
-        // Disable buttons
-        isClickable = false;
-
-        // If there is already a coroutine running
-        if (currentCoroutine != null)
+        option2Action = delegate
         {
-            // Stop it
+            DepartDialogue();
+            DisplayText();
+        };
+    }
+
+    void DisplayText()
+    {
+        if (currentCoroutine != null)
             StopCoroutine(currentCoroutine);
-        }
 
-        // Start this coroutine instead
-        currentCoroutine = StartCoroutine(WriteText(chatText_message, option1_message, option2_message));
-
-        // Make the buttons do what they need to
+        currentCoroutine = StartCoroutine(WriteTextToUI(chatTextMessage, option1Message, option2Message));
         AddEventListeners(option1Action, option2Action);
-
-        // Enable buttons
-        isClickable = true;
     }
 
-    public void DisplayText(string c, string o1, string o2, UnityAction a1, UnityAction a2, out bool isClickable)
+    IEnumerator WriteTextToUI(string chat, string option1, string option2)
     {
-        // Freeze UI buttons
-        isClickable = false;
-
-        // If there is a coroutine currently running
-        if (currentCoroutine != null)
-        {
-            // Stop it
-            StopCoroutine(currentCoroutine);
-        }
-
-        // Start this coroutine instead
-        currentCoroutine = StartCoroutine(WriteText(c, o1, o2));
-
-        // Make the buttons do what they need to
-        AddEventListeners(a1, a2);
-    }
-
-    IEnumerator WriteText(string chat, string option1, string option2)
-    {
-        // Disable the UI buttons
-        isClickable = false;
-
-        // Erase all UI text
-        ClearText();
-
-        // Hardcoded locations
-        string[] locations = { "103A", "403B", "301D", "403D" };
-        string[] names = { "Uncle Doug", "Rebecca Lee", "Mayor Clark", "Mrs. Daily" };
-
-        string thisName = "";
-        
-        // Find the current person's name
-        for (int i = 0; i < locations.Length; i++)
-        {
-            if (gameplayManager.currentAddress == locations[i])
-            {
-                thisName = names[i];
-                break;
-            }
-        }
-
-        chat = thisName + ":\n" + chat;
-
-        // Disable button 1 if null or ""
-        if (string.IsNullOrEmpty(option1))
-        {
-            option1Button.interactable = false;
-        }
-
-        // Disable button 2 if null or ""
-        if (string.IsNullOrEmpty(option2))
-        {
-            option2Button.interactable = false;
-        }
-
-        // Write chat text
-        for (int i = 0; i < chat.Length; i++)
-        {
-            // Wait for CHAT_DELAY seconds before writing the next letter
-            yield return new WaitForSeconds(CHAT_DELAY);
-            chatText.text += chat[i];
-        }
-
-        // Write option 1 text
-        for (int i = 0; i < option1.Length; i++)
-        {
-            // Wait for CHAT_DELAY seconds before writing the next letter
-            yield return new WaitForSeconds(CHAT_DELAY);
-            option1Text.text += option1[i];
-        }
-
-        // Write option 2 text
-        for (int i = 0; i < option2.Length; i++)
-        {
-            // Wait for CHAT_DELAY seconds before writing the next letter
-            yield return new WaitForSeconds(CHAT_DELAY);
-            option2Text.text += option2[i];
-        }
-
-        // Enable UI buttons
-        isClickable = true;
-    }
-
-    void AddEventListeners(UnityAction a1, UnityAction a2)
-    {
-        // Add option 1 (button 1) listener
-        option1Button.onClick.RemoveAllListeners();
-        option1Button.onClick.AddListener(a1);
-
-        // Add option 2 (button 2) listener
-        option2Button.onClick.RemoveAllListeners();
-        option2Button.onClick.AddListener(a2);
-    }
-
-    void ClearText()
-    {
+        // Clear displayed text
         chatText.text = "";
         option1Text.text = "";
         option2Text.text = "";
 
-        // Deselect any previously selected buttons
+        // Deselect all buttons
         eventSystem.SetSelectedGameObject(null);
+
+        option1Button.interactable = !string.IsNullOrEmpty(option1);
+        option2Button.interactable = !string.IsNullOrEmpty(option2);
+
+        // Write to chat prompt
+        for (int i = 0; i < chat.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            chatText.text += chat[i];
+        }
+
+        // Write option 1 button text
+        for (int i = 0; i < option1.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option1Text.text += option1[i];
+        }
+
+        // Write option 2 button text
+        for (int i = 0; i < option2.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option2Text.text += option2[i];
+        }
     }
 
-    public void DepartTextAndButtons()
+    void AddEventListeners(UnityAction a1, UnityAction a2)
     {
-        chatText_message = "Have a good day!";
-        option1_message = "Bye.";
-        option2_message = "";
+        // Add option 1 listener
+        option1Button.onClick.RemoveAllListeners();
+        option1Button.onClick.AddListener(a1);
+
+        // Add option 2 listener
+        option2Button.onClick.RemoveAllListeners();
+        option2Button.onClick.AddListener(a2);
+    }
+
+    public void DepartDialogue()
+    {
+        chatTextMessage = "Have a good day!";
+        option1Message = "Bye.";
+        option2Message = "";
 
         // Make both buttons redirect to town
         option1Action = delegate { GoToTown(); };
@@ -288,7 +189,6 @@ public class HomeChatManager : MonoBehaviour
 
     public void GoToTown()
     {
-        // Use Level Manager to change scenes
-        levelManager.LoadLevel("town");
+        fadeTransitionObject.FadeMethod("town");
     }
 }

@@ -24,12 +24,15 @@ EditorBuildSettings:
     path: Assets/Scenes/centralLookupAgency.unity
     guid: 511dd3d681870564b8e9ec17ff2a646c
   - enabled: 1
+    path: Assets/Scenes/localLookupAgency.unity
+    guid: 83eabc15ab9b26d4abef490e76da99fb
+  - enabled: 0
     path: Assets/Scenes/localLookupAgencyNE.unity
     guid: 69f97767b4f086c4c9508439e3ac09b3
   - enabled: 1
     path: Assets/Scenes/office.unity
     guid: 18015490af64a194aadadcd0332525dc
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/localLookupAgencySW.unity
     guid: 61229e545a3edc149abdd28ac111bde7
   - enabled: 1

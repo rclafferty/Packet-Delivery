@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Behind_The_Scenes;
+using Assets.Scripts.Lookup_Agencies;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -12,8 +13,10 @@ public class LetterManager : MonoBehaviour
 {
     static LetterManager instance = null;
 
+    [SerializeField] LookupAgencyManager lookupAgencyManager;
+
     [SerializeField] TextAsset[] letterTextFiles;
-    ArrayList listOfLetters;
+    List<Letter> lettersToDeliver;
 
     string[] URGENCY_STATUS = { "Normal", "Expedited", "Urgent" };
 
@@ -35,7 +38,7 @@ public class LetterManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         // Initialize the list of letters
-        listOfLetters = new ArrayList();
+        lettersToDeliver = new List<Letter>();
 
         // No current letters loaded
         RemainingLetterCount = 0;
@@ -47,32 +50,85 @@ public class LetterManager : MonoBehaviour
         LoadLettersFromTextAsset();
     }
 
+    public void AddLetter(Person s, Person r, string b)
+    {
+        int id = lettersToDeliver.Count + 1;
+        Letter newLetter = new Letter(id, s, r, b);
+        lettersToDeliver.Add(newLetter);
+    }
+
+    public Letter GetNextLetter()
+    {
+        if (lettersToDeliver == null)
+            return null;
+
+        if (lettersToDeliver.Count == 0)
+            return null;
+        
+        int id = Random.Range(0, lettersToDeliver.Count);
+        return lettersToDeliver[id];
+    }
+
+    public void MarkDelivered(int id)
+    {
+        if (lettersToDeliver == null)
+            return;
+
+        if (id < 0 || id > lettersToDeliver.Count)
+            return;
+
+        lettersToDeliver[id].MarkDelivered(true);
+    }
+
+    public void MarkAllUndelivered()
+    {
+        if (lettersToDeliver == null)
+            return;
+
+        for (int i = 0; i < lettersToDeliver.Count; i++)
+        {
+            lettersToDeliver[i].MarkDelivered(false);
+        }
+    }
+
+    public void ParseAndAddLetter(string to, string toURL, string from, string fromURL, string body)
+    {
+        string[] toParts = to.Split(':');
+        string recipient = toParts[1].Trim();
+
+        string[] toURLParts = toURL.Split(':');
+        string recipientURL = toURLParts[1].Trim();
+
+        string[] fromParts = from.Split(':');
+        string sender = fromParts[1].Trim();
+
+        string[] fromURLParts = fromURL.Split(':');
+        string senderURL = fromURLParts[1].Trim();
+
+        // Lookup sender and recipient
+        Person senderProfile = lookupAgencyManager.FindPersonProfile(sender);
+        Person recipientProfile = lookupAgencyManager.FindPersonProfile(recipient);
+
+        AddLetter(senderProfile, recipientProfile, body);
+    }
+
     void LoadLettersFromTextAsset()
     {
-        string recipientLine = "none";
-        string recipientLineURL = "none";
-        string senderLine = "none";
-        string senderLineURL = "none";
-        string urgencyLine = "Normal";
-        string message = "none";
-
-        string[] parts = null;
-
         StringBuilder sb = new StringBuilder();
 
         // For all letter files
         foreach (TextAsset letter in letterTextFiles)
         {
             // Separate content by line
-            parts = letter.text.Split('\n');
+            string[] parts = letter.text.Split('\n');
 
             // Get message header parts
-            recipientLine = parts[0].Trim();
-            recipientLineURL = parts[1].Trim();
-            senderLine = parts[2].Trim();
-            senderLineURL = parts[3].Trim();
-            urgencyLine = parts[4].Trim();
-            
+            string to = parts[0].Trim();
+            string toURL = parts[1].Trim();
+            string from = parts[2].Trim();
+            string fromURL = parts[3].Trim();
+            // urgencyLine = parts[4].Trim();
+
             // Parts[5] is a blank line
 
             // Body
@@ -86,138 +142,21 @@ public class LetterManager : MonoBehaviour
                 sb.Append("\n");
             }
             
-            message = sb.ToString();
+            string message = sb.ToString();
 
-            // Create new letter object
-            Letter newLetter = Letter.ParseMessage(listOfLetters.Count, recipientLine, recipientLineURL, senderLine, senderLineURL, message, urgencyLine);
-
-            // Add new letter to the letters to deliver
-            listOfLetters.Add(newLetter);
+            ParseAndAddLetter(to, toURL, from, fromURL, message);
         }
 
         // Update number of remaining letters
-        RemainingLetterCount = listOfLetters.Count;
-    }
-
-    public Letter GetNextMessage()
-    {
-        // not initialized
-        if (listOfLetters == null)
-        {
-            return null;
-        }
-
-        // No more messages
-        if (RemainingLetterCount <= 0)
-        {
-            return null;
-        }
-
-        // Deliver letters in order
-        Letter thisLetter = null;
-        foreach (Letter letter in listOfLetters)
-        {
-            // If the letter hasn't been previously selected
-            if (!letter.HasBeenDelivered && !letter.IsOnHold)
-            {
-                thisLetter = letter;
-
-                // Put the letter on hold
-                letter.IsOnHold = true;
-                break;
-            }
-        }
-
-        // TODO: Randomize the letters
-        // TODO: Set seed for testing
-
-        // Update number of remaining letters
-        RemainingLetterCount--;
-
-        // Give the current letter to be delivered
-        return thisLetter;
-    }
-
-    public Letter GetStartingMessage()
-    {
-        // Find Uncle Doug's letter
-        foreach (Letter letter in listOfLetters)
-        {
-            if (letter.Recipient.ToLower() == "Uncle Doug".ToLower())
-            {
-                return letter;
-            }
-        }
-
-        // TODO: Get random first letter
-
-        return null;
+        RemainingLetterCount = lettersToDeliver.Count;
     }
 
     public void ResetMessages()
     {
         // Mark all letters as NOT delivered
-        foreach (Letter letter in listOfLetters)
+        for (int i = 0; i < lettersToDeliver.Count; i++)
         {
-            letter.HasBeenDelivered = false;
-        }
-    }
-
-    /// <summary>
-    /// Get n number of messages at a time
-    /// To be used in Logistics after upgrading the bag size
-    /// </summary>
-    /// <param name="n">Number of messages to retrieve</param>
-    /// <returns></returns>
-    public Letter[] GetNextMessages(in int n)
-    {
-        int numberOfMessages = n;
-
-        // Cannot have a negative number of messages
-        if (numberOfMessages <= 0)
-        {
-            return null;
-        }
-        // Return only the amount remaining
-        else if (numberOfMessages > RemainingLetterCount)
-        {
-            numberOfMessages = RemainingLetterCount;
-        }
-        // else numberOfMessages <= remaining and numberOfMessages > 0, do nothing special
-
-        Letter[] toReturn = new Letter[numberOfMessages];
-
-        // Retrieve n number of messages to return
-        for (int i = 0; i < numberOfMessages; i++)
-        {
-            toReturn[i] = GetNextMessage();
-        }
-
-        return toReturn;
-    }
-
-    public void ClearOnHold()
-    {
-        // Mark all letters as ready (not on hold)
-        foreach (Letter letter in listOfLetters)
-        {
-            letter.IsOnHold = false;
-        }
-    }
-
-    public void MarkMessageAsDelivered(int messageID)
-    {
-        // Find letter with the message ID
-        for (int i = 0; i < listOfLetters.Count; i++)
-        {
-            Letter thisLetter = (Letter)listOfLetters[i];
-
-            // If found the correct message
-            if (thisLetter.MessageID == messageID)
-            {
-                // Mark as delivered
-                ((Letter)listOfLetters[i]).HasBeenDelivered = true;
-            }
+            lettersToDeliver[i].MarkDelivered(false);
         }
     }
 

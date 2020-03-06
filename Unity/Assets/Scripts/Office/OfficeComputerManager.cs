@@ -96,6 +96,8 @@ public class OfficeComputerManager : MonoBehaviour
             exitMatrixPriceText.text = "Purchased";
             exitMatrixPriceText.fontStyle = FontStyle.Italic;
         }
+
+        gameplayManager.ForceUpdateHUD();
     }
     
     private void OnTriggerStay2D(Collider2D collision)
@@ -126,7 +128,9 @@ public class OfficeComputerManager : MonoBehaviour
         // If Gameplay Manager is invalid
         if (gameplayManager == null)
             return false;
-        
+
+        gameplayManager.ForceUpdateHUD();
+
         return gameplayManager.HasCurrentTarget();
     }
 
@@ -149,6 +153,7 @@ public class OfficeComputerManager : MonoBehaviour
                 // Start a delivery and tell the user
                 systemMessage = "Success! You've successfully setup the following delivery:\n";
 
+                /*
                 // If this is the first delivery
                 if (LetterManager.isFirstLetter)
                 {
@@ -161,7 +166,9 @@ public class OfficeComputerManager : MonoBehaviour
                 {
                     // Get any message
                     gameplayManager.GetNextMessage();
-                }
+                } */
+
+                gameplayManager.GetNextMessage();
             }
 
             // Display the message details on screen with system message
@@ -173,27 +180,35 @@ public class OfficeComputerManager : MonoBehaviour
 
         // Show the text
         screenText.gameObject.SetActive(true);
+
+        gameplayManager.ForceUpdateHUD();
     }
 
     void DisplayDetails(in string systemMessage)
     {
         // Get the current message details
-        Letter currentMessage = gameplayManager.CurrentTargetMessage;
-        string sender = currentMessage.Sender;
-        string recipient = currentMessage.Recipient;
+        // Letter currentMessage = gameplayManager.CurrentTargetMessage;
+        Letter currentMessage = gameplayManager.CurrentMessage;
+        // string sender = currentMessage.Sender;
+        string sender = currentMessage.Sender.Name;
+        // string recipient = currentMessage.Recipient;
+        string recipient = currentMessage.Recipient.Name;
 
         // If the player has purchased the exit the matrix upgrade
         if (gameplayManager.HasExitedTheMatrix)
         {
             // Use the URLs instead of the names
-            sender = currentMessage.SenderURL;
-            recipient = currentMessage.RecipientURL;
+            // sender = currentMessage.SenderURL;
+            sender = currentMessage.Sender.URL;
+            // recipient = currentMessage.RecipientURL;
+            recipient = currentMessage.Recipient.URL;
         }
         
         // Format the text to be displayed on screen
         string senderLine = "Sender: " + sender;
         string receiverLine = "Recipient: " + recipient;
-        string bodyLine = "\n" + currentMessage.MessageBody;
+        // string bodyLine = "\n" + currentMessage.MessageBody;
+        string bodyLine = "\n" + currentMessage.Body;
 
         string displayText = "";
         if (!string.IsNullOrEmpty(systemMessage))
@@ -205,12 +220,16 @@ public class OfficeComputerManager : MonoBehaviour
         // Show the text
         screenText.text = displayText;
         screenText.gameObject.SetActive(true);
+
+        gameplayManager.ForceUpdateHUD();
     }
 
     void DisplayNoActiveDeliveryError()
     {
         // Display error message
         screenText.text = "You don't currently have an active delivery. Try starting a new request.";
+
+        gameplayManager.ForceUpdateHUD();
     }
 
     public void ViewDeliveryDetails()
@@ -286,6 +305,8 @@ public class OfficeComputerManager : MonoBehaviour
 
         // Show the on-screen text
         screenText.gameObject.SetActive(true);
+
+        gameplayManager.ForceUpdateHUD();
     }
 
     public void Logistics()
@@ -304,6 +325,8 @@ public class OfficeComputerManager : MonoBehaviour
                 ToggleDisplayLogisticsButtons(true);
             }
         }
+
+        gameplayManager.ForceUpdateHUD();
     }
 
     void ToggleDisplayLogisticsButtons(bool isShown)
@@ -340,6 +363,8 @@ public class OfficeComputerManager : MonoBehaviour
             // Activate the Notepad Manager's task tracker
             GameObject.FindObjectOfType<NotepadManager>().ToggleTaskTracker(true);
         }
+
+        gameplayManager.ForceUpdateHUD();
     }
 
     public void PurchaseExitTheMatrix()
@@ -357,10 +382,14 @@ public class OfficeComputerManager : MonoBehaviour
             exitMatrixPriceText.text = "Purchased";
             exitMatrixPriceText.fontStyle = FontStyle.Italic;
         }
+
+        gameplayManager.ForceUpdateHUD();
     }
 
     bool AttemptPurchaseUpgrade(in string upgradeTitle, in int cost, in string instructions, bool hasPurchasedAlready)
     {
+        bool success = false;
+
         // If the upgrade is already purchased
         if (hasPurchasedAlready)
         {
@@ -371,7 +400,7 @@ public class OfficeComputerManager : MonoBehaviour
             screenText.gameObject.SetActive(true);
 
             // Failed to purchase
-            return false;
+            success = false;
         }
         // If the player has enough money
         else if (gameplayManager.Money >= cost)
@@ -386,7 +415,7 @@ public class OfficeComputerManager : MonoBehaviour
             screenText.gameObject.SetActive(true);
 
             // Successful purchase
-            return true;
+            success = true;
         }
         // If the player does NOT have enough money
         else
@@ -395,7 +424,11 @@ public class OfficeComputerManager : MonoBehaviour
             screenText.text = "You need $" + cost + " to purchase the " + upgradeTitle + " upgrade.";
 
             // Failed purchase
-            return false;
+            success = false;
         }
+
+        gameplayManager.ForceUpdateHUD();
+
+        return success;
     }
 }

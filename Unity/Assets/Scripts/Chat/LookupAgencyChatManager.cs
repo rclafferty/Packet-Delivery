@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Lookup_Agencies;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -6,319 +7,407 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-using Assets.Scripts.Lookup_Agencies;
-
-public class LookupAgencyChatManager : ChatManager
+public class LookupAgencyChatManager : MonoBehaviour
 {
-    GameplayManager gameplayManager;
-    [SerializeField] LookupAgencyManager lookupAgencyManager; // Revisit???
+    public readonly float CHAT_DELAY = 0.005f;
+
+    [SerializeField] GameplayManager gameplayManager;
+    [SerializeField] LookupAgencyManager lookupAgencyManager;
+
+    public List<Person> listOfPeople;
+
+    [SerializeField] char neighborhoodID;
 
     [SerializeField] EventSystem eventSystem;
-    [SerializeField] Text chatText;
+    [SerializeField] Text chatPromptText;
     [SerializeField] Text option1Text;
     [SerializeField] Text option2Text;
     [SerializeField] Button option1Button;
     [SerializeField] Button option2Button;
     [SerializeField] InputField inputField;
 
-    string chatString;
-    string option1String;
-    string option2String;
+    [SerializeField] Transition fadeTransitionObject;
+
+    string chatTextMessage;
+    string option1Message;
+    string option2Message;
 
     UnityAction option1Action;
     UnityAction option2Action;
 
     Coroutine currentCoroutine;
 
-    List<Person> listOfPeople;
+    private void Awake()
+    {
+        IsInputFieldActive = false;
 
-    string thisLocation;
+        if (SceneManager.GetActiveScene().name == "localLookupAgency")
+        {
+            neighborhoodID = GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CurrentNeighborhoodID;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        // Dynamic objects -- must look up at runtime
-        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
-        lookupAgencyManager = GameObject.Find("LookupAgencyManager").GetComponent<LookupAgencyManager>();
+        FindObjectsForScene();
 
-        // Set scene objects using the parent class
-        SetSceneObjects(eventSystem, chatText, option1Text, option1Button, option2Text, option2Button);
+        listOfPeople = lookupAgencyManager.GetListOfPeopleByNeighborhood(neighborhoodID);
 
-        thisLocation = "";
-        SetupBySceneName();
+        StartDialogue();
+        chatTextMessage = "Welcome to the " + lookupAgencyManager.GetNeighborhoodNameFromID(neighborhoodID) + " Lookup Agency. " + chatTextMessage;
 
-        inputField.gameObject.SetActive(false);
+        DisplayText();
+
+        ToggleInputField(false);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        // Changed from original -- change back if issues
-        if (inputField.gameObject.activeInHierarchy)
+        if (IsInputFieldActive)
         {
+            // If pressed enter key
             if (Input.GetKeyDown(KeyCode.Return))
             {
+                // Submit text in input field
                 option2Button.onClick.Invoke();
             }
         }
     }
 
-    void SetupBySceneName()
+    void FindObjectsForScene()
     {
-        string sceneName = SceneManager.GetActiveScene().name.ToLower();
-        string location = "";
+        // Persistent objects -- must look up at runtime
+        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+        lookupAgencyManager = GameObject.Find("LookupAgencyManager").GetComponent<LookupAgencyManager>();
+    }
 
-        string[] sceneNameSegments = { "central", "locallookupagencyne", "locallookupagencysw" };
-        string[] locationNames = { "Central", "Northeast", "Southwest" };
+    public void GatherListOfPeople()
+    {
+        listOfPeople = lookupAgencyManager.GetListOfPeopleByNeighborhood(neighborhoodID);
+    }
 
-        for (int i = 0; i < sceneNameSegments.Length; i++)
+    public bool LookupPerson(string name, out Person thisPerson)
+    {
+        thisPerson = null;
+
+        foreach (Person p in listOfPeople)
         {
-            if (sceneName == sceneNameSegments[i])
+            if (p.Name.ToLower() == name.ToLower())
             {
-                location = locationNames[i];
+                thisPerson = p;
+                return true;
             }
         }
 
-        listOfPeople = lookupAgencyManager.GetNamesByLocation(location);
-        thisLocation = location;
+        return false;
     }
 
-    void StartTextAndButtons()
+    void StartDialogue()
     {
-        chatString = "How may we assist you?";
-        option1String = "I'm looking for someone.";
-        option2String = "I can't figure out where to go from here.";
+        ToggleInputField(false);
+
+        chatTextMessage = "How may we assist you?";
+        option1Message = "I'm looking for someone.";
+        option2Message = "I can't figure out where to go from here.";
 
         option1Action = delegate
         {
-            AttemptStartLookup();
-            ShowText();
+            // Show input for lookup
+            ToggleInputField(true);
+            DisplayText();
         };
-
         option2Action = delegate
         {
             WhereToGo();
-            ShowText();
+            DisplayText();
         };
     }
 
-    void WhereToGo()
+    public void WhereToGo()
     {
-        if (IsInCorrectLocation())
+        if (neighborhoodID == gameplayManager.NextStep.neighborhoodID)
         {
-            CorrectCurrentLocation();
-        }
-        else
-        {
-            IncorrectCurrentLocation();
-        }
-    }
-
-    bool IsInCorrectLocation()
-    {
-        string nextDeliveryLocation = gameplayManager.NextDeliveryLocation;
-        return (nextDeliveryLocation == "CLA" && thisLocation == "Central") ||
-            (nextDeliveryLocation == "LLA NE" && thisLocation == "Northeast") ||
-            (nextDeliveryLocation == "LLA SW" && thisLocation == "Southwest");
-    }
-
-    void CorrectCurrentLocation()
-    {
-        chatString = "You're in the right spot! I can help you.";
-        option1String = "Okay!";
-        option2String = "On second though, I'll come back later.";
-
-        option1Action = delegate
-        {
-            StartTextAndButtons();
-            ShowText();
-        };
-
-        option2Action = delegate
-        {
-            Depart();
-            ShowText();
-        };
-    }
-
-    void IncorrectCurrentLocation()
-    {
-        string nextDeliveryLocation = gameplayManager.NextDeliveryLocation;
-
-        if (nextDeliveryLocation == "CLA")
-        {
-            chatString = FormatChatMessage("Central Lookup Agency", "center");
-        }
-        else if (nextDeliveryLocation == "LLA NE")
-        {
-            chatString = FormatChatMessage("Local Lookup Agency", "northeast");
-        }
-        else if (nextDeliveryLocation == "LLA NE")
-        {
-            chatString = FormatChatMessage("Local Lookup Agency", "southwest");
-        }
-        else
-        {
-            GameplayManager.DeliveryDirections nextStep = gameplayManager.NextStep;
-            chatString = FormatChatMessage(nextStep.color + " " + nextStep.building, nextStep.mapDirection);
-        }
-
-        option1String = "Thank you for your help.";
-        option2String = "";
-
-        option1Action = delegate
-        {
-            Depart();
-            ShowText();
-        };
-        option2Action = null;
-    }
-
-    void ShowText()
-    {
-        if (currentCoroutine != null)
-            StopCoroutine(currentCoroutine);
-
-        // Write text using parent class
-        currentCoroutine = StartCoroutine(WriteText("[Name]", chatString, option1String, option2String));
-
-        // Add event listeners using parent class
-        AddEventListeners(option1Action, option2Action);
-    }
-
-    string FormatChatMessage(string building, string direction)
-    {
-        string message = "";
-        if (building == "Central Lookup Agency")
-        {
-            message = "Please visit the Central Lookup Agency for your next step.";
-        }
-        else
-        {
-            const string chatTemplate = "Please visit the # on the ## side of town for your next step.";
-            message = chatTemplate;
-            message = message.Replace("##", direction.ToLower());
-            message = message.Replace("#", building);
-        }
-        return message;
-    }
-
-    void AttemptStartLookup()
-    {
-        if (gameplayManager.CurrentTargetMessage == null)
-        {
-            chatString = "You don't have a package with you to deliver.";
-            option1String = "Whoops. I'll come back when I have one.";
-            option2String = "";
-
-            option1Action = delegate
-            {
-                Depart();
-                ShowText();
+            chatTextMessage = "You're in the right spot! I can help you.";
+            option1Message = "Okay!";
+            option2Message = "On second thought, I'll come back later.";
+            option1Action = delegate {
+                StartDialogue();
+                DisplayText();
             };
-            option2Action = null;
-        }
-        else if (!IsInCorrectLocation())
-        {
-            chatString = "Hmm... I'm not sure you're in the right spot. Try visiting the Central Lookup Agency to get started with your delivery.";
-            option1String = "I'll do that.";
-            option2String = "";
-
-            option1Action = delegate
-            {
-                Depart();
-                ShowText();
+            option2Action = delegate {
+                DepartDialogue();
+                DisplayText();
             };
-            option2Action = null;
         }
         else
         {
-            ShowInputField(true);
+            IncorrectLocationDialogue();
         }
     }
 
-    void ShowInputField(bool isActive)
+    void ToggleInputField(bool isActive)
     {
-        inputField.gameObject.SetActive(isActive);
-        option1Button.gameObject.SetActive(!isActive);
-        option2Button.gameObject.SetActive(true); // Always show this one
+        // Disable first
+        IsInputFieldActive = false;
+        inputField.gameObject.SetActive(false);
 
-        if (isActive)
+        if (neighborhoodID == gameplayManager.NextStep.neighborhoodID)
         {
-            chatString = "Who are you looking for?";
-            option1String = "";
-            option2String = "This person.";
-
-            option1Action = null;
-            option2Action = delegate
+            // Correct place
+            if (gameplayManager.CurrentMessage == null)
             {
-            // Lookup person
-            ShowText();
-            };
+                chatTextMessage = "You don't have a package with you to deliver.";
+                option1Message = "Whoops. I'll come back when I have one.";
+                option2Message = "";
+
+                option1Action = delegate {
+                    DepartDialogue();
+                    DisplayText();
+                };
+                option2Action = delegate {
+                    DepartDialogue();
+                    DisplayText();
+                };
+
+                return;
+            }
+            else
+            {
+                IsInputFieldActive = isActive;
+                inputField.gameObject.SetActive(isActive);
+                option1Button.gameObject.SetActive(!isActive);
+                option2Button.gameObject.SetActive(true);
+
+                chatTextMessage = "Who are you looking for?";
+                option1Message = "";
+                option2Message = "This person.";
+
+                option1Action = delegate { DisplayText(); };
+                option2Action = delegate
+                {
+                    LookupPerson();
+                    DisplayText();
+                };
+            }
+        }
+        else
+        {
+            IncorrectLocationDialogue();
         }
     }
 
     void LookupPerson()
     {
-        ShowInputField(false);
-        CheckLookupAgencyManagerListIsLoaded();
+        ToggleInputField(false);
 
-        string target = gameplayManager.CurrentTarget.ToLower();
-
-        // Lookup
-        if (inputField.text.ToLower() == target)
+        // If the input name matches the target message
+        if (inputField.text.ToLower().Trim() == gameplayManager.CurrentMessage.Recipient.Name.ToLower().Trim())
         {
-            int index = lookupAgencyManager.LocationLookup(target);
-            if (index == -1)
+            // Find the person's profile
+            Person thisPerson = lookupAgencyManager.FindPersonProfile(inputField.text);
+
+            // If this person doesn't exist -- ERROR
+            if (thisPerson == null)
             {
-                WrongPerson(); // Need a better solution
+                chatTextMessage = "Hmm... I don't know that person. Did you spell the name correctly?";
+                option1Message = "Let me try again.";
+                option2Message = "I'll check and come back.";
+
+                option1Action = delegate
+                {
+                    ToggleInputField(true);
+                    DisplayText();
+                };
+                option2Action = delegate
+                {
+                    DepartDialogue();
+                    DisplayText();
+                };
             }
+            // If the person DOES exist -- expected
             else
             {
-                string location = lookupAgencyManager.LOCATION_TEXT[index];
+                // If currently at CLA
+                if (neighborhoodID == 'X')
+                {
+                    // Find next location
+                    string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPerson.NeighborhoodID);
+
+                    chatTextMessage = "It seems that person lives in " + nextLocation + ". Check with their Lookup Agency office for more specific details.";
+                    option1Message = "Thanks!";
+                    option2Message = "";
+
+                    GameplayManager.DeliveryInstructions nextInstructions;
+                    nextInstructions.nextStep = nextLocation + " Lookup Agency";
+                    nextInstructions.neighborhoodID = thisPerson.NeighborhoodID;
+                    nextInstructions.recipient = thisPerson.Name;
+
+                    gameplayManager.SetNextSteps(nextInstructions);
+
+                    option1Action = delegate
+                    {
+                        DepartDialogue();
+                        DisplayText();
+                    };
+                    option2Action = delegate
+                    {
+                        DepartDialogue();
+                        DisplayText();
+                    };
+                }
+                // If currently at LLA
+                else
+                {
+                    // Find next location
+                    string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPerson.NeighborhoodID);
+
+                    chatTextMessage = "That person lives at Residence #" + thisPerson.HouseNumber + ".";
+                    option1Message = "Thanks!";
+                    option2Message = "";
+
+                    GameplayManager.DeliveryInstructions nextInstructions;
+                    nextInstructions.nextStep = "Residence #" + thisPerson.HouseNumber;
+                    nextInstructions.neighborhoodID = thisPerson.NeighborhoodID;
+                    nextInstructions.recipient = thisPerson.Name;
+
+                    gameplayManager.SetNextSteps(nextInstructions);
+
+                    option1Action = delegate
+                    {
+                        DepartDialogue();
+                        DisplayText();
+                    };
+                    option2Action = delegate
+                    {
+                        DepartDialogue();
+                        DisplayText();
+                    };
+                }
             }
         }
-        // Wrong person
+        // Does NOT match the name on the package
         else
         {
+            Debug.Log("ERROR -- Looking for " + gameplayManager.CurrentMessage.Recipient.Name);
+            chatTextMessage = "Hmm... That's not the person written on your package. Who is it again that you're looking for?";
+            option1Message = "Let me try again.";
+            option2Message = "I'll check and come back.";
 
+            option1Action = delegate
+            {
+                ToggleInputField(true);
+                DisplayText();
+            };
+            option2Action = delegate
+            {
+                DepartDialogue();
+                DisplayText();
+            };
         }
     }
-
-    void CheckLookupAgencyManagerListIsLoaded()
+    
+    private void IncorrectLocationDialogue()
     {
-        if (!lookupAgencyManager.HasLoadedPopulationList)
-        {
-            lookupAgencyManager.LoadPopulationListFromTextAsset();
-        }
-    }
-
-    void WrongPerson()
-    {
-        chatString = "Hmm... That's not the person written on your package.";
-        option1String = "Whoops. Let me try again.";
-        option2String = "I'll try again later.";
+        // Incorrect place
+        string centralLookupLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X');
+        chatTextMessage = "Hmm... I'm not sure you're in the right spot. Check the Lookup Agency in " + centralLookupLocation + " for your next steps.";
+        option1Message = "I'll do that.";
+        option2Message = "";
 
         option1Action = delegate
         {
-            ShowInputField(true);
-            ShowText();
+            DepartDialogue();
+            DisplayText();
         };
-
         option2Action = delegate
         {
-            Depart();
-            ShowText();
+            DepartDialogue();
+            DisplayText();
         };
     }
 
-    void Depart()
+    void DisplayText()
     {
-        chatString = "Have a good day!";
-        option1String = "Bye.";
-        option2String = "";
+        if (currentCoroutine != null)
+            StopCoroutine(currentCoroutine);
 
-        option1Action = delegate { SceneManager.LoadScene("town"); };
-        option2Action = null;
+        currentCoroutine = StartCoroutine(WriteTextToUI(chatTextMessage, option1Message, option2Message));
+        AddEventListeners(option1Action, option2Action);
     }
+
+    IEnumerator WriteTextToUI(string chat, string option1, string option2)
+    {
+        // Clear displayed text
+        chatPromptText.text = "";
+        option1Text.text = "";
+        option2Text.text = "";
+
+        // Deselect all buttons
+        eventSystem.SetSelectedGameObject(null);
+        
+        option1Button.interactable = !string.IsNullOrEmpty(option1);
+        option2Button.interactable = !string.IsNullOrEmpty(option2);
+
+        // Write to chat prompt
+        for (int i = 0; i < chat.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            chatPromptText.text += chat[i];
+        }
+
+        // Write option 1 button text
+        for (int i = 0; i < option1.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option1Text.text += option1[i];
+        }
+
+        // Write option 2 button text
+        for (int i = 0; i < option2.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option2Text.text += option2[i];
+        }
+    }
+
+    void AddEventListeners(UnityAction a1, UnityAction a2)
+    {
+        // Add option 1 listener
+        option1Button.onClick.RemoveAllListeners();
+        option1Button.onClick.AddListener(a1);
+
+        // Add option 2 listener
+        option2Button.onClick.RemoveAllListeners();
+        option2Button.onClick.AddListener(a2);
+    }
+
+    public void DepartDialogue()
+    {
+        chatTextMessage = "Come back soon!";
+        option1Message = "Bye.";
+        option2Message = "";
+
+        option1Action = delegate { GoToTown(); };
+        option2Action = delegate { GoToTown(); };
+    }
+
+    public char DetermineNextLocation(Person p)
+    {
+        if (neighborhoodID == 'X')
+        {
+            return p.NeighborhoodID;
+        }
+        else
+        {
+            return 'H'; // Deliver to home
+        }
+    }
+
+    public void GoToTown()
+    {
+        fadeTransitionObject.FadeMethod("town");
+    }
+    
+    public bool IsInputFieldActive { get; private set; }
 }

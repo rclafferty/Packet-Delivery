@@ -13,44 +13,31 @@ public class GameplayManager : MonoBehaviour
     static GameplayManager instance = null;
 
     const int DELIVERY_PAYMENT = 10; // Equivalent to 10 dollars
-
-    public struct DeliveryDirections
+    
+    public struct DeliveryInstructions
     {
-        public string building;
-        public string color;
-        public string mapDirection;
-    }
+        public string recipient;
+        public char neighborhoodID;
+        public string nextStep;
+    };
 
     // Other necessary managers
+    [SerializeField] LookupAgencyManager lookupAgencyManager;
     [SerializeField] LetterManager letterManager;
-    [SerializeField] NotepadManager notepadManager;
-
-    [SerializeField] GameObject moneyBackdrop;
-    [SerializeField] Text moneyText;
-
-    [SerializeField] Letter currentTargetMessage;
-
-    int obstacleTilemapIndex;
+    [SerializeField] HUDManager hudManager;
 
     [SerializeField] public string indoorLocation;
-    
-    string[] locations = { "office", "centralLookupAgency", "localLookupAgencyNE", "localLookupAgencySW", "home" };
-
-    [System.Obsolete("Should not be using spawnpoints anymore")]
-    string[] spawnpointNames = { "Office Spawnpoint", "CLA Spawnpoint", "LLA NE Spawnpoint", "LLA SW Spawnpoint", "Home" };
 
     public Vector2 lastOutdoorPosition;
 
     public string currentAddress = "";
     public string deliveryAddress = "";
 
-    int money = 0;
+    [SerializeField] string target;
 
     // Start is called before the first frame update
     void Start()
     {
-        obstacleTilemapIndex = -1;
-
         if (instance == null)
         {
             instance = this;
@@ -63,18 +50,13 @@ public class GameplayManager : MonoBehaviour
         }
         
         HasStartingLetter = true;
-
-        GameplayTimer = GameObject.Find("Timer").GetComponent<Timer>();
-
-        // lastOutdoorPosition = new Vector2(-14, 12);
-        lastOutdoorPosition = new Vector2(265, -21.5f);
-
-        Money = 0;
-        moneyBackdrop.SetActive(false);
-
-        ResetDeliveryDetails();
-
         HasExitedTheMatrix = false; // Set true for testing
+        HasTaskTracker = false;
+        
+        lastOutdoorPosition = new Vector2(265, -21.5f);
+        Money = 0;
+        
+        ResetDeliveryDetails();
 
         SceneManager.sceneLoaded += OnSceneLoad;
     }
@@ -83,43 +65,6 @@ public class GameplayManager : MonoBehaviour
     void Update()
     {
 
-    }
-
-#if UNITY_EDITOR
-    public void DebugChangePlayerPosition(int locationIndex)
-    {
-        if (SceneManager.GetActiveScene().name != "town")
-            return;
-
-        string spawnpointName = spawnpointNames[locationIndex];
-        if (locationIndex == 4)
-        {
-            GameObject[] homeSpawnpoints = GameObject.FindGameObjectsWithTag("HomeSpawnpoint");
-            if (homeSpawnpoints.Length == 0)
-            {
-                Debug.Log("No spawnpoints");
-                return;
-            }
-            else if (homeSpawnpoints.Length == 1)
-            {
-                spawnpointName = homeSpawnpoints[0].name;
-            }
-            else
-            {
-                Debug.Log("OTI = " + obstacleTilemapIndex);
-                spawnpointName = homeSpawnpoints[obstacleTilemapIndex].name;
-            }
-        }
-        GameObject.Find("Player").transform.position = GameObject.Find(spawnpointName).transform.position;
-    }
-#endif
-
-    public string GetLetterAddress()
-    {
-        if (CurrentTargetMessage == null)
-            return "NONE";
-
-        return CurrentTargetMessage.Address;
     }
 
     void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)
@@ -142,7 +87,8 @@ public class GameplayManager : MonoBehaviour
         }
         else if (thisScene.name == "instructions")
         {
-            moneyBackdrop.SetActive(true);
+            // Hide HUD
+            hudManager.ToggleDisplay(true);
         }
     }
 
@@ -150,63 +96,22 @@ public class GameplayManager : MonoBehaviour
     {
         HasExitedTheMatrix = true;
         letterManager.ResetMessages();
+        hudManager.DisplayText();
     }
 
-    public void SetLetterManager(LetterManager lm)
-    {
-        if (lm == null)
-        {
-            return;
-        }
-
-        letterManager = lm;
-        RemainingTasks = letterManager.RemainingLetterCount;
-    }
-    
-    public Letter CurrentTargetMessage
-    {
-        get
-        {
-            return currentTargetMessage;
-        }
-        set
-        {
-            if (value == null)
-            {
-                currentTargetMessage = null;
-                CurrentTarget = "";
-            }
-            else
-            {
-                currentTargetMessage = value;
-                if (HasExitedTheMatrix)
-                {
-                    CurrentTarget = currentTargetMessage.RecipientURL;
-                }
-                else
-                {
-                    CurrentTarget = currentTargetMessage.Recipient;
-                }
-            }
-
-            string name = SceneManager.GetActiveScene().name.ToLower();
-            if (name.Contains("cla2"))
-                gameObject.GetComponent<CLA2GameplayManager>().SetTargetText();
-        }
-    }
+    public Letter CurrentMessage { get; private set; }
 
     public bool HasCurrentTarget()
     {
-        return (CurrentTarget != "");
+        return CurrentMessage != null;
     }
 
     public void CompleteTask()
     {
         if (HasCurrentTarget())
         {
-            // Debug.Log("LetterManager ? " + (letterManager != null));
-            // Debug.Log("Current Message ? " + (currentTargetMessage != null));
-            letterManager.MarkMessageAsDelivered(currentTargetMessage.MessageID);
+            Debug.Log("Task completed for " + CurrentMessage.Recipient.Name);
+            letterManager.MarkDelivered(CurrentMessage.ID);
 
             if (HasStartingLetter)
             {
@@ -215,60 +120,52 @@ public class GameplayManager : MonoBehaviour
 
             Money += DELIVERY_PAYMENT;
         }
-
+        
         ResetDeliveryDetails();
     }
 
-    private void ResetDeliveryDetails()
+    public void ResetDeliveryDetails()
     {
-        currentTargetMessage = null;
+        CurrentMessage = null;
         CurrentTarget = "";
 
-        ResetDirectionsToOffice();
+        DeliveryInstructions instructions;
+        instructions.recipient = "None";
+        instructions.neighborhoodID = 'X';
+        instructions.nextStep = "Packet Delivery Office";
+        NextStep = instructions;
 
-        GameplayTimer.StopTimerIfRunning();
-
-        obstacleTilemapIndex++;
-
-        notepadManager.ClearNotepad();
-    }
-
-    DeliveryDirections ResetDirectionsToOffice()
-    {
-        NextDeliveryLocation = "Office";
-
-        DeliveryDirections deliveryDirections;
-
-        deliveryDirections.building = "office";
-        deliveryDirections.color = "red";
-        deliveryDirections.mapDirection = "northwest";
-
-        NextStep = deliveryDirections;
-
-        return deliveryDirections;
+        hudManager.ClearCurrentTask();
+        hudManager.DisplayText();
     }
 
     public void GetNextMessage()
     {
-        this.CurrentTargetMessage = letterManager.GetNextMessage();
-        NextDeliveryLocation = "CLA";
-        deliveryAddress = currentTargetMessage.Address;
+        CurrentMessage = letterManager.GetNextLetter();
 
-        notepadManager.AddItemToNotepad("Central Lookup Agency");
+        string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X') + " Lookup Agency";
+
+        DeliveryInstructions instructions;
+        instructions.recipient = CurrentMessage.Recipient.Name;
+        instructions.neighborhoodID = 'X';
+        instructions.nextStep = nextLocation;
+
+        SetNextSteps(instructions);
+
+        target = instructions.recipient;
+
+        // notepadManager.AddItemToNotepad("Central Lookup Agency");
     }
 
-    public void GetStartingMessage()
+    public void SetNextSteps(DeliveryInstructions instructions)
     {
-        this.CurrentTargetMessage = letterManager.GetStartingMessage();
-        NextDeliveryLocation = "CLA";
-        deliveryAddress = currentTargetMessage.Address;
-
-        notepadManager.AddItemToNotepad("Central Lookup Agency");
+        NextStep = instructions;
+        hudManager.DisplayText();
     }
 
-    public void AddTodoItem(string item)
+    public void ForceUpdateHUD()
     {
-        notepadManager.AddItemToNotepad(item);
+        hudManager.DisplayText();
     }
 
     public bool HasRemainingTasks
@@ -281,27 +178,17 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    public int Money {
-        get
-        {
-            return money;
-        }
-        set
-        {
-            money = value;
-            moneyText.text = "$" + money;
-        }
-    }
-
     // Auto property
     public Vector3 CurrentSpawnLocation { get; set; }
     public bool HasStartingLetter { get; set; }
     public string CurrentLocation { get; set; }
     public int RemainingTasks { get; set; }
     public string CurrentTarget { get; private set; }
-    public DeliveryDirections NextStep { get; set; }
+    public DeliveryInstructions NextStep { get; set; }
     public string NextDeliveryLocation { get; set; }
-    public Timer GameplayTimer { get; set; }
+    public int Money { get; set; }
+
+    public char CurrentNeighborhoodID { get; set; }
 
     public bool HasTaskTracker { get; set; }
     public bool HasExitedTheMatrix { get; set; }

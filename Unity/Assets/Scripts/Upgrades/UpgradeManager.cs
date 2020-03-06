@@ -5,18 +5,12 @@ using UnityEngine;
 
 public class UpgradeManager : MonoBehaviour
 {
-    Upgrade[] upgrades;
-    int dollars;
-
-    const int BASE_REWARD = 10;
-    const float DIFFICULTY_MULT_EASY = 1.2f;
-    const float DIFFICULTY_MULT_MED  = 2.0f;
-    const float DIFFICULTY_MULT_HARD = 2.5f;
+    List<Upgrade> listOfUpgrades;
 
     // Start is called before the first frame update
     void Start()
     {
-        dollars = 0;
+        listOfUpgrades = new List<Upgrade>();
     }
 
     // Update is called once per frame
@@ -25,73 +19,46 @@ public class UpgradeManager : MonoBehaviour
         
     }
 
-    /// <summary>
-    /// Purchase an upgrade based on the index of the upgrade
-    /// </summary>
-    /// <param name="index"></param>
-    public void Purchase(int index)
+    public void AddUpgrade(string title, int cost)
     {
-        // If index is out of bounds
-        if (index >= upgrades.Length || index < 0)
-        {
-            Debug.Log("Unable to purchase upgrade at index " + index);
-            return;
-        }
-
-        Purchase(upgrades[index]);
+        Upgrade newUpgrade = new Upgrade(title, cost);
+        listOfUpgrades.Add(newUpgrade);
     }
 
-    /// <summary>
-    /// Purchase an upgrade based given the name of the upgrade
-    /// </summary>
-    /// <param name="name"></param>
-    public void Purchase(string name)
+    public bool AttemptPurchaseUpgrade(string title)
     {
-        foreach (Upgrade u in upgrades)
+        bool isSuccessful = false;
+
+        for (int i = 0; i < listOfUpgrades.Count; i++)
         {
-            if (u.Name == name)
+            if (listOfUpgrades[i].Title.ToLower() == title.ToLower())
             {
-                Purchase(u);
-                return;
+                if (!listOfUpgrades[i].IsUnlocked)
+                {
+                    listOfUpgrades[i].Purchase();
+                    isSuccessful = true;
+                    break;
+                }
             }
         }
 
-        Debug.Log("Unable to find upgrade " + name);
+        return isSuccessful;
     }
 
-    void Purchase(Upgrade u)
+    public int NumberOfUpgradesPurchased
     {
-        int cost = u.Cost;
-        if (dollars <= cost)
+        get
         {
-            u.Purchase(1);
-            dollars -= cost;
-        }
-    }
+            int purchased = 0;
+            foreach (Upgrade upgrade in listOfUpgrades)
+            {
+                if (upgrade.IsUnlocked)
+                {
+                    purchased++;
+                }
+            }
 
-    public void GetReward(string difficulty)
-    {
-        float reward = BASE_REWARD;
-        string lower = difficulty.ToLower().Trim();
-
-        if (lower == "easy")
-        {
-            reward *= DIFFICULTY_MULT_EASY;
+            return purchased;
         }
-        else if (lower == "medium" || lower == "default")
-        {
-            reward *= DIFFICULTY_MULT_MED;
-        }
-        else if (lower == "hard")
-        {
-            reward *= DIFFICULTY_MULT_HARD;
-        }
-
-        GetMoney(Mathf.RoundToInt(reward));
-    }
-
-    public void GetMoney(int money)
-    {
-        dollars += money;
     }
 }

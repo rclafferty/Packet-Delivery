@@ -51,7 +51,7 @@ public class CheatManager : MonoBehaviour
         {
             GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CompleteTask();
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha0))
+        /* else if (Input.GetKeyDown(KeyCode.Alpha0))
         {
             GameObject.Find("GameplayManager").GetComponent<GameplayManager>().DebugChangePlayerPosition(0);
         }
@@ -70,7 +70,7 @@ public class CheatManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             GameObject.Find("GameplayManager").GetComponent<GameplayManager>().DebugChangePlayerPosition(4);
-        }
+        } */
 #endif
     }
 }
