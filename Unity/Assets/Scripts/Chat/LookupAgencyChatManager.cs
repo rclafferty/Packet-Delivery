@@ -201,14 +201,25 @@ public class LookupAgencyChatManager : MonoBehaviour
     {
         ToggleInputField(false);
 
+        string targetName = "";
+        Person thisPersonProfile = null;
+        if (gameplayManager.HasExitedTheMatrix)
+        {
+            targetName = gameplayManager.CurrentMessage.Recipient.URL;
+        }
+        else
+        {
+            targetName = gameplayManager.CurrentMessage.Recipient.Name;
+        }
+
         // If the input name matches the target message
-        if (inputField.text.ToLower().Trim() == gameplayManager.CurrentMessage.Recipient.Name.ToLower().Trim())
+        if (inputField.text.ToLower().Trim() == targetName.ToLower().Trim())
         {
             // Find the person's profile
-            Person thisPerson = lookupAgencyManager.FindPersonProfile(inputField.text);
+            thisPersonProfile = gameplayManager.CurrentMessage.Recipient;
 
             // If this person doesn't exist -- ERROR
-            if (thisPerson == null)
+            if (thisPersonProfile == null)
             {
                 chatTextMessage = "Hmm... I don't know that person. Did you spell the name correctly?";
                 option1Message = "Let me try again.";
@@ -232,7 +243,7 @@ public class LookupAgencyChatManager : MonoBehaviour
                 if (neighborhoodID == 'X')
                 {
                     // Find next location
-                    string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPerson.NeighborhoodID);
+                    string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID);
 
                     chatTextMessage = "It seems that person lives in " + nextLocation + ". Check with their Lookup Agency office for more specific details.";
                     option1Message = "Thanks!";
@@ -240,8 +251,16 @@ public class LookupAgencyChatManager : MonoBehaviour
 
                     GameplayManager.DeliveryInstructions nextInstructions;
                     nextInstructions.nextStep = nextLocation + " Lookup Agency";
-                    nextInstructions.neighborhoodID = thisPerson.NeighborhoodID;
-                    nextInstructions.recipient = thisPerson.Name;
+                    nextInstructions.neighborhoodID = thisPersonProfile.NeighborhoodID;
+
+                    if (gameplayManager.HasExitedTheMatrix)
+                    {
+                        nextInstructions.recipient = thisPersonProfile.URL;
+                    }
+                    else
+                    {
+                        nextInstructions.recipient = thisPersonProfile.Name;
+                    }
 
                     gameplayManager.SetNextSteps(nextInstructions);
 
@@ -260,16 +279,24 @@ public class LookupAgencyChatManager : MonoBehaviour
                 else
                 {
                     // Find next location
-                    string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPerson.NeighborhoodID);
+                    string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID);
 
-                    chatTextMessage = "That person lives at Residence #" + thisPerson.HouseNumber + ".";
+                    chatTextMessage = "That person lives at Residence #" + thisPersonProfile.HouseNumber + ".";
                     option1Message = "Thanks!";
                     option2Message = "";
 
                     GameplayManager.DeliveryInstructions nextInstructions;
-                    nextInstructions.nextStep = "Residence #" + thisPerson.HouseNumber;
-                    nextInstructions.neighborhoodID = thisPerson.NeighborhoodID;
-                    nextInstructions.recipient = thisPerson.Name;
+                    nextInstructions.nextStep = "Residence #" + thisPersonProfile.HouseNumber;
+                    nextInstructions.neighborhoodID = thisPersonProfile.NeighborhoodID;
+
+                    if (gameplayManager.HasExitedTheMatrix)
+                    {
+                        nextInstructions.recipient = thisPersonProfile.URL;
+                    }
+                    else
+                    {
+                        nextInstructions.recipient = thisPersonProfile.Name;
+                    }
 
                     gameplayManager.SetNextSteps(nextInstructions);
 

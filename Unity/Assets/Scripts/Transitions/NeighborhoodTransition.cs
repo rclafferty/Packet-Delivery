@@ -40,8 +40,6 @@ public class NeighborhoodTransition : MonoBehaviour
             fadeImage.color = currentFadeColor;
 
             yield return new WaitForEndOfFrame();
-
-            Debug.Log("Fade Transitioning");
         }
 
         if (end == 0.0f)

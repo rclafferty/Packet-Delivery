@@ -123,9 +123,6 @@ public class HUDManager : MonoBehaviour
             textToDisplay += gameplayManager.NextStep.nextStep;
         }
 
-        // string textToDisplay = "Recipient: " + gameplayManager.NextStep.recipient + "\nNext: " + gameplayManager.NextStep.nextStep;
-        Debug.Log(textToDisplay);
-
         // Display the formatted text
         // taskTrackerText.text = displayText;
         taskTrackerText.text = textToDisplay;

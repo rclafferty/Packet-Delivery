@@ -60,13 +60,45 @@ public class LetterManager : MonoBehaviour
     public Letter GetNextLetter()
     {
         if (lettersToDeliver == null)
+        {
+            Debug.Log("The letters are null DUMMY");
             return null;
+        }
 
         if (lettersToDeliver.Count == 0)
+        {
+            Debug.Log("There are no letters DUMMY");
             return null;
-        
-        int id = Random.Range(0, lettersToDeliver.Count);
-        return lettersToDeliver[id];
+        }
+
+        // Check how many letters there are left to deliver
+        int remaining = 0;
+        foreach (Letter l in lettersToDeliver)
+        {
+            if (!l.IsDelivered)
+            {
+                remaining++;
+            }
+        }
+
+        // If no more
+        if (remaining == 0)
+        {
+            // Output error
+            Debug.Log("No more letters");
+
+            // Return null
+            return null;
+        }
+
+        // Get next undelivered letter
+        Letter nextLetter = null;
+        do
+        {
+            int id = Random.Range(0, lettersToDeliver.Count);
+            nextLetter = lettersToDeliver[id];
+        } while (nextLetter == null || nextLetter.IsDelivered);
+        return nextLetter;
     }
 
     public void MarkDelivered(int id)
@@ -74,7 +106,7 @@ public class LetterManager : MonoBehaviour
         if (lettersToDeliver == null)
             return;
 
-        if (id < 0 || id > lettersToDeliver.Count)
+        if (id < 0 || id >= lettersToDeliver.Count)
             return;
 
         lettersToDeliver[id].MarkDelivered(true);
@@ -106,8 +138,8 @@ public class LetterManager : MonoBehaviour
         string senderURL = fromURLParts[1].Trim();
 
         // Lookup sender and recipient
-        Person senderProfile = lookupAgencyManager.FindPersonProfile(sender);
-        Person recipientProfile = lookupAgencyManager.FindPersonProfile(recipient);
+        Person senderProfile = lookupAgencyManager.FindPersonProfileByName(sender);
+        Person recipientProfile = lookupAgencyManager.FindPersonProfileByName(recipient);
 
         AddLetter(senderProfile, recipientProfile, body);
     }

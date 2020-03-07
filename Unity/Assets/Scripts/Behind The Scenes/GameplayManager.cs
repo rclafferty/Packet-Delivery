@@ -49,7 +49,7 @@ public class GameplayManager : MonoBehaviour
             return;
         }
         
-        HasStartingLetter = true;
+        HasStartingLetter = false;
         HasExitedTheMatrix = false; // Set true for testing
         HasTaskTracker = false;
         
@@ -95,7 +95,7 @@ public class GameplayManager : MonoBehaviour
     public void ExitTheMatrix()
     {
         HasExitedTheMatrix = true;
-        letterManager.ResetMessages();
+        // letterManager.ResetMessages();
         hudManager.DisplayText();
     }
 
@@ -146,7 +146,14 @@ public class GameplayManager : MonoBehaviour
         string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X') + " Lookup Agency";
 
         DeliveryInstructions instructions;
-        instructions.recipient = CurrentMessage.Recipient.Name;
+        if (HasExitedTheMatrix)
+        {
+            instructions.recipient = CurrentMessage.Recipient.URL;
+        }
+        else
+        {
+            instructions.recipient = CurrentMessage.Recipient.Name;
+        }
         instructions.neighborhoodID = 'X';
         instructions.nextStep = nextLocation;
 
@@ -165,6 +172,21 @@ public class GameplayManager : MonoBehaviour
 
     public void ForceUpdateHUD()
     {
+        if (CurrentMessage != null)
+        {
+            DeliveryInstructions instructions = NextStep;
+            if (HasExitedTheMatrix)
+            {
+                instructions.recipient = CurrentMessage.Recipient.URL;
+            }
+            else
+            {
+                instructions.recipient = CurrentMessage.Recipient.Name;
+            }
+            instructions.nextStep = lookupAgencyManager.GetNeighborhoodNameFromID(instructions.neighborhoodID);
+            NextStep = instructions;
+        }
+
         hudManager.DisplayText();
     }
 

@@ -26,14 +26,14 @@ public class LookupAgencyManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         idLookupTable = new Dictionary<char, string>();
-        idLookupTable.Add('X', "Central Village");
+        idLookupTable.Add('X', "Root Village");
         idLookupTable.Add('C', "COM Hills");
         idLookupTable.Add('O', "ORG Park");
         idLookupTable.Add('N', "NET Heights");
 
         reverseIDLookupTable = new Dictionary<string, char>();
-        reverseIDLookupTable.Add("Central Village", 'X');
-        reverseIDLookupTable.Add("Central", 'X');
+        reverseIDLookupTable.Add("Root Village", 'X');
+        reverseIDLookupTable.Add("Root", 'X');
         reverseIDLookupTable.Add("COM Hills", 'C');
         reverseIDLookupTable.Add("COM", 'C');
         reverseIDLookupTable.Add("ORG Park", 'O');
@@ -89,13 +89,29 @@ public class LookupAgencyManager : MonoBehaviour
         }
     }
 
-    public Person FindPersonProfile(string personName)
+    public Person FindPersonProfileByName(string personName)
     {
         Person targetPerson = null;
 
         foreach (Person thisPerson in listOfAllPeople)
         {
             if (thisPerson.Name.ToLower() == personName.ToLower())
+            {
+                targetPerson = thisPerson;
+                break;
+            }
+        }
+
+        return targetPerson;
+    }
+
+    public Person FindPersonProfileByURL(string url)
+    {
+        Person targetPerson = null;
+
+        foreach (Person thisPerson in listOfAllPeople)
+        {
+            if (thisPerson.URL.ToLower() == url.ToLower())
             {
                 targetPerson = thisPerson;
                 break;

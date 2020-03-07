@@ -7,13 +7,16 @@ public class Transition : MonoBehaviour
 {
     [SerializeField] Image fadeImage;
     [SerializeField] bool fadeIn = true;
+    [SerializeField] bool fadeOut = true;
+
+    static readonly float FADE_DURATION = 0.25f;
 
     // Start is called before the first frame update
     void Start()
     {
         if (fadeIn)
         {
-            StartCoroutine(Fade(1, 0, 0.5f));
+            StartCoroutine(Fade(1, 0, FADE_DURATION));
         }
         else
         {
@@ -103,13 +106,16 @@ public class Transition : MonoBehaviour
         playerPosition.y -= 1.0f;
         gameplayManager.CurrentSpawnLocation = playerPosition;
 
-        StartCoroutine(TransitionToScene(0, 1, 0.5f, newScene));
+        StartCoroutine(TransitionToScene(0, 1, FADE_DURATION, newScene));
     }
 
     private IEnumerator TransitionToScene(float start, float end, float timeToFade, string newScene)
     {
-        yield return Fade(start, end, timeToFade);
-        
+        if (fadeOut)
+        {
+            yield return Fade(start, end, timeToFade);
+        }
+
         LevelManager levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
         levelManager.LoadLevel(newScene);
     }
@@ -131,8 +137,6 @@ public class Transition : MonoBehaviour
             fadeImage.color = currentFadeColor;
 
             yield return new WaitForEndOfFrame();
-
-            Debug.Log("Fade Transitioning");
         }
 
         if (end == 0.0f)
@@ -143,6 +147,6 @@ public class Transition : MonoBehaviour
 
     public void FadeMethod(string scene)
     {
-        StartCoroutine(TransitionToScene(0, 1, 0.5f, scene));
+        StartCoroutine(TransitionToScene(0, 1, FADE_DURATION, scene));
     }
 }
