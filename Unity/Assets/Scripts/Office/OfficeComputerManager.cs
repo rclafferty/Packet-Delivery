@@ -15,16 +15,14 @@ public class OfficeComputerManager : MonoBehaviour
     [SerializeField] Button[] logisticsButtons;
     [SerializeField] Button taskTrackerButton;
     [SerializeField] Text taskTrackerPriceText;
+    [SerializeField] Button companyRunningShoesButton;
+    [SerializeField] Text companyRunningShoesPriceText;
     [SerializeField] Button exitMatrixButton;
     [SerializeField] Text exitMatrixPriceText;
 
     bool isComputerShown;
     GameplayManager gameplayManager;
-
-    Dictionary<string, string> abbreviationLookupTable;
-
-    const int TASK_TRACKER_COST = 10;
-    const int EXIT_THE_MATRIX_COST = 30;
+    UpgradeManager upgradeManager;
 
     bool isAtComputer;
 
@@ -34,21 +32,23 @@ public class OfficeComputerManager : MonoBehaviour
         screenText.text = "";
 
         // Find the GameplayManager in scene
-        GameObject object_gameplayManager = GameObject.Find("GameplayManager");
-        if (object_gameplayManager != null)
+        GameObject gameplayManagerObject = GameObject.Find("GameplayManager");
+        if (gameplayManagerObject != null)
         {
-            gameplayManager = object_gameplayManager.GetComponent<GameplayManager>();
+            gameplayManager = gameplayManagerObject.GetComponent<GameplayManager>();
         }
 
-        // Store known abbreviations passed from other scripts
-        abbreviationLookupTable = new Dictionary<string, string>();
-        abbreviationLookupTable.Add("CLA", "Central Lookup Agency");
-        abbreviationLookupTable.Add("LLA SW", "Southwest Local Lookup Agency");
-        abbreviationLookupTable.Add("LLA NE", "Northeast Local Lookup Agency");
+        // Find the UpgradeManager in scene
+        GameObject upgradeManagerObject = GameObject.Find("UpgradeManager");
+        if (upgradeManagerObject != null)
+        {
+            upgradeManager = upgradeManagerObject.GetComponent<UpgradeManager>();
+        }
 
         // Display upgrades price
-        taskTrackerPriceText.text = "$" + TASK_TRACKER_COST;
-        exitMatrixPriceText.text = "$" + EXIT_THE_MATRIX_COST;
+        taskTrackerPriceText.text = "$" + upgradeManager.GetUpgradeCost("Task Tracker");
+        companyRunningShoesPriceText.text = "$" + upgradeManager.GetUpgradeCost("Company Running Shoes");
+        exitMatrixPriceText.text = "$" + upgradeManager.GetUpgradeCost("Exit the Matrix");
 
         isAtComputer = false;
 
@@ -74,6 +74,9 @@ public class OfficeComputerManager : MonoBehaviour
 
     void ToggleComputerCanvas(bool isShown)
     {
+        // Set default text as empty
+        screenText.text = "";
+
         // Store isShown value for reference in other methods
         isComputerShown = isShown;
 
@@ -83,21 +86,7 @@ public class OfficeComputerManager : MonoBehaviour
         // Freeze player if at computer
         player.IsWalkingEnabled = !isShown;
 
-        // Check if player already purchased the task tracker
-        if (gameplayManager.HasTaskTracker)
-        {
-            taskTrackerPriceText.text = "Purchased";
-            taskTrackerPriceText.fontStyle = FontStyle.Italic;
-        }
-
-        // Check if player already purchased the exit the matrix upgrade
-        if (gameplayManager.HasExitedTheMatrix)
-        {
-            exitMatrixPriceText.text = "Purchased";
-            exitMatrixPriceText.fontStyle = FontStyle.Italic;
-        }
-
-        gameplayManager.ForceUpdateHUD();
+        ForceUpdateGUI();
     }
     
     private void OnTriggerStay2D(Collider2D collision)
@@ -153,21 +142,6 @@ public class OfficeComputerManager : MonoBehaviour
                 // Start a delivery and tell the user
                 systemMessage = "Success! You've successfully setup the following delivery:\n";
 
-                /*
-                // If this is the first delivery
-                if (LetterManager.isFirstLetter)
-                {
-                    // Get starting message
-                    gameplayManager.GetStartingMessage();
-                    LetterManager.isFirstLetter = false;
-                }
-                // If this is the 2nd+ delivery
-                else
-                {
-                    // Get any message
-                    gameplayManager.GetNextMessage();
-                } */
-
                 gameplayManager.GetNextMessage();
             }
 
@@ -187,27 +161,21 @@ public class OfficeComputerManager : MonoBehaviour
     void DisplayDetails(in string systemMessage)
     {
         // Get the current message details
-        // Letter currentMessage = gameplayManager.CurrentTargetMessage;
         Letter currentMessage = gameplayManager.CurrentMessage;
-        // string sender = currentMessage.Sender;
         string sender = currentMessage.Sender.Name;
-        // string recipient = currentMessage.Recipient;
         string recipient = currentMessage.Recipient.Name;
 
         // If the player has purchased the exit the matrix upgrade
-        if (gameplayManager.HasExitedTheMatrix)
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
         {
             // Use the URLs instead of the names
-            // sender = currentMessage.SenderURL;
             sender = currentMessage.Sender.URL;
-            // recipient = currentMessage.RecipientURL;
             recipient = currentMessage.Recipient.URL;
         }
         
         // Format the text to be displayed on screen
         string senderLine = "Sender: " + sender;
         string receiverLine = "Recipient: " + recipient;
-        // string bodyLine = "\n" + currentMessage.MessageBody;
         string bodyLine = "\n" + currentMessage.Body;
 
         string displayText = "";
@@ -256,40 +224,13 @@ public class OfficeComputerManager : MonoBehaviour
 
     public void NextDestination()
     {
-        // Current display locations of the lookup agencies
-        string[] streetNames = { "A St", "C St", "D St" }; // TODO: Add cross streets
-        string[] locationName = { "Northeast Local Lookup Agency", "Central Lookup Agency", "Southwest Local Lookup Agency" };
-
         // If valid Gameplay Manager and if there is an active delivery
         if (HasValidActiveDelivery())
         {
-            string nextDestination = "";
-
             // Attempt to lookup the abbreviation
-            bool isValidAbbreviation = abbreviationLookupTable.TryGetValue(gameplayManager.NextDeliveryLocation.Trim(), out nextDestination);
+            bool isValidAbbreviation = gameplayManager.NextStep.nextStep != null && gameplayManager.NextStep.recipient != null;
 
-            string nextDisplayDestination = "";
-
-            // If no valid abbreviation is found
-            if (isValidAbbreviation)
-            {
-                // Find the appropriate street name to display
-                for (int i = 0; i < streetNames.Length; i++)
-                {
-                    if (locationName[i] == nextDestination)
-                    {
-                        // Format output to include street name
-                        nextDisplayDestination = nextDestination + " on " + streetNames[i];
-                        break;
-                    }
-                }
-            }   
-            else
-            {
-                // Display the stored location
-                nextDestination = gameplayManager.NextDeliveryLocation;
-                nextDisplayDestination = nextDestination;
-            }
+            string nextDisplayDestination = gameplayManager.NextStep.nextStep;
                 
             // Display next location
             screenText.text = "You should try stopping by the " + nextDisplayDestination + " next";
@@ -351,20 +292,23 @@ public class OfficeComputerManager : MonoBehaviour
         string instructions = "To use the Task Tracker, press TAB to display your current target and your next delivery location.";
 
         // Attempt to purchase the task tracker
-        if (AttemptPurchaseUpgrade("Task Tracker", TASK_TRACKER_COST, instructions, gameplayManager.HasTaskTracker))
+        string upgradeTitle = "Task Tracker";
+
+        if (AttemptPurchaseUpgrade(upgradeTitle, instructions))
         {
-            // Set task tracker flag in Gameplay Manager
-            gameplayManager.HasTaskTracker = true;
-
-            // Display purchased text
-            taskTrackerPriceText.text = "Purchased";
-            taskTrackerPriceText.fontStyle = FontStyle.Italic;
-
-            // Activate the Notepad Manager's task tracker
-            GameObject.FindObjectOfType<NotepadManager>().ToggleTaskTracker(true);
+            GameObject.Find("HUD").GetComponent<HUDManager>().ToggleDisplay(true);
         }
+    }
 
-        gameplayManager.ForceUpdateHUD();
+    public void PurchaseCompanyRunningShoes()
+    {
+        // Exit the Matrix instructions to display on purchase
+        string instructions = "Boss bought you some running shoes! Hold Left Shift to run faster.";
+
+        // Attempt to purchase the exit the matrix upgrade
+        string upgradeTitle = "Company Running Shoes";
+
+        AttemptPurchaseUpgrade(upgradeTitle, instructions);
     }
 
     public void PurchaseExitTheMatrix()
@@ -373,62 +317,74 @@ public class OfficeComputerManager : MonoBehaviour
         string instructions = "Now all addresses will be IP addresses and all lookup agencies will be based on real domain lookups.";
 
         // Attempt to purchase the exit the matrix upgrade
-        if (AttemptPurchaseUpgrade("Exit the Matrix", EXIT_THE_MATRIX_COST, instructions, gameplayManager.HasExitedTheMatrix))
-        {
-            // Set flags in the Gameplay Manager
-            gameplayManager.ExitTheMatrix();
+        string upgradeTitle = "Exit the Matrix";
 
-            // Display purchased text
-            exitMatrixPriceText.text = "Purchased";
-            exitMatrixPriceText.fontStyle = FontStyle.Italic;
-        }
-
-        gameplayManager.ForceUpdateHUD();
+        AttemptPurchaseUpgrade(upgradeTitle, instructions);
     }
 
-    bool AttemptPurchaseUpgrade(in string upgradeTitle, in int cost, in string instructions, bool hasPurchasedAlready)
+    public bool AttemptPurchaseUpgrade(string upgradeTitle, string instructions)
     {
-        bool success = false;
+        bool isSuccessful = false;
 
-        // If the upgrade is already purchased
-        if (hasPurchasedAlready)
+        if (upgradeManager.HasPurchasedUpgrade(upgradeTitle))
         {
             // Set error message
             screenText.text = "You've already purchased the " + upgradeTitle + " upgrade.\n" + instructions; // TODO: Add some snarky "No need to buy the same thing twice, right?" comment
 
             // Show on-screen message
             screenText.gameObject.SetActive(true);
-
-            // Failed to purchase
-            success = false;
+            isSuccessful = false;
         }
-        // If the player has enough money
-        else if (gameplayManager.Money >= cost)
+        else if (upgradeManager.AttemptPurchase(upgradeTitle))
         {
-            // Deduct the cost
-            gameplayManager.Money -= cost;
-
             // Set success message
             screenText.text = "You successfully purchased the " + upgradeTitle + " upgrade.\n" + instructions;
 
             // Show on-screen message
             screenText.gameObject.SetActive(true);
 
-            // Successful purchase
-            success = true;
+            isSuccessful = true;
         }
-        // If the player does NOT have enough money
         else
         {
             // Set error message
-            screenText.text = "You need $" + cost + " to purchase the " + upgradeTitle + " upgrade.";
+            screenText.text = "You need $" + upgradeManager.GetUpgradeCost(upgradeTitle) + " to purchase the " + upgradeTitle + " upgrade.";
 
-            // Failed purchase
-            success = false;
+            // Show on-screen message
+            screenText.gameObject.SetActive(true);
+
+            isSuccessful = false;
+        }
+
+        ForceUpdateGUI();
+        gameplayManager.ForceUpdateHUD();
+
+        return isSuccessful;
+    }
+
+    void ForceUpdateGUI()
+    {
+        // Check if player already purchased the task tracker
+        if (gameplayManager.HasUpgrade("Task Tracker"))
+        {
+            taskTrackerPriceText.text = "Purchased";
+            taskTrackerPriceText.fontStyle = FontStyle.Italic;
+        }
+
+        // Check if player already purchased the company running shoes
+        if (gameplayManager.HasUpgrade("Company Running Shoes"))
+        {
+            companyRunningShoesPriceText.text = "Purchased";
+            companyRunningShoesPriceText.fontStyle = FontStyle.Italic;
+        }
+
+        // Check if player already purchased the exit the matrix upgrade
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            exitMatrixPriceText.text = "Purchased";
+            exitMatrixPriceText.fontStyle = FontStyle.Italic;
         }
 
         gameplayManager.ForceUpdateHUD();
-
-        return success;
     }
 }

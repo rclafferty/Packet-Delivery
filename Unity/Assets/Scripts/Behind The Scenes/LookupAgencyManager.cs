@@ -24,6 +24,7 @@ public class LookupAgencyManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
+        instance = this;
 
         idLookupTable = new Dictionary<char, string>();
         idLookupTable.Add('X', "Root Village");

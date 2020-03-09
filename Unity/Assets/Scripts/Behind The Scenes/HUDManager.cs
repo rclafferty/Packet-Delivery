@@ -16,6 +16,8 @@ public class HUDManager : MonoBehaviour
     [SerializeField] GameObject taskTrackerObject;
     [SerializeField] Text taskTrackerText;
 
+    [SerializeField] GameObject noOneHomeObject;
+
     private void Awake()
     {
         if (instance != null)
@@ -32,6 +34,9 @@ public class HUDManager : MonoBehaviour
 
         // Set default empty text
         ClearCurrentTask();
+
+        // Hide no one home text
+        noOneHomeObject.SetActive(false);
     }
 
     // Start is called before the first frame update
@@ -70,7 +75,7 @@ public class HUDManager : MonoBehaviour
 
     private void ToggleTaskTracker(bool isShown)
     {
-        if (gameplayManager.HasTaskTracker)
+        if (gameplayManager.HasUpgrade("Task Tracker"))
         {
             // Get the active scene name
             string sceneName = SceneManager.GetActiveScene().name;
@@ -132,6 +137,18 @@ public class HUDManager : MonoBehaviour
     {
         CurrentTask = "None";
         DisplayText();
+    }
+
+    public void NoOneHome()
+    {
+        StartCoroutine(DisplayNoOneHome());
+    }
+
+    IEnumerator DisplayNoOneHome()
+    {
+        noOneHomeObject.SetActive(true);
+        yield return new WaitForSeconds(3);
+        noOneHomeObject.SetActive(false);
     }
 
     public string CurrentTask { get; private set; }

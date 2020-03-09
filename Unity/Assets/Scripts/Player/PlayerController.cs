@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -15,6 +16,10 @@ public class PlayerController : MonoBehaviour
 
     string horizontalFloatName = "HorizontalValue";
     string verticalFloatName = "VerticalValue";
+
+    [SerializeField] GameObject bigMap;
+
+    GameplayManager gameplayManager;
 
     enum Direction {
         Idle,
@@ -43,6 +48,11 @@ public class PlayerController : MonoBehaviour
         playerDirection = Direction.Idle;
 
         IsWalkingEnabled = true;
+
+        if (bigMap != null)
+            bigMap.SetActive(false);
+
+        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
     }
 
     // Update is called once per frame
@@ -54,8 +64,10 @@ public class PlayerController : MonoBehaviour
         if (IsWalkingEnabled)
         {
 #if UNITY_STANDALONE || UNITY_WEBPLAYER || UNITY_EDITOR
-            xMovement = Input.GetAxis("Horizontal");
-            yMovement = Input.GetAxis("Vertical");
+            // xMovement = Input.GetAxis("Horizontal");
+            // yMovement = Input.GetAxis("Vertical");
+            xMovement = Input.GetAxisRaw("Horizontal");
+            yMovement = Input.GetAxisRaw("Vertical");
 #else
             if (Input.touchCount > 0)
             {
@@ -101,21 +113,27 @@ public class PlayerController : MonoBehaviour
             }
 #endif
 
-#if UNITY_EDITOR
-            if (Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
             {
-                DebugActivateSpeedModifier(3f);
+                if (gameplayManager.HasUpgrade("Company Running Shoes"))
+                {
+                    speedModifier = 3;
+                }
             }
             else
             {
-                DebugActivateSpeedModifier(1f);
+                speedModifier = 1;
             }
-#endif
 
             // Move
             thisRigidbody.velocity = new Vector2(xMovement * SPEED * speedModifier, yMovement * SPEED * speedModifier);
 
             Animate(thisRigidbody.velocity);
+
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                bigMap.SetActive(!bigMap.activeInHierarchy);
+            }
         }
         else
         {

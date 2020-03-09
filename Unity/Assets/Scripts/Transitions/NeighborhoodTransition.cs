@@ -11,7 +11,10 @@ public class NeighborhoodTransition : MonoBehaviour
     PlayerController player;
     Rigidbody2D playerRigidbody;
     [SerializeField] GameObject transitionMarker;
-    
+
+    [SerializeField] bool transitionX = true;
+    [SerializeField] bool transitionY = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,6 +30,7 @@ public class NeighborhoodTransition : MonoBehaviour
     public IEnumerator Fade(float start, float end, float timeToFade)
     {
         fadeImage.enabled = true;
+        fadeImage.gameObject.SetActive(true);
         Color currentFadeColor = fadeImage.color;
 
         // Set starting alpha
@@ -52,8 +56,18 @@ public class NeighborhoodTransition : MonoBehaviour
     {
         yield return Fade(0, 1, 0.5f);
 
-        // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        playerRigidbody.position = transitionMarker.transform.position;
+        Vector3 newPosition = playerRigidbody.position;
+        Vector3 targetPosition = transitionMarker.transform.position;
+        if (transitionX)
+        {
+            newPosition.x = targetPosition.x;
+        }
+        if (transitionY)
+        {
+            newPosition.y = targetPosition.y;
+        }
+
+        playerRigidbody.position = newPosition;
 
         yield return Fade(1, 0, 0.5f);
     }

@@ -12,6 +12,7 @@ public class LoadingManager : MonoBehaviour
     [SerializeField] MusicManager musicManager;
     [SerializeField] StartSceneLoader startSceneLoader;
     [SerializeField] LookupAgencyManager lookupAgencyManager;
+    [SerializeField] UpgradeManager upgradeManager;
     // [SerializeField] Timer timer;
 
     [SerializeField] AudioClip music;
@@ -63,22 +64,17 @@ public class LoadingManager : MonoBehaviour
         // ORDER SENSITIVE
         musicManager.SetAudioClip(music);
         musicManager.Play();
-        // gameplayManager.GameplayTimer = timer;
-        // gameplayManager.SetLetterManager(letterManager);
         gameplayManager.ResetDeliveryDetails();
-
-        // Disabled temporarily: Start with a message already
-        // gameplayManager.CurrentTargetMessage = letterManager.GetStartingMessage();
-
-        // Disabled temporarily: Set upgrade manager
-        // gameplayManager.SetUpgradeManager(upgradeManager);
 
         // NOT order sensitive
         cheatManager.SetLevelManager(levelManager);
-        // timer.SetDifficulty("Default");
         startSceneLoader.sprite_PlayerDown = sprite_PlayerDown;
         startSceneLoader.sprite_PlayerRight = sprite_PlayerRight;
         startSceneLoader.sprite_NPCLeft = sprite_NPCLeft;
+        upgradeManager.AddUpgrade("Task Tracker", 10);
+        upgradeManager.AddUpgrade("Company Running Shoes", 10);
+        upgradeManager.AddUpgrade("Exit the Matrix", 30);
+
         SceneManager.sceneLoaded += startSceneLoader.OnSceneWasLoaded;
     }
 }

@@ -11,6 +11,8 @@ public class Transition : MonoBehaviour
 
     static readonly float FADE_DURATION = 0.25f;
 
+    [SerializeField] HUDManager hudManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,6 +28,8 @@ public class Transition : MonoBehaviour
 
             fadeImage.enabled = false;
         }
+
+        hudManager = GameObject.Find("HUD").GetComponent<HUDManager>();
     }
 
     // Update is called once per frame
@@ -59,6 +63,8 @@ public class Transition : MonoBehaviour
             }
         }
 
+        bool noOneHome = false;
+
         GameObject player = GameObject.Find("Player");
 
         GameplayManager gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
@@ -88,11 +94,33 @@ public class Transition : MonoBehaviour
             if (newSceneDetails.Length == 1)
             {
                 Debug.Log("Not enough parts in the name");
+                NoOneHome();
+                noOneHome = true;
             }
             else
             {
                 gameplayManager.currentAddress = newSceneDetails[1].Trim();
-                Debug.Log("Entering " + gameplayManager.currentAddress + " -- " + gameplayManager.CurrentMessage.Recipient.HouseNumber + " " + gameplayManager.CurrentMessage.Recipient.Neighborhood + " -- Next: " + gameplayManager.NextDeliveryLocation);
+
+                if (gameplayManager.CurrentMessage == null)
+                {
+                    NoOneHome();
+                    noOneHome = true;
+                }
+                else
+                {
+                    Debug.Log("Entering " + gameplayManager.currentAddress + " -- " + gameplayManager.CurrentMessage.Recipient.HouseNumber + " " + gameplayManager.CurrentMessage.Recipient.Neighborhood + " -- Next: " + gameplayManager.NextDeliveryLocation);
+
+                    if (System.Convert.ToInt32(gameplayManager.currentAddress) != gameplayManager.CurrentMessage.Recipient.HouseNumber)
+                    {
+                        NoOneHome();
+                        noOneHome = true;
+                    }
+                    else if (gameplayManager.CurrentNeighborhoodID != gameplayManager.CurrentMessage.Recipient.NeighborhoodID)
+                    {
+                        NoOneHome();
+                        noOneHome = true;
+                    }
+                }
             }
         }
 
@@ -102,11 +130,20 @@ public class Transition : MonoBehaviour
             gameplayManager.lastOutdoorPosition = this.transform.position;  
         }
 
-        Vector3 playerPosition = player.transform.position;
-        playerPosition.y -= 1.0f;
-        gameplayManager.CurrentSpawnLocation = playerPosition;
+        if (!noOneHome)
+        {
+            Vector3 playerPosition = player.transform.position;
+            playerPosition.y -= 1.0f;
+            gameplayManager.CurrentSpawnLocation = playerPosition;
 
-        StartCoroutine(TransitionToScene(0, 1, FADE_DURATION, newScene));
+            StartCoroutine(TransitionToScene(0, 1, FADE_DURATION, newScene));
+        }
+    }
+
+    void NoOneHome()
+    {
+        Debug.Log("Hmm... No one seems to be home right now.");
+        hudManager.NoOneHome();
     }
 
     private IEnumerator TransitionToScene(float start, float end, float timeToFade, string newScene)
@@ -123,6 +160,8 @@ public class Transition : MonoBehaviour
     public IEnumerator Fade(float start, float end, float timeToFade)
     {
         fadeImage.enabled = true;
+        fadeImage.gameObject.SetActive(true);
+        fadeImage.transform.parent.gameObject.SetActive(true);
 
         Color currentFadeColor = fadeImage.color;
 
@@ -139,7 +178,7 @@ public class Transition : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        if (end == 0.0f)
+        if (end <= 0.01f)
         {
             fadeImage.enabled = false;
         }

@@ -58,7 +58,7 @@ public class NotepadManager : MonoBehaviour
     public void ToggleTaskTracker()
     {
         // If the player has purchased the upgrade
-        if (gameplayManager.HasTaskTracker)
+        if (gameplayManager.HasUpgrade("Task Tracker"))
         {
             // Get the active scene name
             string sceneName = SceneManager.GetActiveScene().name;
@@ -78,7 +78,7 @@ public class NotepadManager : MonoBehaviour
     public void ToggleTaskTracker(bool isShown)
     {
         // If the player has purchased the upgrade
-        if (gameplayManager.HasTaskTracker)
+        if (gameplayManager.HasUpgrade("Task Tracker"))
         {
             // Get the active scene name
             string sceneName = SceneManager.GetActiveScene().name;

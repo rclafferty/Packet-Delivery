@@ -25,6 +25,7 @@ public class GameplayManager : MonoBehaviour
     [SerializeField] LookupAgencyManager lookupAgencyManager;
     [SerializeField] LetterManager letterManager;
     [SerializeField] HUDManager hudManager;
+    [SerializeField] UpgradeManager upgradeManager;
 
     [SerializeField] public string indoorLocation;
 
@@ -50,11 +51,9 @@ public class GameplayManager : MonoBehaviour
         }
         
         HasStartingLetter = false;
-        HasExitedTheMatrix = false; // Set true for testing
-        HasTaskTracker = false;
         
         lastOutdoorPosition = new Vector2(265, -21.5f);
-        Money = 0;
+        Money = 10;
         
         ResetDeliveryDetails();
 
@@ -73,7 +72,7 @@ public class GameplayManager : MonoBehaviour
         {
             GameObject.Find("Player").transform.position = lastOutdoorPosition + (Vector2.down * 1);
 
-            if (HasExitedTheMatrix)
+            if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
             {
                 GameObject addressManagerObject = GameObject.Find("AddressManager");
                 if (addressManagerObject != null)
@@ -94,9 +93,13 @@ public class GameplayManager : MonoBehaviour
 
     public void ExitTheMatrix()
     {
-        HasExitedTheMatrix = true;
-        // letterManager.ResetMessages();
+        upgradeManager.AttemptPurchase("Exit the Matrix");
         hudManager.DisplayText();
+    }
+
+    public bool HasUpgrade(string title)
+    {
+        return upgradeManager.HasPurchasedUpgrade(title);
     }
 
     public Letter CurrentMessage { get; private set; }
@@ -146,7 +149,7 @@ public class GameplayManager : MonoBehaviour
         string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X') + " Lookup Agency";
 
         DeliveryInstructions instructions;
-        if (HasExitedTheMatrix)
+        if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
         {
             instructions.recipient = CurrentMessage.Recipient.URL;
         }
@@ -175,7 +178,7 @@ public class GameplayManager : MonoBehaviour
         if (CurrentMessage != null)
         {
             DeliveryInstructions instructions = NextStep;
-            if (HasExitedTheMatrix)
+            if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
             {
                 instructions.recipient = CurrentMessage.Recipient.URL;
             }
@@ -184,6 +187,11 @@ public class GameplayManager : MonoBehaviour
                 instructions.recipient = CurrentMessage.Recipient.Name;
             }
             instructions.nextStep = lookupAgencyManager.GetNeighborhoodNameFromID(instructions.neighborhoodID);
+
+            if (!(instructions.nextStep.Contains("Office") || instructions.nextStep.Contains("Residence")))
+            {
+                instructions.nextStep += " Lookup Agency";
+            }
             NextStep = instructions;
         }
 
@@ -211,7 +219,4 @@ public class GameplayManager : MonoBehaviour
     public int Money { get; set; }
 
     public char CurrentNeighborhoodID { get; set; }
-
-    public bool HasTaskTracker { get; set; }
-    public bool HasExitedTheMatrix { get; set; }
 }

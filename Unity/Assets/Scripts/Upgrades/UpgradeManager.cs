@@ -5,12 +5,29 @@ using UnityEngine;
 
 public class UpgradeManager : MonoBehaviour
 {
+    static UpgradeManager instance = null;
+
+    [SerializeField] GameplayManager gameplayManager;
+
     List<Upgrade> listOfUpgrades;
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        listOfUpgrades = new List<Upgrade>();
+        DontDestroyOnLoad(gameObject);
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        listOfUpgrades = new List<Upgrade>();
+
     }
 
     // Update is called once per frame
@@ -25,24 +42,30 @@ public class UpgradeManager : MonoBehaviour
         listOfUpgrades.Add(newUpgrade);
     }
 
-    public bool AttemptPurchaseUpgrade(string title)
+    public bool HasPurchasedUpgrade(string title)
     {
-        bool isSuccessful = false;
-
-        for (int i = 0; i < listOfUpgrades.Count; i++)
+        foreach (Upgrade thisUpgrade in listOfUpgrades)
         {
-            if (listOfUpgrades[i].Title.ToLower() == title.ToLower())
+            if (thisUpgrade.Title.ToLower() == title.ToLower())
             {
-                if (!listOfUpgrades[i].IsUnlocked)
-                {
-                    listOfUpgrades[i].Purchase();
-                    isSuccessful = true;
-                    break;
-                }
+                return thisUpgrade.IsUnlocked;
             }
         }
 
-        return isSuccessful;
+        return false;
+    }
+
+    public int GetUpgradeCost(string title)
+    {
+        foreach (Upgrade thisUpgrade in listOfUpgrades)
+        {
+            if (thisUpgrade.Title.ToLower() == title.ToLower())
+            {
+                return thisUpgrade.Cost;
+            }
+        }
+
+        return -1;
     }
 
     public int NumberOfUpgradesPurchased
@@ -60,5 +83,35 @@ public class UpgradeManager : MonoBehaviour
 
             return purchased;
         }
+    }
+
+    public bool AttemptPurchase(string title)
+    {
+        bool isSuccessful = false;
+        for (int i = 0; i < listOfUpgrades.Count; i++)
+        {
+            if (listOfUpgrades[i].Title.ToLower() == title.ToLower())
+            {
+                if (listOfUpgrades[i].IsUnlocked)
+                {
+                    isSuccessful = true;
+                }
+                else if (gameplayManager.Money >= listOfUpgrades[i].Cost)
+                {
+                    gameplayManager.Money -= listOfUpgrades[i].Cost;
+                    listOfUpgrades[i].Purchase();
+                    isSuccessful = true;
+                }
+                else
+                {
+                    isSuccessful = false;
+                }
+
+                break;
+            }
+        }
+
+        gameplayManager.ForceUpdateHUD();
+        return isSuccessful;
     }
 }

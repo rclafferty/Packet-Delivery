@@ -126,24 +126,52 @@ public class LookupAgencyChatManager : MonoBehaviour
 
     public void WhereToGo()
     {
-        if (neighborhoodID == gameplayManager.NextStep.neighborhoodID)
+        if (gameplayManager.CurrentMessage == null)
         {
-            chatTextMessage = "You're in the right spot! I can help you.";
-            option1Message = "Okay!";
-            option2Message = "On second thought, I'll come back later.";
-            option1Action = delegate {
-                StartDialogue();
-                DisplayText();
-            };
-            option2Action = delegate {
-                DepartDialogue();
-                DisplayText();
-            };
+            NoLetterDialogue();
+        }
+        else if (neighborhoodID == gameplayManager.NextStep.neighborhoodID)
+        {
+            CorrectLocationDialogue();
         }
         else
         {
             IncorrectLocationDialogue();
         }
+    }
+
+    private void CorrectLocationDialogue()
+    {
+        chatTextMessage = "You're in the right spot! I can help you.";
+        option1Message = "Okay!";
+        option2Message = "On second thought, I'll come back later.";
+        option1Action = delegate
+        {
+            StartDialogue();
+            DisplayText();
+        };
+        option2Action = delegate
+        {
+            DepartDialogue();
+            DisplayText();
+        };
+    }
+
+    private void NoLetterDialogue()
+    {
+        chatTextMessage = "You don't seem to have a letter with you. Start by getting one from your office.";
+        option1Message = "Whoops. I'll come back when I have one.";
+        option2Message = "I have something else.";
+        option1Action = delegate
+        {
+            DepartDialogue();
+            DisplayText();
+        };
+        option2Action = delegate
+        {
+            StartDialogue();
+            DisplayText();
+        };
     }
 
     void ToggleInputField(bool isActive)
@@ -157,18 +185,7 @@ public class LookupAgencyChatManager : MonoBehaviour
             // Correct place
             if (gameplayManager.CurrentMessage == null)
             {
-                chatTextMessage = "You don't have a package with you to deliver.";
-                option1Message = "Whoops. I'll come back when I have one.";
-                option2Message = "";
-
-                option1Action = delegate {
-                    DepartDialogue();
-                    DisplayText();
-                };
-                option2Action = delegate {
-                    DepartDialogue();
-                    DisplayText();
-                };
+                NoLetterDialogue();
 
                 return;
             }
@@ -203,7 +220,7 @@ public class LookupAgencyChatManager : MonoBehaviour
 
         string targetName = "";
         Person thisPersonProfile = null;
-        if (gameplayManager.HasExitedTheMatrix)
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
         {
             targetName = gameplayManager.CurrentMessage.Recipient.URL;
         }
@@ -253,7 +270,7 @@ public class LookupAgencyChatManager : MonoBehaviour
                     nextInstructions.nextStep = nextLocation + " Lookup Agency";
                     nextInstructions.neighborhoodID = thisPersonProfile.NeighborhoodID;
 
-                    if (gameplayManager.HasExitedTheMatrix)
+                    if (gameplayManager.HasUpgrade("Exit the Matrix"))
                     {
                         nextInstructions.recipient = thisPersonProfile.URL;
                     }
@@ -289,7 +306,7 @@ public class LookupAgencyChatManager : MonoBehaviour
                     nextInstructions.nextStep = "Residence #" + thisPersonProfile.HouseNumber;
                     nextInstructions.neighborhoodID = thisPersonProfile.NeighborhoodID;
 
-                    if (gameplayManager.HasExitedTheMatrix)
+                    if (gameplayManager.HasUpgrade("Exit the Matrix"))
                     {
                         nextInstructions.recipient = thisPersonProfile.URL;
                     }
