@@ -53,9 +53,13 @@ public class GameplayManager : MonoBehaviour
         HasStartingLetter = false;
         
         lastOutdoorPosition = new Vector2(265, -21.5f);
-        Money = 10;
+        Money = 0;
         
         ResetDeliveryDetails();
+
+#if UNITY_EDITOR
+        // upgradeManager.ForcePurchaseUpgrade("Exit the Matrix");
+#endif
 
         SceneManager.sceneLoaded += OnSceneLoad;
     }
@@ -80,7 +84,7 @@ public class GameplayManager : MonoBehaviour
                     // Exit the matrix
                     Debug.Log("Enabling exit the matrix mode");
                     AddressManager addressManager = addressManagerObject.GetComponent<AddressManager>();
-                    addressManager.EnableExitTheMatrix();
+                    // addressManager.EnableExitTheMatrix();
                 }
             }
         }

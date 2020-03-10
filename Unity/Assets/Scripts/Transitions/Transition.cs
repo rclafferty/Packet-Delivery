@@ -12,6 +12,7 @@ public class Transition : MonoBehaviour
     static readonly float FADE_DURATION = 0.25f;
 
     [SerializeField] HUDManager hudManager;
+    [SerializeField] string ipAddress;
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +31,14 @@ public class Transition : MonoBehaviour
         }
 
         hudManager = GameObject.Find("HUD").GetComponent<HUDManager>();
+
+        string[] houseParts = name.Split('-');
+        if (houseParts.Length > 1)
+        {
+            int residenceNumber = System.Convert.ToInt32(houseParts[1].Trim());
+            char neighborhoodID = houseParts[2].Trim()[0];
+            ipAddress = AddressManager.DetermineIPFromHouseInfo(residenceNumber, neighborhoodID);
+        }
     }
 
     // Update is called once per frame
@@ -91,7 +100,19 @@ public class Transition : MonoBehaviour
             string[] newSceneDetails = newScene.Split('-');
             newScene = "home";
 
-            if (newSceneDetails.Length == 1)
+            if (gameplayManager.HasUpgrade("Exit the Matrix"))
+            {
+                if (gameplayManager.NextStep.nextStep == ipAddress)
+                {
+                    noOneHome = false;
+                }
+                else
+                {
+                    NoOneHome();
+                    noOneHome = true;
+                }
+            }
+            else if (newSceneDetails.Length == 1)
             {
                 Debug.Log("Not enough parts in the name");
                 NoOneHome();
@@ -106,20 +127,21 @@ public class Transition : MonoBehaviour
                     NoOneHome();
                     noOneHome = true;
                 }
+                else if (System.Convert.ToInt32(gameplayManager.currentAddress) != gameplayManager.CurrentMessage.Recipient.HouseNumber)
+                {
+                    NoOneHome();
+                    noOneHome = true;
+                }
+                else if (gameplayManager.CurrentNeighborhoodID != gameplayManager.CurrentMessage.Recipient.NeighborhoodID)
+                {
+                    NoOneHome();
+                    noOneHome = true;
+                }
                 else
                 {
                     Debug.Log("Entering " + gameplayManager.currentAddress + " -- " + gameplayManager.CurrentMessage.Recipient.HouseNumber + " " + gameplayManager.CurrentMessage.Recipient.Neighborhood + " -- Next: " + gameplayManager.NextDeliveryLocation);
 
-                    if (System.Convert.ToInt32(gameplayManager.currentAddress) != gameplayManager.CurrentMessage.Recipient.HouseNumber)
-                    {
-                        NoOneHome();
-                        noOneHome = true;
-                    }
-                    else if (gameplayManager.CurrentNeighborhoodID != gameplayManager.CurrentMessage.Recipient.NeighborhoodID)
-                    {
-                        NoOneHome();
-                        noOneHome = true;
-                    }
+                    noOneHome = false;
                 }
             }
         }

@@ -81,24 +81,48 @@ public class HomeChatManager : MonoBehaviour
     void DeliverPackage()
     {
         Debug.Log("Current Address: " + gameplayManager.currentAddress);
-        if (!gameplayManager.NextStep.nextStep.Contains("Residence #"))
+
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
         {
-            WrongLocation();
-        }
-        else if (gameplayManager.currentAddress != gameplayManager.CurrentMessage.Recipient.HouseNumber.ToString())
-        {
-            WrongLocation();
+            if (gameplayManager.NextStep.nextStep == AddressManager.DetermineIPFromHouseInfo(gameplayManager.CurrentMessage.Recipient.HouseNumber, gameplayManager.CurrentMessage.Recipient.NeighborhoodID))
+            {
+                chatTextMessage = "Thank you very much!";
+                option1Message = "Enjoy!";
+
+                option1Action = delegate
+                {
+                    DepartDialogue();
+                    DisplayText();
+                    gameplayManager.CompleteTask();
+                };
+            }
+            else
+            {
+                WrongLocation();
+            }
         }
         else
-        {
-            chatTextMessage = "Thank you very much!";
-            option1Message = "Enjoy!";
+        { 
+            if (!gameplayManager.NextStep.nextStep.Contains("Residence #"))
+            {
+                WrongLocation();
+            }
+            else if (gameplayManager.currentAddress != gameplayManager.CurrentMessage.Recipient.HouseNumber.ToString())
+            {
+                WrongLocation();
+            }
+            else
+            {
+                chatTextMessage = "Thank you very much!";
+                option1Message = "Enjoy!";
 
-            option1Action = delegate {
-                DepartDialogue();
-                DisplayText();
-                gameplayManager.CompleteTask();
-            };
+                option1Action = delegate
+                {
+                    DepartDialogue();
+                    DisplayText();
+                    gameplayManager.CompleteTask();
+                };
+            }
         }
     }
 

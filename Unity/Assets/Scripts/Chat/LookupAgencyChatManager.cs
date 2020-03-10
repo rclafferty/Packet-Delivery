@@ -298,21 +298,25 @@ public class LookupAgencyChatManager : MonoBehaviour
                     // Find next location
                     string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID);
 
+
                     chatTextMessage = "That person lives at Residence #" + thisPersonProfile.HouseNumber + ".";
                     option1Message = "Thanks!";
                     option2Message = "";
 
                     GameplayManager.DeliveryInstructions nextInstructions;
-                    nextInstructions.nextStep = "Residence #" + thisPersonProfile.HouseNumber;
                     nextInstructions.neighborhoodID = thisPersonProfile.NeighborhoodID;
 
                     if (gameplayManager.HasUpgrade("Exit the Matrix"))
                     {
                         nextInstructions.recipient = thisPersonProfile.URL;
+                        nextInstructions.nextStep = AddressManager.DetermineIPFromHouseInfo(thisPersonProfile.HouseNumber, thisPersonProfile.NeighborhoodID);
+
+                        chatTextMessage = "That person lives at " + nextInstructions.nextStep + ".";
                     }
                     else
                     {
                         nextInstructions.recipient = thisPersonProfile.Name;
+                        nextInstructions.nextStep = "Residence #" + thisPersonProfile.HouseNumber;
                     }
 
                     gameplayManager.SetNextSteps(nextInstructions);

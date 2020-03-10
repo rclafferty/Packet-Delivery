@@ -114,4 +114,27 @@ public class UpgradeManager : MonoBehaviour
         gameplayManager.ForceUpdateHUD();
         return isSuccessful;
     }
+
+#if UNITY_EDITOR
+    public bool ForcePurchaseUpgrade(string title)
+    {
+        bool isSuccessful = false;
+        for (int i = 0; i < listOfUpgrades.Count; i++)
+        {
+            if (listOfUpgrades[i].Title.ToLower() == title.ToLower())
+            {
+                if (!listOfUpgrades[i].IsUnlocked)
+                {
+                    listOfUpgrades[i].Purchase();
+                }
+
+                isSuccessful = true;
+                break;
+            }
+        }
+
+        gameplayManager.ForceUpdateHUD();
+        return isSuccessful;
+    }
+#endif
 }
