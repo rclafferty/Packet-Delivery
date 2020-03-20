@@ -13,11 +13,15 @@ public class OfficeComputerManager : MonoBehaviour
     [SerializeField] Text screenText;
 
     [SerializeField] Button[] logisticsButtons;
-    [SerializeField] Button taskTrackerButton;
+    // [SerializeField] Button taskTrackerButton;
     [SerializeField] Text taskTrackerPriceText;
-    [SerializeField] Button companyRunningShoesButton;
+    // [SerializeField] Button companyRunningShoesButton;
     [SerializeField] Text companyRunningShoesPriceText;
-    [SerializeField] Button exitMatrixButton;
+    // [SerializeField] Button addressBookButton;
+    [SerializeField] Text addressBookPriceText;
+    // [SerializeField] Button addressBookSlotButton;
+    [SerializeField] Text addressBookSlotPriceText;
+    // [SerializeField] Button exitMatrixButton;
     [SerializeField] Text exitMatrixPriceText;
 
     bool isComputerShown;
@@ -322,10 +326,43 @@ public class OfficeComputerManager : MonoBehaviour
         AttemptPurchaseUpgrade(upgradeTitle, instructions);
     }
 
+    public void PurchaseAddressBook()
+    {
+        // Address Book instructions to display on purchase
+        string instructions = "To use the Address Book, press L to display the previous delivery locations.";
+
+        // Attempt to purchase the task tracker
+        string upgradeTitle = "Address Book";
+
+        AttemptPurchaseUpgrade(upgradeTitle, instructions);
+    }
+
+    public void PurchaseAddressBookSlot()
+    {
+        if (GameObject.Find("GameplayManager").GetComponent<GameplayManager>().HasUpgrade("Address Book"))
+        {
+            // Address Book instructions to display on purchase
+            string instructions = "1 slot has been added to your Address Book.";
+
+            // Attempt to purchase the task tracker
+            string upgradeTitle = "Address Book Slot";
+
+            AttemptPurchaseUpgrade(upgradeTitle, instructions);
+        }
+        else
+        {
+            // Set error message
+            screenText.text = "You need the Address Book upgrade first."; 
+
+            // Show on-screen message
+            screenText.gameObject.SetActive(true);
+        }
+    }
+
     public bool AttemptPurchaseUpgrade(string upgradeTitle, string instructions)
     {
         bool isSuccessful = false;
-
+        
         if (upgradeManager.HasPurchasedUpgrade(upgradeTitle))
         {
             // Set error message

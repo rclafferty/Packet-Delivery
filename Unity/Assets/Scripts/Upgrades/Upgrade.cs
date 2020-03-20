@@ -18,10 +18,13 @@ namespace Assets.Scripts
         public void Purchase()
         {
             IsUnlocked = true;
+            Quantity++;
         }
         
         public string Title { get; private set; }
         public int Cost { get; private set; }
         public bool IsUnlocked { get; private set; }
+        public bool IsRepeatable { get; private set; }
+        public int Quantity { get; private set; }
     }
 }

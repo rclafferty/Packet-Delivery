@@ -33,7 +33,7 @@ public class Transition : MonoBehaviour
         hudManager = GameObject.Find("HUD").GetComponent<HUDManager>();
 
         string[] houseParts = name.Split('-');
-        if (houseParts.Length > 1)
+        if (houseParts.Length > 2)
         {
             int residenceNumber = System.Convert.ToInt32(houseParts[1].Trim());
             char neighborhoodID = houseParts[2].Trim()[0];

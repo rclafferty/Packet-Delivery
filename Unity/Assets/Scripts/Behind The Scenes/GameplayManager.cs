@@ -26,6 +26,7 @@ public class GameplayManager : MonoBehaviour
     [SerializeField] LetterManager letterManager;
     [SerializeField] HUDManager hudManager;
     [SerializeField] UpgradeManager upgradeManager;
+    [SerializeField] CacheManager cacheManager;
 
     [SerializeField] public string indoorLocation;
 
@@ -126,6 +127,8 @@ public class GameplayManager : MonoBehaviour
             }
 
             Money += DELIVERY_PAYMENT;
+
+            cacheManager.AddAddress(CurrentMessage.Recipient);
         }
         
         ResetDeliveryDetails();
@@ -153,7 +156,7 @@ public class GameplayManager : MonoBehaviour
         string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X') + " Lookup Agency";
 
         DeliveryInstructions instructions;
-        if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
+        if (HasUpgrade("Address Book"))
         {
             instructions.recipient = CurrentMessage.Recipient.URL;
         }
@@ -167,8 +170,6 @@ public class GameplayManager : MonoBehaviour
         SetNextSteps(instructions);
 
         target = instructions.recipient;
-
-        // notepadManager.AddItemToNotepad("Central Lookup Agency");
     }
 
     public void SetNextSteps(DeliveryInstructions instructions)

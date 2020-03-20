@@ -71,9 +71,12 @@ public class LoadingManager : MonoBehaviour
         startSceneLoader.sprite_PlayerDown = sprite_PlayerDown;
         startSceneLoader.sprite_PlayerRight = sprite_PlayerRight;
         startSceneLoader.sprite_NPCLeft = sprite_NPCLeft;
-        upgradeManager.AddUpgrade("Task Tracker", 10);
-        upgradeManager.AddUpgrade("Company Running Shoes", 10);
-        upgradeManager.AddUpgrade("Exit the Matrix", 30);
+        upgradeManager.AddUpgrade("Task Tracker", 10, isRepeatable: false);
+        upgradeManager.AddUpgrade("Company Running Shoes", 10, isRepeatable: false);
+        upgradeManager.AddUpgrade("Address Book", 20, isRepeatable: false);
+        upgradeManager.AddUpgrade("Address Book Slot", 10, isRepeatable: true);
+        upgradeManager.AddUpgrade("Exit the Matrix", 30, isRepeatable: false);
+        upgradeManager.AddUpgrade("Where Credit is Due", 20, isRepeatable: false);
 
         SceneManager.sceneLoaded += startSceneLoader.OnSceneWasLoaded;
     }

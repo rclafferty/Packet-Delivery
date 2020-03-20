@@ -3,3 +3,6 @@ PHP/.sass-cache/
 
 # Ignore CoreCode (redo of Unity Scripts)
 CoreCode/
+
+# Ignore MySQL files until solidified (for security purposes)
+MySQL/

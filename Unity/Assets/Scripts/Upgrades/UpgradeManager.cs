@@ -36,7 +36,7 @@ public class UpgradeManager : MonoBehaviour
         
     }
 
-    public void AddUpgrade(string title, int cost)
+    public void AddUpgrade(string title, int cost, bool isRepeatable)
     {
         Upgrade newUpgrade = new Upgrade(title, cost);
         listOfUpgrades.Add(newUpgrade);
@@ -48,7 +48,23 @@ public class UpgradeManager : MonoBehaviour
         {
             if (thisUpgrade.Title.ToLower() == title.ToLower())
             {
-                return thisUpgrade.IsUnlocked;
+                if (thisUpgrade.IsRepeatable)
+                    return false;
+                else
+                    return thisUpgrade.IsUnlocked;
+            }
+        }
+
+        return false;
+    }
+    
+    public bool IsRepeatable(string title)
+    {
+        foreach (Upgrade thisUpgrade in listOfUpgrades)
+        {
+            if (thisUpgrade.Title.ToLower() == title.ToLower())
+            {
+                return thisUpgrade.IsRepeatable;
             }
         }
 

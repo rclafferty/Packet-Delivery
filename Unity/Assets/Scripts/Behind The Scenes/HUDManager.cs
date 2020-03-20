@@ -9,12 +9,16 @@ public class HUDManager : MonoBehaviour
     static HUDManager instance = null;
 
     [SerializeField] GameplayManager gameplayManager;
+    [SerializeField] CacheManager cacheManager;
 
     [SerializeField] GameObject moneyBackdrop;
     [SerializeField] Text moneyText;
 
     [SerializeField] GameObject taskTrackerObject;
     [SerializeField] Text taskTrackerText;
+
+    [SerializeField] GameObject addressBookObject;
+    [SerializeField] Text addressBookText;
 
     [SerializeField] GameObject noOneHomeObject;
 
@@ -56,6 +60,13 @@ public class HUDManager : MonoBehaviour
             // Show or hide the task tracker
             ToggleTaskTracker(!isCurrentlyActive);
         }
+        else if (Input.GetKeyDown(KeyCode.L))
+        {
+            bool isCurrentlyActive = addressBookObject.activeInHierarchy;
+
+            // Show or hide the address book
+            ToggleAddressBook(!isCurrentlyActive);
+        }
     }
 
     public void ToggleDisplay(bool isShown)
@@ -63,6 +74,7 @@ public class HUDManager : MonoBehaviour
         // Toggle scene objects
         moneyBackdrop.SetActive(isShown);
         ToggleTaskTracker(isShown);
+        ToggleAddressBook(isShown);
 
         // Update the text
         DisplayText();
@@ -93,6 +105,29 @@ public class HUDManager : MonoBehaviour
         else
         {
             taskTrackerObject.SetActive(false); // Hide it if not active
+        }
+    }
+
+    private void ToggleAddressBook(bool isShown)
+    {
+        if (gameplayManager.HasUpgrade("Address Book"))
+        {
+            // Get the active scene name
+            string sceneName = SceneManager.GetActiveScene().name;
+
+            // If it's not a restricted scene
+            if (sceneName != "loading" && sceneName != "title" && sceneName != "start_town")
+            {
+                // Toggle the address book
+                addressBookObject.SetActive(isShown);
+
+                // Update the text
+                DisplayText();
+            }
+        }
+        else
+        {
+            addressBookObject.SetActive(false); // Hide it if not active
         }
     }
 
@@ -131,6 +166,9 @@ public class HUDManager : MonoBehaviour
         // Display the formatted text
         // taskTrackerText.text = displayText;
         taskTrackerText.text = textToDisplay;
+
+        // Display cached addresses from the local DNS cache
+        cacheManager.DisplayCachedAddresses(addressBookText);
     }
 
     public void ClearCurrentTask()
