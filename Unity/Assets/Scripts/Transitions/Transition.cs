@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Behind_The_Scenes;
+using Assets.Scripts.Lookup_Agencies;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +10,9 @@ public class Transition : MonoBehaviour
     [SerializeField] Image fadeImage;
     [SerializeField] bool fadeIn = true;
     [SerializeField] bool fadeOut = true;
+
+    GameplayManager gameplayManager;
+    CacheManager cacheManager;
 
     static readonly float FADE_DURATION = 0.25f;
 
@@ -39,6 +44,10 @@ public class Transition : MonoBehaviour
             char neighborhoodID = houseParts[2].Trim()[0];
             ipAddress = AddressManager.DetermineIPFromHouseInfo(residenceNumber, neighborhoodID);
         }
+        
+        // Find managers
+        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+        cacheManager = GameObject.Find("CacheManager").GetComponent<CacheManager>();
     }
 
     // Update is called once per frame
@@ -47,40 +56,32 @@ public class Transition : MonoBehaviour
 
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
+    string ConvertToLowercase(in string text)
     {
-        // Only concerned with the player
-        if (collision.name != "Player")
+        string stringToReturn = text;
+
+        bool isUpperCase = (stringToReturn[0] >= 'A' && stringToReturn[0] <= 'Z');
+
+        if (isUpperCase)
         {
-            return;
-        }
-        
-        string newScene = gameObject.name;
-        bool isLowerCase = (newScene[0] >= 'a' && newScene[0] <= 'z');
+            char firstCharacter = stringToReturn[0];
+            int index = firstCharacter - 'A';
+            firstCharacter = (char)('a' + index);
 
-        if (!isLowerCase)
-        {
-            bool isUpperCase = (newScene[0] >= 'A' && newScene[0] <= 'Z');
-
-            if (isUpperCase)
-            {
-                char firstCharacter = newScene[0];
-                int index = firstCharacter - 'A';
-                firstCharacter = (char)('a' + index);
-
-                newScene = firstCharacter + newScene.Substring(1);
-            }
+            stringToReturn = firstCharacter + stringToReturn.Substring(1);
         }
 
-        bool noOneHome = false;
+        return stringToReturn;
+    }
 
-        GameObject player = GameObject.Find("Player");
+    void LookupAgencyTransition(string sceneName, out string newSceneName)
+    {
+        newSceneName = "";
 
-        GameplayManager gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
-        if (newScene.Contains("localLookup"))
+        if (sceneName.Contains("localLookup"))
         {
-            string[] newSceneDetails = newScene.Split('-');
-            newScene = "localLookupAgency";
+            string[] newSceneDetails = sceneName.Split('-');
+            newSceneName = "localLookupAgency";
 
             if (newSceneDetails.Length == 1)
             {
@@ -91,74 +92,165 @@ public class Transition : MonoBehaviour
                 gameplayManager.CurrentNeighborhoodID = newSceneDetails[1].Trim()[0]; // 1st character of trimmed 2nd part of the gameobject name
             }
         }
-        else if (newScene.Contains("centralLookup"))
+        else
         {
             gameplayManager.CurrentNeighborhoodID = 'X';
+            newSceneName = sceneName;
         }
-        else if (newScene.Contains("home"))
-        {
-            string[] newSceneDetails = newScene.Split('-');
-            newScene = "home";
+    }
 
-            if (gameplayManager.HasUpgrade("Exit the Matrix"))
+    bool IsCorrectHouse(string[] details, Letter message, bool hasExitedMatrix)
+    {
+        if (hasExitedMatrix)
+        {
+            if (ipAddress == message.Recipient.URL)
             {
-                if (gameplayManager.NextStep.nextStep == ipAddress)
-                {
-                    noOneHome = false;
-                }
-                else
-                {
-                    NoOneHome();
-                    noOneHome = true;
-                }
-            }
-            else if (newSceneDetails.Length == 1)
-            {
-                Debug.Log("Not enough parts in the name");
-                NoOneHome();
-                noOneHome = true;
+                return true;
             }
             else
             {
-                gameplayManager.currentAddress = newSceneDetails[1].Trim();
-
-                if (gameplayManager.CurrentMessage == null)
-                {
-                    NoOneHome();
-                    noOneHome = true;
-                }
-                else if (System.Convert.ToInt32(gameplayManager.currentAddress) != gameplayManager.CurrentMessage.Recipient.HouseNumber)
-                {
-                    NoOneHome();
-                    noOneHome = true;
-                }
-                else if (gameplayManager.CurrentNeighborhoodID != gameplayManager.CurrentMessage.Recipient.NeighborhoodID)
-                {
-                    NoOneHome();
-                    noOneHome = true;
-                }
-                else
-                {
-                    Debug.Log("Entering " + gameplayManager.currentAddress + " -- " + gameplayManager.CurrentMessage.Recipient.HouseNumber + " " + gameplayManager.CurrentMessage.Recipient.Neighborhood + " -- Next: " + gameplayManager.NextDeliveryLocation);
-
-                    noOneHome = false;
-                }
+                return false;
             }
         }
-
-        if (newScene != "town")
+        else
         {
-            gameplayManager.indoorLocation = newScene;
-            gameplayManager.lastOutdoorPosition = this.transform.position;  
+            if (System.Convert.ToInt32(details[1]) == message.Recipient.HouseNumber)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    bool HasCompletedAllSteps(Letter message, bool hasExitedMatrix)
+    {
+        if (hasExitedMatrix)
+        {
+            if (gameplayManager.NextStep.nextStep == ipAddress)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (gameplayManager.NextStep.nextStep == "Residence #" + message.Recipient.HouseNumber)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    bool HomeTransition(string thisSceneName)
+    {
+        string[] newSceneDetails = thisSceneName.Split('-');
+        if (newSceneDetails.Length < 3)
+            return false;
+
+        int houseNumber = System.Convert.ToInt32(newSceneDetails[1]);
+        char neighborhoodID = newSceneDetails[2].Trim()[0];
+
+        bool hasExitedTheMatrix = gameplayManager.HasUpgrade("Exit the Matrix");
+
+        Letter message = gameplayManager.CurrentMessage;
+
+        // If letter is null
+        if (message == null)
+        {
+            return false; // No one is home
+        }
+        // Else if house is correct
+        else if (IsCorrectHouse(newSceneDetails, message, hasExitedTheMatrix))
+        {
+            // If recipient is cached
+            if (cacheManager.IsPersonCached(message.Recipient))
+            {
+                return true;
+            }
+            // Else if in right spot (gone through all steps)
+            else if (HasCompletedAllSteps(message, hasExitedTheMatrix))
+            {
+                return true;
+            }
+            // Missing some steps
+            else
+            {
+                return false; // No one is home
+            }
+        }
+        // Error in location
+        else
+        {
+            return false; // No one is home
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        // Only concerned with the player
+        if (collision.name != "Player")
+        {
+            return;
+        }
+        
+        // Find player
+        GameObject player = GameObject.Find("Player");
+
+        // Get scene name
+        string thisSceneName = ConvertToLowercase(gameObject.name);
+        string nextScene = thisSceneName;
+
+        // By default, flag as correct house
+        bool isSuccessful = false;
+
+        if (thisSceneName != "town" && thisSceneName != "office")
+        {
+            if (thisSceneName.Contains("Lookup"))
+            {
+                LookupAgencyTransition(thisSceneName, out nextScene);
+                isSuccessful = true;
+            }
+            else if (thisSceneName.Contains("home"))
+            {
+                isSuccessful = HomeTransition(thisSceneName);
+                nextScene = "home";
+            }
+
+            gameplayManager.indoorLocation = nextScene;
+            gameplayManager.lastOutdoorPosition = this.transform.position;
+        }
+        else
+        {
+            isSuccessful = true;
         }
 
-        if (!noOneHome)
+        if (thisSceneName != "town")
+        {
+            gameplayManager.indoorLocation = nextScene;
+            gameplayManager.lastOutdoorPosition = this.transform.position;
+        }
+
+        if (isSuccessful)
         {
             Vector3 playerPosition = player.transform.position;
             playerPosition.y -= 1.0f;
             gameplayManager.CurrentSpawnLocation = playerPosition;
 
-            StartCoroutine(TransitionToScene(0, 1, FADE_DURATION, newScene));
+            StartCoroutine(TransitionToScene(0, 1, FADE_DURATION, nextScene));
+        }
+        else
+        {
+            NoOneHome();
         }
     }
 

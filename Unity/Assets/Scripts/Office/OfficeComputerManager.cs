@@ -52,6 +52,8 @@ public class OfficeComputerManager : MonoBehaviour
         // Display upgrades price
         taskTrackerPriceText.text = "$" + upgradeManager.GetUpgradeCost("Task Tracker");
         companyRunningShoesPriceText.text = "$" + upgradeManager.GetUpgradeCost("Company Running Shoes");
+        addressBookPriceText.text = "$" + upgradeManager.GetUpgradeCost("Address Book");
+        addressBookSlotPriceText.text = "$" + upgradeManager.GetUpgradeCost("Address Book Slot");
         exitMatrixPriceText.text = "$" + upgradeManager.GetUpgradeCost("Exit the Matrix");
 
         isAtComputer = false;

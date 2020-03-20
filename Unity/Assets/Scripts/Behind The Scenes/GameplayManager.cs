@@ -156,7 +156,7 @@ public class GameplayManager : MonoBehaviour
         string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X') + " Lookup Agency";
 
         DeliveryInstructions instructions;
-        if (HasUpgrade("Address Book"))
+        if (HasUpgrade("Exit the Matrix"))
         {
             instructions.recipient = CurrentMessage.Recipient.URL;
         }

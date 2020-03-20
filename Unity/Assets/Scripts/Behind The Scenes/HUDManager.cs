@@ -134,7 +134,14 @@ public class HUDManager : MonoBehaviour
     public void DisplayText()
     {
         DisplayMoney(gameplayManager.Money);
+        DisplayTaskTrackerInformation();
 
+        // Display cached addresses from the local DNS cache
+        cacheManager.DisplayCachedAddresses(addressBookText);
+    }
+
+    private void DisplayTaskTrackerInformation()
+    {
         string textToDisplay = "Recipient: ";
 
         // If there is NOT an active delivery
@@ -166,9 +173,6 @@ public class HUDManager : MonoBehaviour
         // Display the formatted text
         // taskTrackerText.text = displayText;
         taskTrackerText.text = textToDisplay;
-
-        // Display cached addresses from the local DNS cache
-        cacheManager.DisplayCachedAddresses(addressBookText);
     }
 
     public void ClearCurrentTask()

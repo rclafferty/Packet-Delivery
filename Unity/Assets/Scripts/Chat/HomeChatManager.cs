@@ -11,6 +11,7 @@ public class HomeChatManager : MonoBehaviour
 {
     GameplayManager gameplayManager;
     LevelManager levelManager;
+    CacheManager cacheManager;
 
     [SerializeField] EventSystem eventSystem;
 
@@ -60,6 +61,7 @@ public class HomeChatManager : MonoBehaviour
         // Find necessary persistent managers in scene
         gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        cacheManager = GameObject.Find("CacheManager").GetComponent<CacheManager>();
     }
 
     void StartDialogue()
@@ -82,19 +84,17 @@ public class HomeChatManager : MonoBehaviour
     {
         Debug.Log("Current Address: " + gameplayManager.currentAddress);
 
+        bool isCached = cacheManager.IsPersonCached(gameplayManager.CurrentMessage.Recipient);
+
         if (gameplayManager.HasUpgrade("Exit the Matrix"))
         {
-            if (gameplayManager.NextStep.nextStep == AddressManager.DetermineIPFromHouseInfo(gameplayManager.CurrentMessage.Recipient.HouseNumber, gameplayManager.CurrentMessage.Recipient.NeighborhoodID))
-            {
-                chatTextMessage = "Thank you very much!";
-                option1Message = "Enjoy!";
+            string ipAddress = AddressManager.DetermineIPFromHouseInfo(gameplayManager.CurrentMessage.Recipient.HouseNumber, gameplayManager.CurrentMessage.Recipient.NeighborhoodID);
 
-                option1Action = delegate
-                {
-                    DepartDialogue();
-                    DisplayText();
-                    gameplayManager.CompleteTask();
-                };
+            bool isNextStep = gameplayManager.NextStep.nextStep == ipAddress;
+
+            if (isCached || isNextStep)
+            {
+                Success();
             }
             else
             {
@@ -102,28 +102,31 @@ public class HomeChatManager : MonoBehaviour
             }
         }
         else
-        { 
-            if (!gameplayManager.NextStep.nextStep.Contains("Residence #"))
+        {
+            bool isNextStep = gameplayManager.NextStep.nextStep == "Residence #" + gameplayManager.CurrentMessage.Recipient.HouseNumber;
+            
+            if (isCached || isNextStep)
             {
-                WrongLocation();
-            }
-            else if (gameplayManager.currentAddress != gameplayManager.CurrentMessage.Recipient.HouseNumber.ToString())
-            {
-                WrongLocation();
+                Success();
             }
             else
             {
-                chatTextMessage = "Thank you very much!";
-                option1Message = "Enjoy!";
-
-                option1Action = delegate
-                {
-                    DepartDialogue();
-                    DisplayText();
-                    gameplayManager.CompleteTask();
-                };
+                WrongLocation();
             }
         }
+    }
+
+    private void Success()
+    {
+        chatTextMessage = "Thank you very much!";
+        option1Message = "Enjoy!";
+
+        option1Action = delegate
+        {
+            DepartDialogue();
+            DisplayText();
+            gameplayManager.CompleteTask();
+        };
     }
 
     [System.Obsolete("Instead, change to UI notification BEFORE entering house.")]

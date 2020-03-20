@@ -40,7 +40,7 @@ public class CacheManager : MonoBehaviour
 
     public void AddAddress(Person resident)
     {
-        if (IsPersonCached(resident))
+        if (!IsPersonCached(resident))
         {
             if (listOfAddresses.Count == capacity)
             {
@@ -48,6 +48,8 @@ public class CacheManager : MonoBehaviour
             }
 
             listOfAddresses.Add(resident);
+
+            gameplayManager.ForceUpdateHUD();
         }
     }
 
@@ -61,7 +63,7 @@ public class CacheManager : MonoBehaviour
         if (listOfAddresses == null)
             return;
 
-        uiText.text = "Cached Addresses:\n\n";
+        uiText.text = "Cached Addresses:";
 
         string name = "";
         string neighborhood = "";
@@ -69,6 +71,8 @@ public class CacheManager : MonoBehaviour
 
         for (int i = 0; i < listOfAddresses.Count; i++)
         {
+            uiText.text += "\n\n";
+
             neighborhood = listOfAddresses[i].Neighborhood;
 
             if (gameplayManager.HasUpgrade("Exit the Matrix"))
