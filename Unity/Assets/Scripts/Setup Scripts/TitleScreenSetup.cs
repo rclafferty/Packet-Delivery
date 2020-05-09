@@ -1,27 +1,44 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
 public class TitleScreenSetup : MonoBehaviour
 {
-    [SerializeField] Button startButton;
-    [SerializeField] Button quitButton;
+    // Necessary manager references
+    LevelManager levelManager;
+
+    // Necessary UI components
+    [SerializeField] GameObject optionsCanvas;
+    [SerializeField] OptionsMenu optionsMenu;
+    [SerializeField] GameObject[] startScreenButtons;
 
     // Start is called before the first frame update
     void Start()
     {
-        //startButton.onClick.AddListener(StartButtonAction);
-        quitButton.onClick.AddListener(QuitButtonAction);
+        // Find managers in scene
+        levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        optionsCanvas.SetActive(false);
     }
 
     public void StartButtonAction()
     {
-        GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("start_town");
+        // Move on to the starting dialogue scene
+        levelManager.LoadLevel("start_town");
     }
 
     public void QuitButtonAction()
     {
-        GameObject.Find("LevelManager").GetComponent<LevelManager>().QuitGame();
+        // Quit the game via the level manager
+        levelManager.QuitGame();
+    }
+
+    public void ToggleOptions(bool isOptionsShown)
+    {
+        optionsCanvas.SetActive(isOptionsShown);
+
+        foreach (GameObject g in startScreenButtons)
+        {
+            g.SetActive(!isOptionsShown);
+        }
+
+        // optionsCanvas.GetComponent<OptionsMenu>().ToggleMenuItems(isOptionsShown);
     }
 }

@@ -1,9 +1,10 @@
-﻿using System;
-using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
+﻿/* File: Letter.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System;
 using System.Text;
-using System.Threading.Tasks;
 using Assets.Scripts.Lookup_Agencies;
 
 namespace Assets.Scripts.Behind_The_Scenes
@@ -23,6 +24,21 @@ namespace Assets.Scripts.Behind_The_Scenes
         public void MarkDelivered(bool isDelivered)
         {
             IsDelivered = isDelivered;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Letter Details:\n");
+            sb.Append("ID: ");
+            sb.Append(ID);
+            sb.Append("\nSender: ");
+            sb.Append(Sender != null);
+            sb.Append("\nRecipient: ");
+            sb.Append(Recipient != null);
+            sb.Append("\nBody: ");
+            sb.Append(Body);
+            return sb.ToString();
         }
         
         public int ID { get; private set; }

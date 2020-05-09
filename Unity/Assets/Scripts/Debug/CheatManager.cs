@@ -39,7 +39,7 @@ public class CheatManager : MonoBehaviour
     {
 
 #if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.F1))
+        /*if (Input.GetKeyDown(KeyCode.F1))
         {
             levelManager.LoadLevel("office");
         }
@@ -47,7 +47,7 @@ public class CheatManager : MonoBehaviour
         {
             levelManager.LoadLevel("centralLookupAgency");
         }
-        else if (Input.GetKeyDown(KeyCode.F3))
+        else*/ if (Input.GetKeyDown(KeyCode.F3))
         {
             GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CompleteTask();
         }

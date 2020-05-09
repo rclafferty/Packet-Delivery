@@ -1,4 +1,9 @@
-﻿using System.Collections;
+﻿/* File: StartingNPCChatManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;

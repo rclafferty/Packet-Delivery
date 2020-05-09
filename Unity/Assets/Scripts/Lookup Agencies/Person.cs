@@ -1,4 +1,9 @@
-﻿using System;
+﻿/* File: Person.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

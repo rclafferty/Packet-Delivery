@@ -1,7 +1,7 @@
-To: Uncle Doug
-To: www.uncle-doug.com
-From: Tanner
-From: www.tanner.com
+To: Doug Parsen
+To: www.doug-parsen.com
+From: Tanner Parsen
+From: www.tanner-parsen.com
 Class: Expedited
 
 Hi Uncle Doug,

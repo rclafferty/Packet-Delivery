@@ -1,8 +1,11 @@
-﻿using Assets.Scripts.Behind_The_Scenes;
+﻿/* File: LetterManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using Assets.Scripts.Behind_The_Scenes;
 using Assets.Scripts.Lookup_Agencies;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -11,16 +14,17 @@ using UnityEngine;
 /// </summary>
 public class LetterManager : MonoBehaviour
 {
+    // Singleton reference
     static LetterManager instance = null;
 
+    // Necessary manager references
     [SerializeField] LookupAgencyManager lookupAgencyManager;
 
+    // Letters to be delivered -- Text assets (to be parsed into objects)
     [SerializeField] TextAsset[] letterTextFiles;
+
+    // Letters to be delivered -- List of letter objects
     List<Letter> lettersToDeliver;
-
-    string[] URGENCY_STATUS = { "Normal", "Expedited", "Urgent" };
-
-    public static bool isFirstLetter = true;
 
     void Awake()
     {
@@ -43,8 +47,7 @@ public class LetterManager : MonoBehaviour
         // No current letters loaded
         RemainingLetterCount = 0;
     }
-
-    // Start is called before the first frame update
+    
     void Start()
     {
         LoadLettersFromTextAsset();
@@ -52,22 +55,27 @@ public class LetterManager : MonoBehaviour
 
     public void AddLetter(Person s, Person r, string b)
     {
+        // Determine letter ID
         int id = lettersToDeliver.Count + 1;
+
+        // Make a new letter object and add it to the list
         Letter newLetter = new Letter(id, s, r, b);
         lettersToDeliver.Add(newLetter);
     }
 
     public Letter GetNextLetter()
     {
+        // List is not initialized -- ERROR
         if (lettersToDeliver == null)
         {
-            Debug.Log("The letters are null DUMMY");
+            Debug.Log("List of letters is null");
             return null;
         }
 
+        // No letters are loaded -- ERROR
         if (lettersToDeliver.Count == 0)
         {
-            Debug.Log("There are no letters DUMMY");
+            Debug.Log("No letters are loaded from file");
             return null;
         }
 
@@ -81,42 +89,59 @@ public class LetterManager : MonoBehaviour
             }
         }
 
+        Debug.Log("Remaining letters: " + (remaining - 1));
+
         // If no more
         if (remaining == 0)
         {
-            // Output error
-            Debug.Log("No more letters");
+            Debug.Log("No more letters to deliver -- Recycling all letters");
 
-            // Return null
-            return null;
+            // Recycle all letters
+            for (int i = 0; i < lettersToDeliver.Count; i++)
+            {
+                lettersToDeliver[i].MarkDelivered(false);
+            }
         }
 
-        // Get next undelivered letter
+        // Get next random undelivered letter
         Letter nextLetter = null;
         do
         {
+            // Determine random index
             int id = Random.Range(0, lettersToDeliver.Count);
+
+            // Get letter at that index
             nextLetter = lettersToDeliver[id];
-        } while (nextLetter == null || nextLetter.IsDelivered);
+        } while (nextLetter == null || nextLetter.IsDelivered); // If isDelivered, find next letter
+
+
+        Debug.Log(nextLetter.ToString());
+
+        // Return the random letter
         return nextLetter;
     }
 
     public void MarkDelivered(int id)
     {
+        // If list is not initialized -- ERROR
         if (lettersToDeliver == null)
             return;
 
+        // If ID is not valid -- ERROR
         if (id < 0 || id >= lettersToDeliver.Count)
             return;
 
+        // Mark letter at given ID as delivered
         lettersToDeliver[id].MarkDelivered(true);
     }
 
     public void MarkAllUndelivered()
     {
+        // If list is not initialized -- ERROR
         if (lettersToDeliver == null)
             return;
 
+        // Mark all letters as undelivered
         for (int i = 0; i < lettersToDeliver.Count; i++)
         {
             lettersToDeliver[i].MarkDelivered(false);
@@ -125,22 +150,33 @@ public class LetterManager : MonoBehaviour
 
     public void ParseAndAddLetter(string to, string toURL, string from, string fromURL, string body)
     {
+        // Parse recipient
         string[] toParts = to.Split(':');
         string recipient = toParts[1].Trim();
 
+        // Parse recipient URL
         string[] toURLParts = toURL.Split(':');
         string recipientURL = toURLParts[1].Trim();
 
+        // Parse sender
         string[] fromParts = from.Split(':');
         string sender = fromParts[1].Trim();
 
+        // Parse sender URL
         string[] fromURLParts = fromURL.Split(':');
         string senderURL = fromURLParts[1].Trim();
 
-        // Lookup sender and recipient
+        // Lookup sender and recipient objects
         Person senderProfile = lookupAgencyManager.FindPersonProfileByName(sender);
         Person recipientProfile = lookupAgencyManager.FindPersonProfileByName(recipient);
 
+        if (senderProfile == null || recipientProfile == null)
+        {
+            Debug.Log("Found " + sender + " ? " + (senderProfile != null));
+            Debug.Log("Found " + recipient + " ? " + (recipientProfile != null));
+        }
+
+        // Add letter to the list to be delivered
         AddLetter(senderProfile, recipientProfile, body);
     }
 
@@ -159,14 +195,14 @@ public class LetterManager : MonoBehaviour
             string toURL = parts[1].Trim();
             string from = parts[2].Trim();
             string fromURL = parts[3].Trim();
-            // urgencyLine = parts[4].Trim();
 
+            // Urgency line is part 4 -- not used
             // Parts[5] is a blank line
 
             // Body
             sb.Clear();
 
-            // Read the letter body line-by-line and add it to the 
+            // Read the letter body line-by-line and add it to the list of letters
             for (int i = 6; i < parts.Length; i++)
             {
                 // Add each line to the stored body
@@ -176,6 +212,7 @@ public class LetterManager : MonoBehaviour
             
             string message = sb.ToString();
 
+            // Send parts for parsing and then add to list of letters
             ParseAndAddLetter(to, toURL, from, fromURL, message);
         }
 

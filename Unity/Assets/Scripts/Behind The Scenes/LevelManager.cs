@@ -1,21 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿/* File: LevelManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
+    // Level Manager singleton reference
     static LevelManager instance = null;
-    static PlayerController playerInstance = null;
-
-    readonly string[] LEVEL_NAMES = { "centralLookupAgency", "loading", "localLookupAgencyNE", "localLookupAgencySW", "office", "styleTitle", "title", "town" };
-
-    readonly string[] INACTIVE_LEVELS = { "centralLookupAgency", "loading", "localLookupAgencyNE", "localLookupAgencySW", "office", "styleTitle", "title" };
-
-    readonly string[] ACTIVE_LEVELS = { "town" };
-
-    // Start is called before the first frame update
+    
     void Start()
     {
         if (instance != null)
@@ -29,17 +27,33 @@ public class LevelManager : MonoBehaviour
 
         // Keep this object between scenes
         DontDestroyOnLoad(gameObject);
+
+        // Call OnSceneLoaded() every time a new scene loads
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnSceneLoaded(Scene newScene, LoadSceneMode loadSceneMode)
     {
-        
-    }
+        if (newScene.name == "instructions")
+        {
+            // No longer need this method being called for every scene change
+            SceneManager.sceneLoaded -= OnSceneLoaded;
 
-    public void SetPlayerController(PlayerController pc)
-    {
-        playerInstance = pc;
+            /* // Find the "continue" button
+            Button continueButton = GameObject.Find("Continue Button").GetComponent<Button>();
+
+            // Remove any unnecessary listeners
+            continueButton.onClick.RemoveAllListeners();
+
+            // Get the Fade Canvas object and components
+            Transition fadeTransition = GameObject.Find("Fade Canvas").GetComponent<Transition>();
+
+            // Construct the UnityAction to be called on button press
+            UnityAction continueToOfficeEvent = delegate { fadeTransition.FadeMethod("office"); };
+
+            // Add the UnityAction to the "continue" button press event
+            continueButton.onClick.AddListener(continueToOfficeEvent); */
+        }
     }
 
     /// <summary>
@@ -49,8 +63,6 @@ public class LevelManager : MonoBehaviour
     public void LoadLevel(int index)
     {
         SceneManager.LoadScene(index);
-
-        // if (index != 2), set player inactive
     }
 
     /// <summary>
@@ -60,14 +72,6 @@ public class LevelManager : MonoBehaviour
     public void LoadLevel(string name)
     {
         SceneManager.LoadScene(name);
-
-        foreach (string s in ACTIVE_LEVELS)
-        {
-            if (s == name)
-            {
-                return;
-            }
-        }
     }
     
     /// <summary>

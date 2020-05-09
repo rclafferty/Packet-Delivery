@@ -1,31 +1,47 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿/* File: HUDManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class HUDManager : MonoBehaviour
 {
+    // HUDManager singleton reference
     static HUDManager instance = null;
 
+    // Manager references
     [SerializeField] GameplayManager gameplayManager;
     [SerializeField] CacheManager cacheManager;
 
+    // Money text and related objects
     [SerializeField] GameObject moneyBackdrop;
     [SerializeField] Text moneyText;
 
+    // Task tracker text and related objects
     [SerializeField] GameObject taskTrackerObject;
     [SerializeField] Text taskTrackerText;
 
+    // Address book text and related objects
     [SerializeField] GameObject addressBookObject;
     [SerializeField] Text addressBookText;
+    [SerializeField] Text addressBookTextPt2;
 
+    // "No one seems to be home" notice object
     [SerializeField] GameObject noOneHomeObject;
+
+    public static readonly string TASK_TRACKER_KEY = "1";
+    public static readonly string ADDRESS_BOOK_KEY = "2";
 
     private void Awake()
     {
+        // If not the first instance of HUDManager
         if (instance != null)
         {
+            // Only need one --> delete
             Destroy(gameObject);
             return;
         }
@@ -42,25 +58,24 @@ public class HUDManager : MonoBehaviour
         // Hide no one home text
         noOneHomeObject.SetActive(false);
     }
-
-    // Start is called before the first frame update
+    
     void Start()
     {
+        // Disable all HUD elements to start -- will enable them later
         ToggleDisplay(false);
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         // If the user presses Tab
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             bool isCurrentlyActive = taskTrackerObject.activeInHierarchy;
 
             // Show or hide the task tracker
             ToggleTaskTracker(!isCurrentlyActive);
         }
-        else if (Input.GetKeyDown(KeyCode.L))
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             bool isCurrentlyActive = addressBookObject.activeInHierarchy;
 
@@ -82,11 +97,13 @@ public class HUDManager : MonoBehaviour
 
     void DisplayMoney(int money)
     {
+        // Format the money display
         moneyText.text = "$" + money;
     }
 
-    private void ToggleTaskTracker(bool isShown)
+    public void ToggleTaskTracker(bool isShown)
     {
+        // If the player has purchased the task tracker
         if (gameplayManager.HasUpgrade("Task Tracker"))
         {
             // Get the active scene name
@@ -102,14 +119,17 @@ public class HUDManager : MonoBehaviour
                 DisplayText();
             }
         }
+        // If the player has NOT purchased the task tracker
         else
         {
-            taskTrackerObject.SetActive(false); // Hide it if not active
+            // Hide it
+            taskTrackerObject.SetActive(false);
         }
     }
 
-    private void ToggleAddressBook(bool isShown)
+    public void ToggleAddressBook(bool isShown)
     {
+        // If the player has purchased the address book
         if (gameplayManager.HasUpgrade("Address Book"))
         {
             // Get the active scene name
@@ -125,19 +145,24 @@ public class HUDManager : MonoBehaviour
                 DisplayText();
             }
         }
+        // If the player has NOT purchased the address book
         else
         {
-            addressBookObject.SetActive(false); // Hide it if not active
+            // Hide it
+            addressBookObject.SetActive(false);
         }
     }
 
     public void DisplayText()
     {
+        // Display the player's money
         DisplayMoney(gameplayManager.Money);
+        
+        // Display the task tracker
         DisplayTaskTrackerInformation();
 
         // Display cached addresses from the local DNS cache
-        cacheManager.DisplayCachedAddresses(addressBookText);
+        cacheManager.DisplayCachedAddressesInTwoParts(addressBookText, addressBookTextPt2);
     }
 
     private void DisplayTaskTrackerInformation()
@@ -177,19 +202,28 @@ public class HUDManager : MonoBehaviour
 
     public void ClearCurrentTask()
     {
+        // Reset to default values
         CurrentTask = "None";
+
+        // Update the HUD
         DisplayText();
     }
 
     public void NoOneHome()
     {
+        // Display notification that no one is home
         StartCoroutine(DisplayNoOneHome());
     }
 
     IEnumerator DisplayNoOneHome()
     {
+        // Display notice
         noOneHomeObject.SetActive(true);
+        
+        // Wait 3 seconds
         yield return new WaitForSeconds(3);
+
+        // Hide notice
         noOneHomeObject.SetActive(false);
     }
 
