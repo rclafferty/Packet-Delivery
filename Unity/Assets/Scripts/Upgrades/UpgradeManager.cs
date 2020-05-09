@@ -1,97 +1,170 @@
-﻿using Assets.Scripts;
-using System.Collections;
+﻿/* File: UpgradeManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+ using Assets.Scripts;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class UpgradeManager : MonoBehaviour
 {
-    Upgrade[] upgrades;
-    int dollars;
+    // Upgrade Manager singleton reference
+    static UpgradeManager instance = null;
 
-    const int BASE_REWARD = 10;
-    const float DIFFICULTY_MULT_EASY = 1.2f;
-    const float DIFFICULTY_MULT_MED  = 2.0f;
-    const float DIFFICULTY_MULT_HARD = 2.5f;
+    // Necessary manager references
+    [SerializeField] GameplayManager gameplayManager;
 
-    // Start is called before the first frame update
-    void Start()
+    // List of all possible upgrades
+    List<Upgrade> listOfUpgrades;
+
+    private void Awake()
     {
-        dollars = 0;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    /// <summary>
-    /// Purchase an upgrade based on the index of the upgrade
-    /// </summary>
-    /// <param name="index"></param>
-    public void Purchase(int index)
-    {
-        // If index is out of bounds
-        if (index >= upgrades.Length || index < 0)
+        // If there is already an Upgrade Manager reference
+        if (instance != null)
         {
-            Debug.Log("Unable to purchase upgrade at index " + index);
+            // Only need one --> Delete
+            Destroy(gameObject);
             return;
         }
 
-        Purchase(upgrades[index]);
+        // Set this as the singleton reference
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // Initialize list of upgrades
+        listOfUpgrades = new List<Upgrade>();
     }
 
-    /// <summary>
-    /// Purchase an upgrade based given the name of the upgrade
-    /// </summary>
-    /// <param name="name"></param>
-    public void Purchase(string name)
+    public void AddUpgrade(string title, int cost, bool isRepeatable)
     {
-        foreach (Upgrade u in upgrades)
+        // Create a new upgrade based on the given parameters
+        Upgrade newUpgrade = new Upgrade(title, cost, isRepeatable);
+
+        // Add the upgrade to the list
+        listOfUpgrades.Add(newUpgrade);
+    }
+
+    Upgrade FindUpgrade(string title)
+    {
+        // Search through the list for the requested upgrade
+        foreach (Upgrade thisUpgrade in listOfUpgrades)
         {
-            if (u.Name == name)
+            // If the titles match
+            if (thisUpgrade.Title.ToLower() == title.ToLower())
             {
-                Purchase(u);
-                return;
+                // Return this upgrade profile
+                return thisUpgrade;
             }
         }
 
-        Debug.Log("Unable to find upgrade " + name);
+        return null;
     }
 
-    void Purchase(Upgrade u)
+    public bool HasPurchasedUpgrade(string title)
     {
-        int cost = u.Cost;
-        if (dollars <= cost)
+        // Search through the list for the requested upgrade
+        Upgrade thisUpgrade = FindUpgrade(title);
+
+        // If this upgrade was found
+        if (thisUpgrade != null)
         {
-            u.Purchase(1);
-            dollars -= cost;
+            // If it is repeatable, it can be purchased again
+            if (thisUpgrade.IsRepeatable)
+                return false;
+            // It is not repeatable -- check if it's been purchased once or not
+            else
+                return thisUpgrade.IsUnlocked;
+        }
+        else
+        {
+            // Did not find it -- Did not purchase
+            return false;
         }
     }
 
-    public void GetReward(string difficulty)
+    public int GetQuantity(string title)
     {
-        float reward = BASE_REWARD;
-        string lower = difficulty.ToLower().Trim();
+        // Search through the list for the requested upgrade
+        Upgrade thisUpgrade = FindUpgrade(title);
 
-        if (lower == "easy")
-        {
-            reward *= DIFFICULTY_MULT_EASY;
-        }
-        else if (lower == "medium" || lower == "default")
-        {
-            reward *= DIFFICULTY_MULT_MED;
-        }
-        else if (lower == "hard")
-        {
-            reward *= DIFFICULTY_MULT_HARD;
-        }
+        // If found, return the number of times this upgrade has been purchased
+        // Else, return -1 --> error
+        return thisUpgrade != null ? thisUpgrade.Quantity : -1;
+    }
+    
+    public bool IsRepeatable(string title)
+    {
+        // Search through the list for the requested upgrade
+        Upgrade thisUpgrade = FindUpgrade(title);
 
-        GetMoney(Mathf.RoundToInt(reward));
+        // If found, check if it is repeatable
+        // Else, not repeatable by default -- false (error)
+        return thisUpgrade != null ? thisUpgrade.IsRepeatable : false;
     }
 
-    public void GetMoney(int money)
+    public int GetUpgradeCost(string title)
     {
-        dollars += money;
+        // Search through the list for the requested upgrade
+        Upgrade thisUpgrade = FindUpgrade(title);
+
+        // If found, return the cost of this upgrade
+        // Else, return -1 --> error
+        return thisUpgrade != null ? thisUpgrade.Cost : -1;
+    }
+
+    public bool AttemptPurchase(string title)
+    {
+        bool isSuccessful = false;
+
+        // Search through the list for the requested upgrade
+        for (int i = 0; i < listOfUpgrades.Count; i++)
+        {
+            // If the titles match
+            if (listOfUpgrades[i].Title.ToLower() == title.ToLower())
+            {
+                // If the upgrade was already purchased and NOT repeatable
+                if (listOfUpgrades[i].IsUnlocked && !listOfUpgrades[i].IsRepeatable)
+                {
+                    // Previous success
+                    isSuccessful = true;
+                }
+                // If the player has enough money to purchase it
+                else if (gameplayManager.Money >= listOfUpgrades[i].Cost)
+                {
+                    // Subtract the amount of money required
+                    gameplayManager.Money -= listOfUpgrades[i].Cost;
+
+                    // Mark as purchased
+                    listOfUpgrades[i].Purchase();
+
+                    // Success!
+                    isSuccessful = true;
+                }
+                // If the player does not have enough money
+                else
+                {
+                    // Not successful
+                    isSuccessful = false;
+                }
+
+                break;
+            }
+        }
+
+        // Update the HUD
+        gameplayManager.ForceUpdateHUD();
+
+        // Notify if the purchase was successful
+        return isSuccessful;
+    }
+
+    public void ResetUpgrades()
+    {
+        // Reset each upgrade via their Reset() method
+        foreach (Upgrade u in listOfUpgrades)
+        {
+            u.Reset();
+        }
     }
 }

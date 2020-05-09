@@ -1,67 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿/* File: Upgrade.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+ 
 namespace Assets.Scripts
 {
-    class Upgrade
+    public class Upgrade
     {
-        private string name;
-        private int cost;
-        private int quantity;
-        private int quantity_max;
-
-        public Upgrade(string n, int c, int q)
+        public Upgrade(string t, int c, bool r)
         {
-            name = n;
-            cost = c;
-            quantity = q;
-            quantity_max = q;
+            Title = t;
+            Cost = c;
+            IsUnlocked = false;
+            IsRepeatable = r;
         }
 
-        /// <summary>
-        /// The name of the upgrade
-        /// </summary>
-        public string Name
+        public void Purchase()
         {
-            get
-            {
-                return name;
-            }
+            IsUnlocked = true;
+            Quantity++;
         }
 
-        /// <summary>
-        /// The cost to improve this upgrade
-        /// </summary>
-        public int Cost
+        public void Reset()
         {
-            get
-            {
-                return cost;
-            }
+            IsUnlocked = false;
+            Quantity = 0;
         }
-
-        /// <summary>
-        /// The amount of this type of upgrade currently available
-        /// </summary>
-        public int Quantity
-        {
-            get
-            {
-                return quantity;
-            }
-        }
-
-        public void Purchase(int q)
-        {
-            quantity += q;
-        }
-
-        public void Remove(int q)
-        {
-            quantity -= q;
-        }
+        
+        public string Title { get; private set; }
+        public int Cost { get; private set; }
+        public bool IsUnlocked { get; private set; }
+        public bool IsRepeatable { get; private set; }
+        public int Quantity { get; private set; }
     }
 }

@@ -40,8 +40,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 2212778374544392885}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f6b826d282fa9c42bcc4e25c023d89a, type: 3}
+  m_Script: {fileID: 11500000, guid: 1880fabb06f7aa64397f570a6e61ae2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  populationListOptions:
-  - {fileID: 4900000, guid: 256272c947b8fe14c9a193ff22e876e0, type: 3}
+  listOfPeopleTextAsset: {fileID: 4900000, guid: 413b6d117113787498c4698e8eefbd6e,
+    type: 3}

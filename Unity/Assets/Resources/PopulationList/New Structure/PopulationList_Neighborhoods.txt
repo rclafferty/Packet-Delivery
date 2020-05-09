@@ -1,0 +1,25 @@
+Doug Parsen, www.doug-parsen.com, C, 401
+Rebecca Lee, www.rebecca-lee.com, C, 203
+Sarah House, www.sarah-house.com, C, 302
+Alex House, www.alex-house.com, C, 104
+Carl Landry, www.carl-landry.com, C, 101
+Mayor Clark, www.mayor-clark.org, O, 203
+Miss Daily, www.miss-daily.org, O, 301
+Dan Berry, www.dan-berry.org, O, 101
+Sally Atkins, www.sally-atkins.org, O, 304
+Alan Merr, www.alan-merr.org, O, 403
+Carter Xen, www.carter-xen.net, N, 102
+Larry Sand, www.larry-sand.net, N, 304
+Penny Cart, www.penny-cart.net, N, 401
+Parker Lan, www.parker-lan.net, N, 203
+Aaron Den, www.aaron-den.net, N, 302
+Tanner Parsen, www.tanner-parsen.com, X, 0
+Cindy Cook, www.cindy-cook.com, X, 0
+Carrie Lee, www.carrie-lee.com, X, 0
+A Concerned Citizen, www.concerned-citizen.com, X, 0
+Jack Stone, www.jack-stone.net, X, 0
+Banking International, www.banking-international.org, X, 0
+Arnold Petry, www.arnold-petry.net, X, 0
+Patrick Lark, www.patrick-lark.org, X, 0
+Arthur Penn, www.arthur-penn.com, X, 0
+Barry Sand, www.barry-sand.net, X, 0

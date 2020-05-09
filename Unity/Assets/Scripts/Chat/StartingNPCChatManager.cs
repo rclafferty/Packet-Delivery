@@ -1,4 +1,9 @@
-﻿using System.Collections;
+﻿/* File: StartingNPCChatManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -6,8 +11,10 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class StartingNPCChatManager : ChatManager
+public class StartingNPCChatManager : MonoBehaviour
 {
+    public readonly float CHAT_DELAY = 0.005f;
+
     [SerializeField] EventSystem eventSystem;
     [SerializeField] Text chatText;
     [SerializeField] Text option1Text;
@@ -50,7 +57,7 @@ public class StartingNPCChatManager : ChatManager
         }
 
         // Set scene objects using the parent class
-        SetSceneObjects(eventSystem, chatText, option1Text, option1Button, option2Text, option2Button);
+        // SetSceneObjects(eventSystem, chatText, option1Text, option1Button, option2Text, option2Button);
 
         ParseDialogueText();
 
@@ -96,8 +103,54 @@ public class StartingNPCChatManager : ChatManager
             StopCoroutine(currentCoroutine);
 
         // Write text using parent class
-        currentCoroutine = StartCoroutine(WriteText(thisLine.speaker, thisLine.line, thisLine.response, ""));
+        currentCoroutine = StartCoroutine(WriteTextToUI(thisLine.speaker, thisLine.line, thisLine.response));
 
         dialogueIndex++;
+    }
+
+    IEnumerator WriteTextToUI(string chat, string option1, string option2)
+    {
+        // Clear displayed text
+        chatText.text = "";
+        option1Text.text = "";
+        option2Text.text = "";
+
+        // Deselect all buttons
+        eventSystem.SetSelectedGameObject(null);
+
+        option1Button.interactable = !string.IsNullOrEmpty(option1);
+        option2Button.interactable = !string.IsNullOrEmpty(option2);
+
+        // Write to chat prompt
+        for (int i = 0; i < chat.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            chatText.text += chat[i];
+        }
+
+        // Write option 1 button text
+        for (int i = 0; i < option1.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option1Text.text += option1[i];
+        }
+
+        // Write option 2 button text
+        for (int i = 0; i < option2.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option2Text.text += option2[i];
+        }
+    }
+
+    void AddEventListeners(UnityAction a1, UnityAction a2)
+    {
+        // Add option 1 listener
+        option1Button.onClick.RemoveAllListeners();
+        option1Button.onClick.AddListener(a1);
+
+        // Add option 2 listener
+        option2Button.onClick.RemoveAllListeners();
+        option2Button.onClick.AddListener(a2);
     }
 }

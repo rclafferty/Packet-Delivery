@@ -39,7 +39,7 @@ public class CheatManager : MonoBehaviour
     {
 
 #if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.F1))
+        /*if (Input.GetKeyDown(KeyCode.F1))
         {
             levelManager.LoadLevel("office");
         }
@@ -47,11 +47,11 @@ public class CheatManager : MonoBehaviour
         {
             levelManager.LoadLevel("centralLookupAgency");
         }
-        else if (Input.GetKeyDown(KeyCode.F3))
+        else*/ if (Input.GetKeyDown(KeyCode.F3))
         {
             GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CompleteTask();
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha0))
+        /* else if (Input.GetKeyDown(KeyCode.Alpha0))
         {
             GameObject.Find("GameplayManager").GetComponent<GameplayManager>().DebugChangePlayerPosition(0);
         }
@@ -70,7 +70,7 @@ public class CheatManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             GameObject.Find("GameplayManager").GetComponent<GameplayManager>().DebugChangePlayerPosition(4);
-        }
+        } */
 #endif
     }
 }

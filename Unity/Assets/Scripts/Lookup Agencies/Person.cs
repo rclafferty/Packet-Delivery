@@ -1,4 +1,9 @@
-﻿using System;
+﻿/* File: Person.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,31 +11,22 @@ using System.Threading.Tasks;
 
 namespace Assets.Scripts.Lookup_Agencies
 {
+    [Serializable]
     public class Person
     {
-        [Obsolete("Please include the address, not the location / index")]
-        public Person(string n, string l, int li)
+        public Person(string n, string u, string ne, char ni, int h)
         {
             Name = n;
-            Location = l;
-            LocationIndex = li;
-        }
-
-        public Person(string n, string a, string u)
-        {
-            Name = n;
-            Address = a;
             URL = u;
+            Neighborhood = ne;
+            NeighborhoodID = ni;
+            HouseNumber = h;
         }
 
         public string Name { get; private set; }
-
-        public string Location { get; private set;}
-
-        public int LocationIndex { get; private set;}
-
-        public string Address { get; private set; }
-
         public string URL { get; private set; }
+        public string Neighborhood { get; private set; } // Full expanded neighborhood name
+        public char NeighborhoodID { get; private set; } // ID to lookup the neighborhood name if needed
+        public int HouseNumber { get; private set; }
     }
 }

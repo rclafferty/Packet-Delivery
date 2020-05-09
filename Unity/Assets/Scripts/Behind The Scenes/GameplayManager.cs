@@ -1,267 +1,285 @@
-﻿// using System;
+﻿/* File: GameplayManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
 using Assets.Scripts.Behind_The_Scenes;
-// using Assets.Scripts.Chat;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class GameplayManager : MonoBehaviour
 {
+    // Gameplay Manager singleton reference
     static GameplayManager instance = null;
 
-    const int DELIVERY_PAYMENT = 10; // Equivalent to 10 dollars
+    // Payment for delivery --> Equivalent to 10 dollars
+    const int DELIVERY_PAYMENT = 10;
 
-    public struct DeliveryDirections
+    // Instructions for the next step in the delivery process
+    public struct DeliveryInstructions
     {
-        public string building;
-        public string color;
-        public string mapDirection;
-    }
+        public string recipient;
+        public char neighborhoodID;
+        public string nextStep;
+    };
 
-    // Other necessary managers
+    // Necessary managers to store
+    [SerializeField] LookupAgencyManager lookupAgencyManager;
     [SerializeField] LetterManager letterManager;
-    [SerializeField] NotepadManager notepadManager;
+    [SerializeField] HUDManager hudManager;
+    [SerializeField] UpgradeManager upgradeManager;
+    [SerializeField] CacheManager cacheManager;
 
-    [SerializeField] GameObject moneyBackdrop;
-    [SerializeField] Text moneyText;
-
-    [SerializeField] Letter currentTargetMessage;
-
-    int obstacleTilemapIndex;
-
+    // Store the current indoor location (if applicable)
     [SerializeField] public string indoorLocation;
-    
-    string[] locations = { "office", "centralLookupAgency", "localLookupAgencyNE", "localLookupAgencySW", "home" };
 
-    [System.Obsolete("Should not be using spawnpoints anymore")]
-    string[] spawnpointNames = { "Office Spawnpoint", "CLA Spawnpoint", "LLA NE Spawnpoint", "LLA SW Spawnpoint", "Home" };
-
+    // Store the last outdoor position -- used for spawning in the right spot in town
     public Vector2 lastOutdoorPosition;
 
+    // Address the player is currently attempting to visit
     public string currentAddress = "";
+
+    // Address the player is delivering to
     public string deliveryAddress = "";
 
-    int money = 0;
-
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
-        obstacleTilemapIndex = -1;
-
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (instance != null)
         {
             Destroy(gameObject);
             return;
         }
-        
-        HasStartingLetter = true;
 
-        GameplayTimer = GameObject.Find("Timer").GetComponent<Timer>();
+        instance = this;
+        DontDestroyOnLoad(gameObject);
 
-        lastOutdoorPosition = new Vector2(-14, 12);
+        HasStartingLetter = false;
 
-        Money = 0;
-        moneyBackdrop.SetActive(false);
-
-        ResetDeliveryDetails();
-
-        SceneManager.sceneLoaded += OnSceneLoad;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
+        // Start with no money -- only get money from deliveries
 #if UNITY_EDITOR
-    public void DebugChangePlayerPosition(int locationIndex)
-    {
-        if (SceneManager.GetActiveScene().name != "town")
-            return;
-
-        string spawnpointName = spawnpointNames[locationIndex];
-        if (locationIndex == 4)
-        {
-            GameObject[] homeSpawnpoints = GameObject.FindGameObjectsWithTag("HomeSpawnpoint");
-            if (homeSpawnpoints.Length == 0)
-            {
-                Debug.Log("No spawnpoints");
-                return;
-            }
-            else if (homeSpawnpoints.Length == 1)
-            {
-                spawnpointName = homeSpawnpoints[0].name;
-            }
-            else
-            {
-                Debug.Log("OTI = " + obstacleTilemapIndex);
-                spawnpointName = homeSpawnpoints[obstacleTilemapIndex].name;
-            }
-        }
-        GameObject.Find("Player").transform.position = GameObject.Find(spawnpointName).transform.position;
-    }
+        Money = 0;
+#else
+        Money = 0;
 #endif
 
-    public string GetLetterAddress()
-    {
-        if (CurrentTargetMessage == null)
-            return "NONE";
+        // First outdoor spawn point is outside the office
+        lastOutdoorPosition = new Vector2(265, -21.5f);
+    }
 
-        return CurrentTargetMessage.Address;
+    void Start()
+    {
+        ResetDeliveryDetails();
+
+        // Add event to call OnSceneLoad() every time a scene is changed
+        SceneManager.sceneLoaded += OnSceneLoad;
     }
 
     void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)
     {
+        // If the player is outdoor in the town
         if (thisScene.name == "town")
         {
-            GameObject.Find("Player").transform.position = lastOutdoorPosition + (Vector2.down * 1);
+            // Find the player object
+            GameObject player = GameObject.Find("Player");
+
+            // Set the player's position and adjust to avoid trigger
+            player.transform.position = lastOutdoorPosition + (Vector2.down * 1);
+
+            // If the player has purchased the "Exit the Matrix" upgrade
+            if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
+            {
+                // Find the address manager object
+                GameObject addressManagerObject = GameObject.Find("AddressManager");
+
+                // If the address manager exists
+                if (addressManagerObject != null)
+                {
+                    // Exit the matrix
+                    Debug.Log("Enabling exit the matrix mode");
+                    AddressManager addressManager = addressManagerObject.GetComponent<AddressManager>();
+                    // addressManager.EnableExitTheMatrix();
+                }
+            }
         }
+        // If the current scene is the instructions screen
         else if (thisScene.name == "instructions")
         {
-            moneyBackdrop.SetActive(true);
+            // Hide HUD
+            hudManager.ToggleDisplay(true);
         }
     }
 
-    public void SetLetterManager(LetterManager lm)
+    public void ExitTheMatrix()
     {
-        if (lm == null)
-        {
-            return;
-        }
+        // Purchase the "Exit the Matrix" upgrade
+        upgradeManager.AttemptPurchase("Exit the Matrix");
 
-        letterManager = lm;
-        RemainingTasks = letterManager.RemainingLetterCount;
+        // Update the HUD
+        hudManager.DisplayText();
     }
-    
-    public Letter CurrentTargetMessage
-    {
-        get
-        {
-            return currentTargetMessage;
-        }
-        set
-        {
-            if (value == null)
-            {
-                currentTargetMessage = null;
-                CurrentTarget = "";
-            }
-            else
-            {
-                currentTargetMessage = value;
-                CurrentTarget = currentTargetMessage.Recipient;
-            }
 
-            string name = SceneManager.GetActiveScene().name.ToLower();
-            if (name.Contains("cla2"))
-                gameObject.GetComponent<CLA2GameplayManager>().SetTargetText();
-        }
+    public bool HasUpgrade(string title)
+    {
+        // If the string is valid, check if the player has purchased the upgrade.
+        // If it's invalid, unable to check -- automatic "no"
+        return !string.IsNullOrEmpty(title) ? upgradeManager.HasPurchasedUpgrade(title) : false;
     }
 
     public bool HasCurrentTarget()
     {
-        return (CurrentTarget != "");
+        // If the current message is null, there's no target. Else, there is a target
+        return CurrentMessage != null;
     }
 
     public void CompleteTask()
     {
+        // If there is a current delivery
         if (HasCurrentTarget())
         {
-            // Debug.Log("LetterManager ? " + (letterManager != null));
-            // Debug.Log("Current Message ? " + (currentTargetMessage != null));
-            letterManager.MarkMessageAsDelivered(currentTargetMessage.MessageID);
+            // Mark current delivery as completed
+            letterManager.MarkDelivered(CurrentMessage.ID);
 
+            // If this is the first delivery
             if (HasStartingLetter)
             {
+                // Mark the first-letter flag as false
                 HasStartingLetter = false;
             }
 
+            // Give the player their reward
             Money += DELIVERY_PAYMENT;
+
+            // If the player hass the address book upgrade
+            if (HasUpgrade("Address Book"))
+            {
+                // Cache the completed delivery
+                cacheManager.AddAddress(CurrentMessage.Recipient);
+            }
         }
 
+        // Set all delivery instructions to starting instructions
         ResetDeliveryDetails();
     }
 
-    private void ResetDeliveryDetails()
+    public void ResetDeliveryDetails()
     {
-        currentTargetMessage = null;
+        // Remove the current message reference
+        CurrentMessage = null;
+
+        // Reset the current recipient reference name
         CurrentTarget = "";
 
-        ResetDirectionsToOffice();
+        // Set the next step instructions
+        DeliveryInstructions instructions;
+        instructions.recipient = "None";
+        instructions.neighborhoodID = 'X';
+        instructions.nextStep = "Packet Delivery Office";
+        NextStep = instructions;
 
-        GameplayTimer.StopTimerIfRunning();
-
-        obstacleTilemapIndex++;
-
-        notepadManager.ClearNotepad();
-    }
-
-    DeliveryDirections ResetDirectionsToOffice()
-    {
-        NextDeliveryLocation = "Office";
-
-        DeliveryDirections deliveryDirections;
-
-        deliveryDirections.building = "office";
-        deliveryDirections.color = "red";
-        deliveryDirections.mapDirection = "northwest";
-
-        NextStep = deliveryDirections;
-
-        return deliveryDirections;
+        // Reset and update the HUD
+        hudManager.ClearCurrentTask();
+        hudManager.DisplayText();
     }
 
     public void GetNextMessage()
     {
-        this.CurrentTargetMessage = letterManager.GetNextMessage();
-        NextDeliveryLocation = "CLA";
-        deliveryAddress = currentTargetMessage.Address;
+        // Get the next delivery letter
+        CurrentMessage = letterManager.GetNextLetter();
 
-        notepadManager.AddItemToNotepad("Central Lookup Agency");
+        // Lookup the next lookup agency name
+        string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X') + " Lookup Agency";
+
+        DeliveryInstructions instructions;
+
+        // If the player has unlocked "Exit the Matrix"
+        if (HasUpgrade("Exit the Matrix"))
+        {
+            // Reference the recipient's URL
+            instructions.recipient = CurrentMessage.Recipient.URL;
+        }
+        // If the player has not unlocked it
+        else
+        {
+            // Reference the recipient's name
+            instructions.recipient = CurrentMessage.Recipient.Name;
+        }
+
+        instructions.neighborhoodID = 'X';
+        instructions.nextStep = nextLocation;
+
+        // Set instructions and update appropriate components
+        SetNextSteps(instructions);
     }
 
-    public void GetStartingMessage()
+    public void SetNextSteps(DeliveryInstructions instructions)
     {
-        this.CurrentTargetMessage = letterManager.GetStartingMessage();
-        NextDeliveryLocation = "CLA";
-        deliveryAddress = currentTargetMessage.Address;
+        // Store the instructions globaly
+        NextStep = instructions;
 
-        notepadManager.AddItemToNotepad("Central Lookup Agency");
+        // Update the HUD with the instructions
+        hudManager.DisplayText();
     }
 
-    public void AddTodoItem(string item)
+    public void ForceUpdateHUD()
     {
-        notepadManager.AddItemToNotepad(item);
+        // If there is an active delivery
+        if (CurrentMessage != null)
+        {
+            DeliveryInstructions instructions = NextStep;
+
+            // If the player has unlocked "Exit the Matrix"
+            if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
+            {
+                // Reference the recipient's URL
+                instructions.recipient = CurrentMessage.Recipient.URL;
+            }
+            else
+            {
+                // Reference the recipient's name
+                instructions.recipient = CurrentMessage.Recipient.Name;
+            }
+
+            instructions.nextStep = lookupAgencyManager.GetNeighborhoodNameFromID(instructions.neighborhoodID);
+
+            // Check if the next step is a lookup agency
+            bool isNextStepLookupAgency = !(instructions.nextStep.Contains("Office") || instructions.nextStep.Contains("Residence"));
+
+            // If it is a lookup agency
+            if (isNextStepLookupAgency)
+            {
+                // Adjust the displayed next step text 
+                instructions.nextStep += " Lookup Agency";
+            }
+
+            // Store the next delivery steps globaly
+            NextStep = instructions;
+        }
+
+        // Update the HUD
+        hudManager.DisplayText();
+    }
+
+    public void CompleteGameAndReset()
+    {
+        // Reset Money
+        Money = 0;
+
+        // Reset Upgrades
+        upgradeManager.ResetUpgrades();
+
+        // Hide HUD
+        hudManager.ToggleDisplay(false);
     }
 
     public bool HasRemainingTasks
     {
         get
         {
+            // Count the number of remaining letters to deliver
             RemainingTasks = letterManager.RemainingLetterCount;
-            Debug.Log(RemainingTasks + " remaining letters");
-            return (RemainingTasks > 0);
-        }
-    }
 
-    public int Money {
-        get
-        {
-            return money;
-        }
-        set
-        {
-            money = value;
-            moneyText.text = "$" + money;
+            // If the number of letters is nonzero, return true. Else, false
+            return (RemainingTasks > 0);
         }
     }
 
@@ -271,10 +289,10 @@ public class GameplayManager : MonoBehaviour
     public string CurrentLocation { get; set; }
     public int RemainingTasks { get; set; }
     public string CurrentTarget { get; private set; }
-    public DeliveryDirections NextStep { get; set; }
+    public DeliveryInstructions NextStep { get; set; }
     public string NextDeliveryLocation { get; set; }
-    public Timer GameplayTimer { get; set; }
+    public int Money { get; set; }
 
-    public bool HasTaskTracker { get; set; }
-    public bool HasExitedTheMatrix { get; set; }
+    public Letter CurrentMessage { get; private set; }
+    public char CurrentNeighborhoodID { get; set; }
 }

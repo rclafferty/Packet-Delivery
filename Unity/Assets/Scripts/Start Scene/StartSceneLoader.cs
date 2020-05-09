@@ -1,46 +1,39 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿/* File: StartSceneLoader.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class StartSceneLoader : MonoBehaviour
 {
-    [SerializeField]
-    GameObject startNPC;
+    // The NPC the player is talking to
+    [SerializeField] GameObject startNPC;
 
+    // NPC and player sprites
     public Sprite sprite_PlayerRight;
     public Sprite sprite_PlayerDown;
     public Sprite sprite_NPCLeft;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
+    
     public void OnSceneWasLoaded(Scene scene, LoadSceneMode lsm)
     {
+        // If the current scene is the starting dialogue
         if (scene.name == "start_town")
         {
+            // Find the player and set the sprite
             GameObject player = GameObject.Find("Player");
             player.GetComponent<SpriteRenderer>().sprite = sprite_PlayerRight;
 
+            // Find the NPC and set the sprite
             startNPC = GameObject.Find("Starting NPC");
-            StartingNPCManager npcManager = startNPC.GetComponent<StartingNPCManager>();
             startNPC.GetComponent<SpriteRenderer>().sprite = sprite_NPCLeft;
+
+            // Set the player sprite for end of dialogue
+            StartingNPCManager npcManager = startNPC.GetComponent<StartingNPCManager>();
             npcManager.sprite_PlayerDown = sprite_PlayerDown;
 
-            // Temporarily disabled: NPC enters, talks, exits
-            // npcManager.MoveNPC(true);
-            // npcManager.StartDialogue();
-            // npcManager.MoveNPC(false);
-
+            // Remove this method from the scene change events
             SceneManager.sceneLoaded -= OnSceneWasLoaded;
         }
     }

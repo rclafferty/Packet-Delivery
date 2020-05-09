@@ -43,8 +43,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccd6910c87ae12c4ca2662eb0dd53001, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lookupAgencyManager: {fileID: 0}
   letterTextFiles:
   - {fileID: 4900000, guid: 11386e6f9684c374f966d81d993e9dd9, type: 3}
-  - {fileID: 4900000, guid: c9715de98a3a20b41aea60e370e33b05, type: 3}
-  - {fileID: 4900000, guid: 49a67ead4471c7e49a7813f4b9ca77b7, type: 3}
   - {fileID: 4900000, guid: fb65e696d26629044a59458bd08f584e, type: 3}
+  - {fileID: 4900000, guid: 49a67ead4471c7e49a7813f4b9ca77b7, type: 3}
+  - {fileID: 4900000, guid: c9715de98a3a20b41aea60e370e33b05, type: 3}
+  - {fileID: 4900000, guid: c81e4def41d762c47be8187295ab7dd4, type: 3}
+  - {fileID: 4900000, guid: fdb1803e40fdbbb468fb64fcee6d3f2e, type: 3}
+  - {fileID: 4900000, guid: 83686e9b8c1537846a4953dfc0c56585, type: 3}
+  - {fileID: 4900000, guid: 5619b740516791a44bf9b51b291c958e, type: 3}
+  - {fileID: 4900000, guid: 893ed1282dc12b349bf044a84bb6563b, type: 3}
+  - {fileID: 4900000, guid: 9012bdf3d4f65ca49a807f880a3547bc, type: 3}
+  - {fileID: 4900000, guid: 850441f11d568c34dbc16576183be0a0, type: 3}
+  - {fileID: 4900000, guid: 811ac8c7d3ab1e84d9534d033bc2a3ae, type: 3}
+  - {fileID: 4900000, guid: c8efbac93d45d24488a5af269bffee2d, type: 3}
+  - {fileID: 4900000, guid: f2c03b2e076c6b742b50547a16dcafe6, type: 3}
+  - {fileID: 4900000, guid: 8912e6b17b01865489a0d430c8597b20, type: 3}

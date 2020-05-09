@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 1629079025838653679}
   - component: {fileID: 1629079025838653678}
   - component: {fileID: 1629079025838653673}
-  - component: {fileID: 1629079025838653672}
   m_Layer: 0
   m_Name: Office Computer Manager
   m_TagString: Untagged
@@ -45,7 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fb2285a3c9a68c449a171ccc66965ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
   officeComputerCanvas: {fileID: 0}
+  screenText: {fileID: 0}
+  logisticsButtons: []
+  taskTrackerButton: {fileID: 0}
+  taskTrackerPriceText: {fileID: 0}
+  exitMatrixButton: {fileID: 0}
+  exitMatrixPriceText: {fileID: 0}
 --- !u!61 &1629079025838653673
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -60,32 +66,6 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 4.5, y: -2.5}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
---- !u!61 &1629079025838653672
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1629079025838653675}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 6.5, y: -2.5}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
