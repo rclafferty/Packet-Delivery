@@ -28,13 +28,17 @@ public class HomeChatManager : MonoBehaviour
     [SerializeField] Button option2Button;
     [SerializeField] Text option2Text;
 
+    // Other UI Components
+    [SerializeField] Transform moneyParent;
+    [SerializeField] GameObject moneySpriteObject;
+
     // NPC Sprites
     [SerializeField] SpriteRenderer npcSpriteRenderer;
     [SerializeField] Sprite[] npcMaleSprites;
     [SerializeField] Sprite[] npcFemaleSprites;
 
     [SerializeField] bool[] isMaleRecipientIndex;
-
+    
     // Global strings to format before placing them in the text objects
     string chatTextMessage;
     string option1Message;
@@ -180,6 +184,9 @@ public class HomeChatManager : MonoBehaviour
 
             // Mark as delivered
             gameplayManager.CompleteTask();
+
+            // Money animation
+            moneySpriteObject.GetComponent<Animator>().SetTrigger("Pay Money");
         };
         // For redundancy in case the player is able to press the 2nd button
         option2Action = delegate

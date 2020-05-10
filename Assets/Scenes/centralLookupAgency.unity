@@ -1137,6 +1137,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6326347056705145763, guid: ee1e15fc844ae7f48a4eaaaafcd4347e,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ee1e15fc844ae7f48a4eaaaafcd4347e, type: 3}
 --- !u!1 &888485042 stripped
@@ -2365,7 +2370,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 1.3083, y: -24.815}
-  m_SizeDelta: {x: 1474.3, y: 49.63}
+  m_SizeDelta: {x: 1367, y: 49.63}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1749620712
 GameObject:
@@ -2616,7 +2621,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -0.000078201, y: 0.00025749}
-  m_SizeDelta: {x: 1474.3, y: 49.6}
+  m_SizeDelta: {x: 1367, y: 49.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1935031413
 MonoBehaviour:
