@@ -4,6 +4,7 @@
  */
 
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AddressManager : MonoBehaviour
 {
@@ -12,6 +13,12 @@ public class AddressManager : MonoBehaviour
 
     // All house objects in the scene
     [SerializeField] House[] houseObjects;
+
+    // All lookup agency labels in the scene
+    [SerializeField] Text rootLookupAgencyLabel;
+    [SerializeField] Text comLookupAgencyLabel;
+    [SerializeField] Text netLookupAgencyLabel;
+    [SerializeField] Text orgLookupAgencyLabel;
 
     // Start is called before the first frame update
     void Start()
@@ -70,6 +77,12 @@ public class AddressManager : MonoBehaviour
             // Display the house's IP
             houseObjects[i].residenceText.text = houseObjects[i].ipAddress;
         }
+
+        // Change the Lookup Agency names
+        rootLookupAgencyLabel.text = "Root DNS Server";
+        comLookupAgencyLabel.text = "COM Top-Level Domain DNS Server";
+        netLookupAgencyLabel.text = "NET Top-Level Domain DNS Server";
+        orgLookupAgencyLabel.text = "ORG Top-Level Domain DNS Server";
     }
 
     public static string DetermineIPFromHouseInfo(int houseNumber, char neighborhoodID)

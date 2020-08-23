@@ -117,7 +117,7 @@ public class StartingNPCManager : MonoBehaviour
 
         // Get this current dialogue line and response
         DialogueLine thisLine = (DialogueLine)dialogueLines[dialogueIndex];
-        string nextSpeakerLine = thisLine.speaker + ":\n" + thisLine.line;
+        string nextSpeakerLine = "<b>" + thisLine.speaker + "</b>:\n" + thisLine.line;
         string nextResponseLine = thisLine.response;
         
         // If there is a currently running coroutine
@@ -142,8 +142,12 @@ public class StartingNPCManager : MonoBehaviour
         // Disable button 1 if null or ""
         option1Button.interactable = !string.IsNullOrEmpty(option1);
 
+        // Skip the name of the person
+        int startingIndex = chat.IndexOf("</b>") + "</b>".Length;
+        chatText.text = chat.Substring(0, startingIndex);
+
         // Write chat text
-        for (int i = 0; i < chat.Length; i++)
+        for (int i = startingIndex; i < chat.Length; i++)
         {
             // Wait for CHAT_DELAY seconds before writing the next letter
             yield return new WaitForSeconds(CHAT_DELAY);

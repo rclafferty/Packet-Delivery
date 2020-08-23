@@ -465,7 +465,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Hello there! What brings you to my home?
+  m_Text: <b>Hello</b> there! What brings you to my home?
 --- !u!222 &546330324
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9805,6 +9805,6 @@ MonoBehaviour:
   chatText: {fileID: 546330323}
   option1Button: {fileID: 1650502387}
   option1Text: {fileID: 474408321}
-  nextSceneName: instructions
+  nextSceneName: instructions_objectives
   introDialogueText: {fileID: 4900000, guid: f66c8165564c47849a6049b218a82359, type: 3}
   sprite_PlayerDown: {fileID: 21300002, guid: 784ae767b816a8744bf898998c8ff039, type: 3}
