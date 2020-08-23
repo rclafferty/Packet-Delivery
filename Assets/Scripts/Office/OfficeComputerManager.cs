@@ -28,12 +28,17 @@ public class OfficeComputerManager : MonoBehaviour
     [SerializeField] Text companyRunningShoesPriceText;
 
     // Address Book upgrade text objects
+    [SerializeField] Text addressBookNameText;
+    [SerializeField] Text addressBookSlotNameText;
     [SerializeField] Text addressBookPriceText;
     [SerializeField] Text addressBookSlotPriceText;
     [SerializeField] Text addressBookSlotDescriptionText;
 
     // Price text for Exit the Matrix upgrade
     [SerializeField] Text exitMatrixPriceText;
+
+    // Description text for Where Credit is Due
+    [SerializeField] Text whereCreditIsDueDescriptionText;
 
     // Fade Canvas -- for transitioning to the credits
     [SerializeField] Transition fadeManager;
@@ -83,6 +88,16 @@ public class OfficeComputerManager : MonoBehaviour
         {
             // Get the gameplay manager component from the object
             gameplayManager = gameplayManagerObject.GetComponent<GameplayManager>();
+
+            // Adjust Address Book and Add Address Book Slot names
+            if (gameplayManager.HasUpgrade("Exit the Matrix"))
+            {
+                addressBookNameText.text = "DNS Cache";
+                addressBookSlotNameText.text = "Add DNS Cache Slot";
+
+            }
+
+            whereCreditIsDueDescriptionText.text = "End of the Game\nRequires: Task Tracker, " + addressBookNameText.text + ", Exit the Matrix";
         }
 
         // Find the UpgradeManager in scene
@@ -203,7 +218,7 @@ public class OfficeComputerManager : MonoBehaviour
             else
             {
                 // Start a delivery and tell the user
-                systemMessage = "Success! You've successfully setup the following delivery:\n";
+                systemMessage = "Success! You've successfully setup a new delivery. Try heading towards the <b>Root Village Lookup Agency</b> for your next step.\n";
 
                 gameplayManager.GetNextMessage();
             }
@@ -413,6 +428,13 @@ public class OfficeComputerManager : MonoBehaviour
         const int BASE_SLOT_QUANTITY = 3;
         const int PURCHASE_QUANTITY_LIMIT = 2;
 
+        bool hasExitedTheMatrix = gameplayManager.HasUpgrade("Exit the Matrix");
+        string requiredUpgrade = "Address Book";
+        if (hasExitedTheMatrix)
+        {
+            requiredUpgrade = "DNS Cache";
+        }
+
         // If the player has already purchased the limit
         if (upgradeManager.GetQuantity(upgradeTitle) == PURCHASE_QUANTITY_LIMIT)
         {
@@ -430,7 +452,7 @@ public class OfficeComputerManager : MonoBehaviour
         else if (gameplayManager.HasUpgrade("Address Book"))
         {
             // Address Book instructions to display on purchase
-            string instructions = "1 slot has been added to your Address Book.";
+            string instructions = "1 slot has been added to your " + requiredUpgrade;
 
             // If purchase is successful
             if (AttemptPurchaseUpgrade(upgradeTitle, instructions))
@@ -456,7 +478,7 @@ public class OfficeComputerManager : MonoBehaviour
         else
         {
             // Set error message
-            screenText.text = "You need the Address Book upgrade first."; 
+            screenText.text = "You need the " + requiredUpgrade + " upgrade first."; 
 
             // Show on-screen message
             screenText.gameObject.SetActive(true);
@@ -487,13 +509,38 @@ public class OfficeComputerManager : MonoBehaviour
         }
         else
         {
-            screenText.text = "You must first purchase the Task Tracker, the Address Book, and the Exit the Matrix upgrades.";
+            string requiredUpgrade = "Address Book";
+            if (gameplayManager.HasUpgrade("Exit the Matrix"))
+            {
+                requiredUpgrade = "DNS Cache";
+            }
+
+            screenText.text = "You must first purchase the Task Tracker, the " + requiredUpgrade + ", and the Exit the Matrix upgrades.";
+
+            // Show on-screen message
+            screenText.gameObject.SetActive(true);
         }
     }
 
     public bool AttemptPurchaseUpgrade(string upgradeTitle, string instructions)
     {
         bool isSuccessful = false;
+
+        string upgradeName = "";
+
+        if (upgradeTitle.ToLower() == "address book")
+        {
+            bool hasExitedTheMatrix = gameplayManager.HasUpgrade("Exit the Matrix");
+            upgradeName = "Address Book";
+            if (hasExitedTheMatrix)
+            {
+                upgradeName = "DNS Cache";
+            }
+        }
+        else
+        {
+            upgradeName = upgradeTitle;
+        }
 
         // If the requested upgrade can only be purchased once
         if (!upgradeManager.IsRepeatable(upgradeTitle))
@@ -502,7 +549,7 @@ public class OfficeComputerManager : MonoBehaviour
             if (upgradeManager.HasPurchasedUpgrade(upgradeTitle))
             {
                 // Set error message
-                screenText.text = "You've already purchased the " + upgradeTitle + " upgrade.\n" + instructions; // TODO: Add some snarky "No need to buy the same thing twice, right?" comment
+                screenText.text = "You've already purchased the " + upgradeName + " upgrade.\n" + instructions; // TODO: Add some snarky "No need to buy the same thing twice, right?" comment
 
                 // Show on-screen message
                 screenText.gameObject.SetActive(true);
@@ -512,7 +559,7 @@ public class OfficeComputerManager : MonoBehaviour
             else if(upgradeManager.AttemptPurchase(upgradeTitle))
             {
                 // Set success message
-                screenText.text = "You successfully purchased the " + upgradeTitle + " upgrade.\n" + instructions;
+                screenText.text = "You successfully purchased the " + upgradeName + " upgrade.\n" + instructions;
 
                 // Show on-screen message
                 screenText.gameObject.SetActive(true);
@@ -523,7 +570,7 @@ public class OfficeComputerManager : MonoBehaviour
             else
             {
                 // Set error message
-                screenText.text = "You need $" + upgradeManager.GetUpgradeCost(upgradeTitle) + " to purchase the " + upgradeTitle + " upgrade.";
+                screenText.text = "You need $" + upgradeManager.GetUpgradeCost(upgradeTitle) + " to purchase the " + upgradeName + " upgrade.";
 
                 // Show on-screen message
                 screenText.gameObject.SetActive(true);
@@ -538,7 +585,7 @@ public class OfficeComputerManager : MonoBehaviour
             if (upgradeManager.AttemptPurchase(upgradeTitle))
             {
                 // Set success message
-                screenText.text = "You successfully purchased the " + upgradeTitle + " upgrade.\n" + instructions;
+                screenText.text = "You successfully purchased the " + upgradeName + " upgrade.\n" + instructions;
 
                 // Show on-screen message
                 screenText.gameObject.SetActive(true);
@@ -549,7 +596,7 @@ public class OfficeComputerManager : MonoBehaviour
             else
             {
                 // Set error message
-                screenText.text = "You need $" + upgradeManager.GetUpgradeCost(upgradeTitle) + " to purchase the " + upgradeTitle + " upgrade.";
+                screenText.text = "You need $" + upgradeManager.GetUpgradeCost(upgradeTitle) + " to purchase the " + upgradeName + " upgrade.";
 
                 // Show on-screen message
                 screenText.gameObject.SetActive(true);
@@ -569,6 +616,12 @@ public class OfficeComputerManager : MonoBehaviour
 
     void ForceUpdateGUI()
     {
+        string requiredUpgrade = "Address Book";
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            requiredUpgrade = "DNS Cache";
+        }
+
         // Check if player already purchased the task tracker
         if (gameplayManager.HasUpgrade("Task Tracker"))
         {
@@ -590,12 +643,12 @@ public class OfficeComputerManager : MonoBehaviour
             addressBookPriceText.fontStyle = FontStyle.Italic;
 
             // Display current number of slot upgrades purchased
-            addressBookSlotDescriptionText.text = "Adds 1 spot to Address Book.\n Current: " + upgradeManager.GetQuantity("Address Book Slot");
+            addressBookSlotDescriptionText.text = "Adds 1 spot to " + requiredUpgrade + ".\n Current: " + upgradeManager.GetQuantity("Address Book Slot");
         }
         else
         {
             // Display note that the slot upgrades require the address book upgrade first
-            addressBookSlotDescriptionText.text = "Adds 1 spot to Address Book.\n Requires Address Book upgrade.";
+            addressBookSlotDescriptionText.text = "Adds 1 spot to " + requiredUpgrade + ".\n Requires " + requiredUpgrade + " upgrade.";
         }
 
         // Check if player already purchased the exit the matrix upgrade

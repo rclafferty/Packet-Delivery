@@ -26,6 +26,9 @@ public class LetterManager : MonoBehaviour
     // Letters to be delivered -- List of letter objects
     List<Letter> lettersToDeliver;
 
+    // Previous letter -- To prevent duplicates
+    Letter previousLetter;
+
     void Awake()
     {
         // If there is already a Letter Manager -- Only need one
@@ -43,6 +46,9 @@ public class LetterManager : MonoBehaviour
 
         // Initialize the list of letters
         lettersToDeliver = new List<Letter>();
+
+        // Initialize the previous letter -- Null means first delivery
+        previousLetter = null;
 
         // No current letters loaded
         RemainingLetterCount = 0;
@@ -109,7 +115,13 @@ public class LetterManager : MonoBehaviour
         {
             // Determine random index
             int id = Random.Range(0, lettersToDeliver.Count);
-
+            if (previousLetter != null)
+            {
+                if (id == previousLetter.ID)
+                {
+                    continue;
+                }
+            }
             // Get letter at that index
             nextLetter = lettersToDeliver[id];
         } while (nextLetter == null || nextLetter.IsDelivered); // If isDelivered, find next letter
@@ -133,6 +145,9 @@ public class LetterManager : MonoBehaviour
 
         // Mark letter at given ID as delivered
         lettersToDeliver[id].MarkDelivered(true);
+
+        // List that letter as previous letter
+        previousLetter = lettersToDeliver[id];
     }
 
     public void MarkAllUndelivered()

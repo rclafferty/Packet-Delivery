@@ -218,7 +218,7 @@ public class LookupAgencyChatManager : MonoBehaviour
     private void NoLetterDialogue()
     {
         // Hint at where to get a letter
-        chatTextMessage = "You don't seem to have a letter with you. Start by getting one from your office."; 
+        chatTextMessage = "You don't seem to have a letter with you. Start by getting one from <b>your office</b>."; 
         option1Message = "Whoops. I'll come back when I have one.";
         option2Message = "I have something else.";
 
@@ -299,6 +299,7 @@ public class LookupAgencyChatManager : MonoBehaviour
         ToggleInputField(false);
         
         string targetName = "";
+        string targetDescription = "";
         Person thisPersonProfile = null;
 
         // If the player has purchased the "Exit the Matrix" upgrade
@@ -306,11 +307,13 @@ public class LookupAgencyChatManager : MonoBehaviour
         {
             // Reference the recipient's URL
             targetName = gameplayManager.CurrentMessage.Recipient.URL;
+            targetDescription = "website is";
         }
         else
         {
             // Reference the recipient's name
             targetName = gameplayManager.CurrentMessage.Recipient.Name;
+            targetDescription = "person lives";
         }
 
         // If the input name matches the target message
@@ -353,7 +356,7 @@ public class LookupAgencyChatManager : MonoBehaviour
                     string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID);
 
                     // Tell the player where to go
-                    chatTextMessage = "It seems that person lives in " + nextLocation + ". Check with their Lookup Agency office for more specific details.";
+                    chatTextMessage = "It seems that " + targetDescription + " at <b>" + nextLocation + "</b>. Check with their Lookup Agency office for more specific details.";
                     option1Message = "Thanks!";
                     option2Message = "";
 
@@ -397,7 +400,7 @@ public class LookupAgencyChatManager : MonoBehaviour
                     string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID);
 
                     // Tell the player the residence number
-                    chatTextMessage = "That person lives at Residence #" + thisPersonProfile.HouseNumber + ".";
+                    chatTextMessage = "That person lives at <b>Residence #" + thisPersonProfile.HouseNumber + "</b>.";
                     option1Message = "Thanks!";
                     option2Message = "";
 
@@ -428,7 +431,7 @@ public class LookupAgencyChatManager : MonoBehaviour
                         nextInstructions.nextStep = AddressManager.DetermineIPFromHouseInfo(thisPersonProfile.HouseNumber, thisPersonProfile.NeighborhoodID);
 
                         // Adjust the message to the player to reflect the IP instead of the house number
-                        chatTextMessage = "That person lives at " + nextInstructions.nextStep + ".";
+                        chatTextMessage = "That person lives at <b>" + nextInstructions.nextStep + "</b>.";
                     }
                     else
                     {
@@ -483,7 +486,7 @@ public class LookupAgencyChatManager : MonoBehaviour
     {
         // Incorrect place
         string centralLookupLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X');
-        chatTextMessage = "Hmm... I'm not sure you're in the right spot. Check the Lookup Agency in " + centralLookupLocation + " for your next steps.";
+        chatTextMessage = "Hmm... I'm not sure you're in the right spot. Check the Lookup Agency in <b>" + centralLookupLocation + "</b> for your next steps.";
         option1Message = "I'll do that.";
         option2Message = "";
 
@@ -522,6 +525,9 @@ public class LookupAgencyChatManager : MonoBehaviour
         
         option1Button.interactable = !string.IsNullOrEmpty(option1);
         option2Button.interactable = !string.IsNullOrEmpty(option2);
+
+        // Start with "Lookup Agency Worker" -- Just print, don't do letter-by-letter
+        chatPromptText.text = "<b>Lookup Agency Worker</b>:\n";
 
         // Write to chat prompt
         for (int i = 0; i < chat.Length; i++)

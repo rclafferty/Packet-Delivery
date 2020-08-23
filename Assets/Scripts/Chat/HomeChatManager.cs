@@ -258,6 +258,15 @@ public class HomeChatManager : MonoBehaviour
         option1Button.interactable = !string.IsNullOrEmpty(option1);
         option2Button.interactable = !string.IsNullOrEmpty(option2);
 
+        // Display the person's name
+        string name = gameplayManager.CurrentMessage.Recipient.Name;
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            name = gameplayManager.CurrentMessage.Recipient.URL;
+        }
+
+        chatText.text = "<b>" + name + "</b>:\n";
+
         // Write to chat prompt
         for (int i = 0; i < chat.Length; i++)
         {

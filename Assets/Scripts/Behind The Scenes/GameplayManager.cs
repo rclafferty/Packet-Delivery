@@ -56,11 +56,7 @@ public class GameplayManager : MonoBehaviour
         HasStartingLetter = false;
 
         // Start with no money -- only get money from deliveries
-#if UNITY_EDITOR
         Money = 0;
-#else
-        Money = 0;
-#endif
 
         // First outdoor spawn point is outside the office
         lastOutdoorPosition = new Vector2(265, -21.5f);
@@ -72,6 +68,10 @@ public class GameplayManager : MonoBehaviour
 
         // Add event to call OnSceneLoad() every time a scene is changed
         SceneManager.sceneLoaded += OnSceneLoad;
+
+        // Test EtM
+        Money = 30;
+        ExitTheMatrix();
     }
 
     void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)
