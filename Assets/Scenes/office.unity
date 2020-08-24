@@ -970,6 +970,17 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1998220332}
+        m_MethodName: Logistics
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &354232485
@@ -1279,6 +1290,17 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1166552189}
         m_MethodName: ReturnToComputer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1998220332}
+        m_MethodName: Logistics
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2896,7 +2918,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &884047276
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3123,6 +3145,17 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1998220332}
         m_MethodName: TurnOffComputer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1166552189}
+        m_MethodName: ReturnToComputer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3451,7 +3484,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Stores previous 3 delivery addresses
+  m_Text: 'Stores previous 3 delivery addresses
+
+    Press 2 to toggle display'
 --- !u!222 &1010678454
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6416,7 +6451,8 @@ MonoBehaviour:
 
     For the purposes of this game, the Top-Level Domain (TLD) and the Authoritative
     servers have been combined into one step. Ordinarily, the TLD server would point
-    towards an Authoritative server, which would in turn produce the requestd IP address.'
+    towards an Authoritative server, which would in turn produce the requested IP
+    address.'
 --- !u!222 &1720776643
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6569,7 +6605,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Add a task tracker to your HUD
+  m_Text: 'Add a task tracker to your HUD
+
+    Press 1 to toggle display'
 --- !u!222 &1751598807
 CanvasRenderer:
   m_ObjectHideFlags: 0

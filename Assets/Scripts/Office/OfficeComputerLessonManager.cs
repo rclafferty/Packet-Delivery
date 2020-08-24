@@ -20,7 +20,7 @@ public class OfficeComputerLessonManager : MonoBehaviour
         
     }
 
-    void ToggleUIObjects(bool isShown)
+    public void ToggleUIObjects(bool isShown)
     {
         foreach (GameObject g in uiObjectsToToggle)
         {
