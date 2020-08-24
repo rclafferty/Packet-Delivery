@@ -68,10 +68,6 @@ public class GameplayManager : MonoBehaviour
 
         // Add event to call OnSceneLoad() every time a scene is changed
         SceneManager.sceneLoaded += OnSceneLoad;
-
-        // Test EtM
-        Money = 30;
-        ExitTheMatrix();
     }
 
     void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)
