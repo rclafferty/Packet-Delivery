@@ -1020,41 +1020,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 354232482}
   m_CullTransparentMesh: 0
---- !u!1 &375827776
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 375827777}
-  m_Layer: 5
-  m_Name: Address Book Slot Lesson
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &375827777
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 375827776}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1528671711}
-  m_RootOrder: 17
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &378498515
 GameObject:
   m_ObjectHideFlags: 0
@@ -2407,6 +2372,17 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1998220332}
+        m_MethodName: PurchaseExitTheMatrix
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1166552189}
         m_MethodName: PurchaseExitTheMatrix
         m_Mode: 1
         m_Arguments:
@@ -4317,6 +4293,17 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1166552189}
+        m_MethodName: PurchaseAddressBook
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!1 &1166552188
@@ -4362,8 +4349,10 @@ MonoBehaviour:
   - {fileID: 1520173189}
   - {fileID: 781496106}
   - {fileID: 1040791950}
-  exitTheMatrixLesson: {fileID: 343976064}
   addressBookLesson: {fileID: 2006488361}
+  addressBookLessonButton: {fileID: 781496106}
+  exitTheMatrixLesson: {fileID: 343976064}
+  exitTheMatrixLessonButton: {fileID: 1040791950}
 --- !u!4 &1166552190
 Transform:
   m_ObjectHideFlags: 0
@@ -5077,7 +5066,7 @@ PrefabInstance:
     - target: {fileID: 6326347057699122904, guid: ee1e15fc844ae7f48a4eaaaafcd4347e,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6326347057699122908, guid: ee1e15fc844ae7f48a4eaaaafcd4347e,
         type: 3}
@@ -5387,7 +5376,6 @@ RectTransform:
   - {fileID: 1040791951}
   - {fileID: 343976065}
   - {fileID: 2006488362}
-  - {fileID: 375827777}
   m_Father: {fileID: 1930236706}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5738,7 +5726,7 @@ PrefabInstance:
     - target: {fileID: 1629079025838653678, guid: f83ab6737cea1194bbec16f2e1c473ef,
         type: 3}
       propertyPath: logisticsButtons.Array.size
-      value: 8
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1629079025838653678, guid: f83ab6737cea1194bbec16f2e1c473ef,
         type: 3}

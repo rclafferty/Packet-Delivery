@@ -5,8 +5,13 @@ using UnityEngine;
 public class OfficeComputerLessonManager : MonoBehaviour
 {
     [SerializeField] GameObject[] uiObjectsToToggle;
-    [SerializeField] GameObject exitTheMatrixLesson;
     [SerializeField] GameObject addressBookLesson;
+    [SerializeField] GameObject addressBookLessonButton;
+    [SerializeField] GameObject exitTheMatrixLesson;
+    [SerializeField] GameObject exitTheMatrixLessonButton;
+
+    static bool hasShownExitTheMatrixLesson = false;
+    static bool hasShownAddressBookLesson = false;
 
     // Start is called before the first frame update
     void Start()
@@ -26,6 +31,12 @@ public class OfficeComputerLessonManager : MonoBehaviour
         {
             g.SetActive(isShown);
         }
+
+        bool isAddressBookButtonShown = isShown && hasShownAddressBookLesson;
+        addressBookLessonButton.SetActive(isAddressBookButtonShown);
+
+        bool isExitTheMatrixButtonShown = isShown && hasShownExitTheMatrixLesson;
+        exitTheMatrixLessonButton.SetActive(isExitTheMatrixButtonShown);
     }
 
     public void ReturnToComputer()
@@ -45,5 +56,23 @@ public class OfficeComputerLessonManager : MonoBehaviour
     {
         ToggleUIObjects(isShown: false);
         addressBookLesson.SetActive(true);
+    }
+
+    public void PurchaseExitTheMatrix()
+    {
+        if (!hasShownExitTheMatrixLesson)
+        {
+            ShowExitTheMatrixLesson();
+            hasShownExitTheMatrixLesson = true;
+        }
+    }
+
+    public void PurchaseAddressBook()
+    {
+        if (!hasShownAddressBookLesson)
+        {
+            ShowAddressBookLesson();
+            hasShownAddressBookLesson = true;
+        }
     }
 }

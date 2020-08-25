@@ -418,7 +418,7 @@ public class OfficeComputerManager : MonoBehaviour
         if (AttemptPurchaseUpgrade(upgradeTitle, instructions))
         {
             // Display the address book
-            hudManager.ToggleAddressBook(true);
+            // hudManager.ToggleAddressBook(true);
         }
     }
 

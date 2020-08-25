@@ -68,6 +68,10 @@ public class GameplayManager : MonoBehaviour
 
         // Add event to call OnSceneLoad() every time a scene is changed
         SceneManager.sceneLoaded += OnSceneLoad;
+
+#if UNITY_EDITOR
+        Money = 200;
+#endif
     }
 
     void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)

@@ -1,0 +1,8 @@
+The Address Book represents real DNS cache, both of which can be used to speed up the lookup process.
+Make sure to check the Address Book <b>before</b> going to the Root Village Lookup Agency!
+Remember, you can expand your Address Book using the "Add Address Book Slot" upgrade.
+For simplicity, the Top-Level Domain server and Authoritative server are combined into one step.
+All package requests must start at your office computer in Root Village.
+You must unlock the Where Credit is Due upgrade to complete the game.
+Did you get lost? Check your computer for your next delivery step!
+DNS lookup helps your computer find necessary servers, including web and email servers.
