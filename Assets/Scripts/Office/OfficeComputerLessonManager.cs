@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class OfficeComputerLessonManager : MonoBehaviour
 {
+    HUDManager hudManager;
+
     [SerializeField] GameObject[] uiObjectsToToggle;
     [SerializeField] GameObject addressBookLesson;
     [SerializeField] GameObject addressBookLessonButton;
@@ -12,17 +14,17 @@ public class OfficeComputerLessonManager : MonoBehaviour
 
     static bool hasShownExitTheMatrixLesson = false;
     static bool hasShownAddressBookLesson = false;
+    static bool firstAddressBookLesson = true;
+
+    enum Lesson { None, ExitTheMatrix, AddressBook };
+    Lesson currentLesson;
 
     // Start is called before the first frame update
     void Start()
     {
         ReturnToComputer();
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        hudManager = GameObject.Find("HUD").GetComponent<HUDManager>();
     }
 
     public void ToggleUIObjects(bool isShown)
@@ -44,18 +46,32 @@ public class OfficeComputerLessonManager : MonoBehaviour
         ToggleUIObjects(isShown: true);
         exitTheMatrixLesson.SetActive(false);
         addressBookLesson.SetActive(false);
+
+        if (currentLesson == Lesson.AddressBook && firstAddressBookLesson)
+        {
+            firstAddressBookLesson = false;
+
+            // Show address book
+            hudManager.ToggleAddressBook(isShown: true);
+        }
+
+        currentLesson = Lesson.None;
     }
 
     public void ShowExitTheMatrixLesson()
     {
         ToggleUIObjects(isShown: false);
         exitTheMatrixLesson.SetActive(true);
+
+        currentLesson = Lesson.ExitTheMatrix;
     }
 
     public void ShowAddressBookLesson()
     {
         ToggleUIObjects(isShown: false);
         addressBookLesson.SetActive(true);
+
+        currentLesson = Lesson.AddressBook;
     }
 
     public void PurchaseExitTheMatrix()
