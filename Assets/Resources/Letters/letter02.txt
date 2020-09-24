@@ -1,8 +1,6 @@
-To: Miss Daily
-To: www.miss-daily.com
+To: Lisa Daily
 From: Cindy Cook
-From: www.cindy-cook.com
-Class: Normal
+Prerequisite: None
 
 Hi Miss Daily,
 

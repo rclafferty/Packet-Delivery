@@ -56,21 +56,24 @@ public class LetterManager : MonoBehaviour
     
     void Start()
     {
+        lookupAgencyManager.LoadListOfPeople();
         LoadLettersFromTextAsset();
     }
 
-    public void AddLetter(Person s, Person r, string b)
+    public void AddLetter(Person s, Person r, Letter p, string b)
     {
         // Determine letter ID
         int id = lettersToDeliver.Count + 1;
 
         // Make a new letter object and add it to the list
-        Letter newLetter = new Letter(id, s, r, b);
+        Letter newLetter = new Letter(id, s, r, p, b);
         lettersToDeliver.Add(newLetter);
     }
 
     public Letter GetNextLetter()
     {
+        Debug.Log("Retrieving next message");
+
         // List is not initialized -- ERROR
         if (lettersToDeliver == null)
         {
@@ -109,6 +112,15 @@ public class LetterManager : MonoBehaviour
             }
         }
 
+        if (previousLetter != null)
+        {
+            Debug.Log("Prev Delivered ? " + previousLetter.IsDelivered + ", Prev ID Delivered ? " + lettersToDeliver[previousLetter.ID - 1].IsDelivered);
+        }
+        else
+        {
+            Debug.Log("Prev Letter is null");
+        }
+
         // Get next random undelivered letter
         Letter nextLetter = null;
         do
@@ -124,13 +136,39 @@ public class LetterManager : MonoBehaviour
             }
             // Get letter at that index
             nextLetter = lettersToDeliver[id];
+
+            if (nextLetter.Prerequisite != null)
+            {
+                if (!nextLetter.Prerequisite.IsDelivered)
+                {
+                    nextLetter = FindUndeliveredPrereq(nextLetter);
+                }
+            }
         } while (nextLetter == null || nextLetter.IsDelivered); // If isDelivered, find next letter
-
-
+        
         Debug.Log(nextLetter.ToString());
 
         // Return the random letter
         return nextLetter;
+    }
+
+    Letter FindUndeliveredPrereq(Letter thisLetter)
+    {
+        if (thisLetter.Prerequisite != null)
+        {
+            if (thisLetter.Prerequisite.IsDelivered)
+            {
+                return thisLetter;
+            }
+            else
+            {
+                return FindUndeliveredPrereq(thisLetter.Prerequisite);
+            }
+        }
+        else
+        {
+            return thisLetter;
+        }
     }
 
     public void MarkDelivered(int id)
@@ -163,23 +201,15 @@ public class LetterManager : MonoBehaviour
         }
     }
 
-    public void ParseAndAddLetter(string to, string toURL, string from, string fromURL, string body)
+    public void ParseAndAddLetter(string to, string from, int prereqID, string body)
     {
         // Parse recipient
         string[] toParts = to.Split(':');
         string recipient = toParts[1].Trim();
 
-        // Parse recipient URL
-        string[] toURLParts = toURL.Split(':');
-        string recipientURL = toURLParts[1].Trim();
-
         // Parse sender
         string[] fromParts = from.Split(':');
         string sender = fromParts[1].Trim();
-
-        // Parse sender URL
-        string[] fromURLParts = fromURL.Split(':');
-        string senderURL = fromURLParts[1].Trim();
 
         // Lookup sender and recipient objects
         Person senderProfile = lookupAgencyManager.FindPersonProfileByName(sender);
@@ -191,8 +221,15 @@ public class LetterManager : MonoBehaviour
             Debug.Log("Found " + recipient + " ? " + (recipientProfile != null));
         }
 
+        // Get prerequisite letter
+        Letter prereqLetter = null; // Null means no prerequisite
+        if (prereqID != -1)
+        {
+            prereqLetter = lettersToDeliver[prereqID];
+        }
+
         // Add letter to the list to be delivered
-        AddLetter(senderProfile, recipientProfile, body);
+        AddLetter(senderProfile, recipientProfile, prereqLetter, body);
     }
 
     void LoadLettersFromTextAsset()
@@ -207,18 +244,23 @@ public class LetterManager : MonoBehaviour
 
             // Get message header parts
             string to = parts[0].Trim();
-            string toURL = parts[1].Trim();
-            string from = parts[2].Trim();
-            string fromURL = parts[3].Trim();
+            string from = parts[1].Trim();
 
-            // Urgency line is part 4 -- not used
-            // Parts[5] is a blank line
+            // Prerequisite is part 3
+            string prerequisiteLetter = parts[2].Trim();
+            int prerequisiteLetterID = -1;
+            string prereqIDString = prerequisiteLetter.Split(':')[1].Trim();
+            if (prereqIDString.ToLower() != "none")
+            {
+                // Debug.Log(prerequisiteLetter + ", " + prereqIDString);
+                prerequisiteLetterID = System.Convert.ToInt32(prereqIDString) - 1; // 0 based, not 1 based
+            }
 
             // Body
             sb.Clear();
 
             // Read the letter body line-by-line and add it to the list of letters
-            for (int i = 6; i < parts.Length; i++)
+            for (int i = 4; i < parts.Length; i++)
             {
                 // Add each line to the stored body
                 sb.Append(parts[i].Trim());
@@ -228,7 +270,7 @@ public class LetterManager : MonoBehaviour
             string message = sb.ToString();
 
             // Send parts for parsing and then add to list of letters
-            ParseAndAddLetter(to, toURL, from, fromURL, message);
+            ParseAndAddLetter(to, from, prerequisiteLetterID, message);
         }
 
         // Update number of remaining letters

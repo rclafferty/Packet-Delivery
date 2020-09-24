@@ -206,7 +206,7 @@ RectTransform:
   - {fileID: 1528002306}
   - {fileID: 1326766303}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -293,7 +293,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &640918924
 GameObject:
@@ -359,7 +359,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &781549492
 GameObject:
@@ -396,7 +396,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 3.503502, y: 5.3}
-  m_SizeDelta: {x: 810.3, y: 678.4}
+  m_SizeDelta: {x: 911.1, y: 784.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &781549494
 MonoBehaviour:
@@ -469,8 +469,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -30.2, y: 0}
-  m_SizeDelta: {x: 60.4, y: 0}
+  m_AnchoredPosition: {x: -0.000045776367, y: 0}
+  m_SizeDelta: {x: -0.000030518, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &819125216
 MonoBehaviour:
@@ -485,7 +485,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -493,9 +493,9 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: b91857de4a480bb44a309b54be8c3816, type: 3}
-    m_FontSize: 25
-    m_FontStyle: 0
+    m_Font: {fileID: 12800000, guid: 52428f930a0eaed4d9901fd9f50f98e0, type: 3}
+    m_FontSize: 26
+    m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 2
     m_MaxSize: 40
@@ -564,7 +564,7 @@ PrefabInstance:
     - target: {fileID: 2770754981935772111, guid: 406c75ac8b0b91848a538aa7369fee44,
         type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2770754981935772111, guid: 406c75ac8b0b91848a538aa7369fee44,
         type: 3}
@@ -618,7 +618,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 3.5, y: 5.299902}
-  m_SizeDelta: {x: 829.8, y: 678.4}
+  m_SizeDelta: {x: 911.11, y: 784.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1319272447
 MonoBehaviour:
@@ -641,8 +641,8 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: b91857de4a480bb44a309b54be8c3816, type: 3}
-    m_FontSize: 22
+    m_Font: {fileID: 12800000, guid: 52428f930a0eaed4d9901fd9f50f98e0, type: 3}
+    m_FontSize: 23
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -653,43 +653,13 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Credits:
-
-
-    Programming, design, gameplay, dialogue and computer UI art were created by Casey
-    Lafferty
-
-
-    Office art:
-
-    https://www.kenney.nl/assets/roguelike-indoors
-
-
-    Lookup Agency and Home art:
-
-    https://opengameart.org/content/office-space-tileset
-
-
-    Outdoor art:
-
-    https://www.kenney.nl/assets/roguelike-modern-city
-
-    https://www.kenney.nl/assets/topdown-shooter
-
-
-    UI Art:
-
-    https://opengameart.org/content/mini-pack-money
-
-    https://opengameart.org/content/old-computer-monitor-screen
-
-    https://opengameart.org/content/open-book-0
-
-
-    Special thank you to the gameplay testers who helped refine this game to its current
-    state and to you, the player, for participating in the study.
-
-'
+  m_Text: "Credits:\n\nProgramming, design, gameplay, dialogue and computer UI art
+    were created by Casey Lafferty\n\nOffice art:\nhttps://www.kenney.nl/assets/roguelike-indoors\n\nLookup
+    Agency and Home art:\nhttps://opengameart.org/content/office-space-tileset\n\nOutdoor
+    art:\nhttps://www.kenney.nl/assets/roguelike-modern-city\nhttps://www.kenney.nl/assets/topdown-shooter\n\nUI
+    Art:\nhttps://opengameart.org/content/mini-pack-money\nhttps://opengameart.org/content/old-computer-monitor-screen\nhttps://opengameart.org/content/open-book-0\nhttps://icons8.com/icons/set/server\n\nFont:\nhttps://www.dafont.com/typewriter-condensed.font\n\nSpecial
+    thank you to the gameplay testers who \nhelped refine this game to its current
+    state and to you, the player, for participating in the study.\n"
 --- !u!222 &1319272448
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -734,8 +704,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 338.48, y: -317.52}
-  m_SizeDelta: {x: 420.85, y: 101.3}
+  m_AnchoredPosition: {x: 693, y: -483}
+  m_SizeDelta: {x: 399.8, y: 73.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1326766304
 MonoBehaviour:
@@ -757,8 +727,8 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0.92156863}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
     m_ColorMultiplier: 1
@@ -803,7 +773,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -952,7 +922,7 @@ PrefabInstance:
     - target: {fileID: 3184944341406544605, guid: ee1e15fc844ae7f48a4eaaaafcd4347e,
         type: 3}
       propertyPath: fadeOut
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ee1e15fc844ae7f48a4eaaaafcd4347e, type: 3}
@@ -993,7 +963,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0.000015259}
-  m_SizeDelta: {x: 1097.8, y: 736.3}
+  m_SizeDelta: {x: 1274.3, y: 867.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1528002307
 MonoBehaviour:

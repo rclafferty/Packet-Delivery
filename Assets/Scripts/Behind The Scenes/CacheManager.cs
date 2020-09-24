@@ -86,7 +86,7 @@ public class CacheManager : MonoBehaviour
         string[] addressDisplayStrings = new string[maxCapacity];
         for (int i = 0; i < maxCapacity; i++)
         {
-            addressDisplayStrings[i] = "Slot " + (i + 1) + ":\nEmpty\n\n";
+            addressDisplayStrings[i] = (i + 1) + ") Empty\n\n";
         }
 
         // Fill in list of cached details
@@ -113,7 +113,7 @@ public class CacheManager : MonoBehaviour
             }
 
             // Add this slot's details to the text
-            addressDisplayStrings[i] = "Slot " + (i + 1) + ":\n" + name + "\n" + neighborhood + "\n" + address;
+            addressDisplayStrings[i] = (i + 1) + ") " + name + "\n" + neighborhood + "\n" + address;
         }
 
         for (int i = 0; i < addressDisplayStrings.Length && i < 3; i++)

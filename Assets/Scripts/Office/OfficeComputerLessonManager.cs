@@ -5,6 +5,7 @@ using UnityEngine;
 public class OfficeComputerLessonManager : MonoBehaviour
 {
     HUDManager hudManager;
+    UpgradeManager upgradeManager;
 
     [SerializeField] GameObject[] uiObjectsToToggle;
     [SerializeField] GameObject addressBookLesson;
@@ -29,6 +30,7 @@ public class OfficeComputerLessonManager : MonoBehaviour
         ReturnToComputer();
 
         hudManager = GameObject.Find("HUD").GetComponent<HUDManager>();
+        upgradeManager = GameObject.Find("UpgradeManager").GetComponent<UpgradeManager>();
 
         currentLesson = Lesson.None;
     }
@@ -189,20 +191,26 @@ public class OfficeComputerLessonManager : MonoBehaviour
 
     public void PurchaseExitTheMatrix()
     {
-        Debug.Log(hasShownExitTheMatrixLesson);
-        if (!hasShownExitTheMatrixLesson)
+        if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
         {
-            ShowNextExitTheMatrixLesson();
-            hasShownExitTheMatrixLesson = true;
+            Debug.Log(hasShownExitTheMatrixLesson);
+            if (!hasShownExitTheMatrixLesson)
+            {
+                ShowNextExitTheMatrixLesson();
+                hasShownExitTheMatrixLesson = true;
+            }
         }
     }
 
     public void PurchaseAddressBook()
     {
-        if (!hasShownAddressBookLesson)
+        if (upgradeManager.HasPurchasedUpgrade("Address Book"))
         {
-            ShowAddressBookLesson();
-            hasShownAddressBookLesson = true;
+            if (!hasShownAddressBookLesson)
+            {
+                ShowAddressBookLesson();
+                hasShownAddressBookLesson = true;
+            }
         }
     }
 }

@@ -1,8 +1,6 @@
 To: Mayor Clark
-To: www.mayor-clark.org
 From: A Concerned Citizen
-From: www.concerned-citizen.com
-Class: Urgent
+Prerequisite: None
 
 Mr. Mayor,
 

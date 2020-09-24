@@ -58,6 +58,9 @@ public class GameplayManager : MonoBehaviour
         // Start with no money -- only get money from deliveries
         Money = 0;
 
+#if UNITY_EDITOR
+#endif
+
         // First outdoor spawn point is outside the office
         lastOutdoorPosition = new Vector2(265, -21.5f);
     }
@@ -68,10 +71,6 @@ public class GameplayManager : MonoBehaviour
 
         // Add event to call OnSceneLoad() every time a scene is changed
         SceneManager.sceneLoaded += OnSceneLoad;
-
-#if UNITY_EDITOR
-        Money = 200;
-#endif
     }
 
     void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)
@@ -137,7 +136,7 @@ public class GameplayManager : MonoBehaviour
         if (HasCurrentTarget())
         {
             // Mark current delivery as completed
-            letterManager.MarkDelivered(CurrentMessage.ID);
+            letterManager.MarkDelivered(CurrentMessage.ID - 1); // IDs are 1 based
 
             // If this is the first delivery
             if (HasStartingLetter)
@@ -187,7 +186,7 @@ public class GameplayManager : MonoBehaviour
         CurrentMessage = letterManager.GetNextLetter();
 
         // Lookup the next lookup agency name
-        string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X') + " Lookup Agency";
+        string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X') + (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? " Server" : " Lookup Agency");
 
         DeliveryInstructions instructions;
 
@@ -248,7 +247,7 @@ public class GameplayManager : MonoBehaviour
             if (isNextStepLookupAgency)
             {
                 // Adjust the displayed next step text 
-                instructions.nextStep += " Lookup Agency";
+                instructions.nextStep += (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? " Server" : " Lookup Agency");
             }
 
             // Store the next delivery steps globaly

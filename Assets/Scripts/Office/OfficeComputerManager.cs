@@ -39,9 +39,13 @@ public class OfficeComputerManager : MonoBehaviour
 
     // Description text for Where Credit is Due
     [SerializeField] Text whereCreditIsDueDescriptionText;
+    [SerializeField] Text whereCreditIsDuePriceText;
 
     // Fade Canvas -- for transitioning to the credits
     [SerializeField] Transition fadeManager;
+
+    [SerializeField] Button addressBookLessonButton;
+    [SerializeField] Button exitTheMatrixLessonButton;
 
     // Flag to indicate if the computer UI is shown
     bool isComputerShown;
@@ -69,6 +73,7 @@ public class OfficeComputerManager : MonoBehaviour
         addressBookPriceText.text = "$" + upgradeManager.GetUpgradeCost("Address Book");
         addressBookSlotPriceText.text = "$" + upgradeManager.GetUpgradeCost("Address Book Slot");
         exitMatrixPriceText.text = "$" + upgradeManager.GetUpgradeCost("Exit the Matrix");
+        whereCreditIsDuePriceText.text = "$" + upgradeManager.GetUpgradeCost("Where Credit is Due");
 
         // The player starts away from the computer
         isAtComputer = false;
@@ -76,6 +81,17 @@ public class OfficeComputerManager : MonoBehaviour
         // Hide computer and logistics buttons
         ToggleDisplayLogisticsButtons(false);
         ToggleComputerCanvas(false);
+
+        // If the player has already purchased the limit
+        if (upgradeManager.GetQuantity("Address Book Slot") == 2)
+        {
+            // Make sure price is marked as "Maxed out" and italicized
+            addressBookSlotPriceText.text = "Maxed Out";
+            addressBookSlotPriceText.fontStyle = FontStyle.Italic;
+
+            // Show on-screen message
+            screenText.gameObject.SetActive(true);
+        }
     }
 
     private void FindManagersInScene()
@@ -212,7 +228,7 @@ public class OfficeComputerManager : MonoBehaviour
             if (gameplayManager.HasCurrentTarget())
             {
                 // Display error message reminding the user of the active delivery
-                systemMessage = "Please complete your current delivery before initiating another.\n";
+                systemMessage = "Please <b>complete your current delivery</b> before initiating another.\n";
             }
             // If there is not an active delivery
             else
@@ -280,7 +296,7 @@ public class OfficeComputerManager : MonoBehaviour
     void DisplayNoActiveDeliveryError()
     {
         // Display error message
-        screenText.text = "You don't currently have an active delivery. Try starting a new request.";
+        screenText.text = "You don't currently have an active delivery. Try <b>starting a new request</b>.";
 
         // Update the HUD
         gameplayManager.ForceUpdateHUD();
@@ -320,7 +336,7 @@ public class OfficeComputerManager : MonoBehaviour
             string nextDisplayDestination = gameplayManager.NextStep.nextStep;
                 
             // Display next location
-            screenText.text = "You should try stopping by the " + nextDisplayDestination + " next";
+            screenText.text = "You should try stopping by the <b>" + nextDisplayDestination + "</b> next";
         }
         else
         {
@@ -360,6 +376,16 @@ public class OfficeComputerManager : MonoBehaviour
             b.gameObject.SetActive(isShown);
         }
 
+        if (upgradeManager.HasPurchasedUpgrade("Exit The Matrix"))
+        {
+            exitTheMatrixLessonButton.gameObject.SetActive(isShown);
+        }
+
+        if (upgradeManager.HasPurchasedUpgrade("Address Book"))
+        {
+            addressBookLessonButton.gameObject.SetActive(isShown);
+        }
+
         // If showing the logistics screen
         if (isShown)
         {
@@ -371,7 +397,7 @@ public class OfficeComputerManager : MonoBehaviour
     public void PurchaseTaskTracker()
     {
         // Task Tracker instructions to display on purchase
-        string instructions = "To use the Task Tracker, press " + HUDManager.TASK_TRACKER_KEY + " to display your current target and your next delivery location.";
+        string instructions = "To use the Task Tracker, <b>press " + HUDManager.TASK_TRACKER_KEY + "</b> to display your current target and your next delivery location.";
 
         // Attempt to purchase the task tracker
         string upgradeTitle = "Task Tracker";
@@ -387,7 +413,7 @@ public class OfficeComputerManager : MonoBehaviour
     public void PurchaseCompanyRunningShoes()
     {
         // Exit the Matrix instructions to display on purchase
-        string instructions = "Boss bought you some running shoes! Hold Left Shift to run faster.";
+        string instructions = "Boss bought you some running shoes! Hold <b>Left Shift</b> to run faster.";
 
         string upgradeTitle = "Company Running Shoes";
 
@@ -403,13 +429,27 @@ public class OfficeComputerManager : MonoBehaviour
         string upgradeTitle = "Exit the Matrix";
 
         // Attempt to purchase the exit the matrix upgrade
-        AttemptPurchaseUpgrade(upgradeTitle, instructions);
+        if (AttemptPurchaseUpgrade(upgradeTitle, instructions))
+        {
+            // Adjust Address Book and Add Address Book Slot names
+            addressBookNameText.text = "DNS Cache";
+            addressBookSlotNameText.text = "Add DNS Cache Slot";
+            
+            // Change description text
+            whereCreditIsDueDescriptionText.text = "End of the Game\nRequires: Task Tracker, " + addressBookNameText.text + ", Exit the Matrix";
+        }
     }
 
     public void PurchaseAddressBook()
     {
+        string addressBookDisplayTitle = "Address Book";
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            addressBookDisplayTitle = "DNS Cache";
+        }
+
         // Address Book instructions to display on purchase
-        string instructions = "To use the Address Book, press " + HUDManager.ADDRESS_BOOK_KEY + " to display the previous delivery locations.";
+        string instructions = "To use the " + addressBookDisplayTitle + ", <b>press " + HUDManager.ADDRESS_BOOK_KEY + "</b> to display the previous delivery locations.";
 
         // Attempt to purchase the task tracker
         string upgradeTitle = "Address Book";
@@ -439,7 +479,7 @@ public class OfficeComputerManager : MonoBehaviour
         if (upgradeManager.GetQuantity(upgradeTitle) == PURCHASE_QUANTITY_LIMIT)
         {
             // Set error message
-            screenText.text = "You cannot add any more slots to your Address Book.";
+            screenText.text = "You cannot add any more slots to your " + requiredUpgrade + ".";
 
             // Make sure price is marked as "Maxed out" and italicized
             addressBookSlotPriceText.text = "Maxed Out";
@@ -478,7 +518,7 @@ public class OfficeComputerManager : MonoBehaviour
         else
         {
             // Set error message
-            screenText.text = "You need the " + requiredUpgrade + " upgrade first."; 
+            screenText.text = "You need the <b>" + requiredUpgrade + "</b> upgrade first."; 
 
             // Show on-screen message
             screenText.gameObject.SetActive(true);
@@ -509,13 +549,13 @@ public class OfficeComputerManager : MonoBehaviour
         }
         else
         {
-            string requiredUpgrade = "Address Book";
+            string requiredCacheUpgradeName = "Address Book";
             if (gameplayManager.HasUpgrade("Exit the Matrix"))
             {
-                requiredUpgrade = "DNS Cache";
+                requiredCacheUpgradeName = "DNS Cache";
             }
 
-            screenText.text = "You must first purchase the Task Tracker, the " + requiredUpgrade + ", and the Exit the Matrix upgrades.";
+            screenText.text = "You must first purchase the <b>Task Tracker</b>, the <b>" + requiredCacheUpgradeName + "</b>, and the <b>Exit the Matrix</b> upgrades.";
 
             // Show on-screen message
             screenText.gameObject.SetActive(true);
@@ -535,6 +575,15 @@ public class OfficeComputerManager : MonoBehaviour
             if (hasExitedTheMatrix)
             {
                 upgradeName = "DNS Cache";
+            }
+        }
+        else if (upgradeTitle.ToLower() == "address book slot")
+        {
+            bool hasExitedTheMatrix = gameplayManager.HasUpgrade("Exit the Matrix");
+            upgradeName = "Address Book";
+            if (hasExitedTheMatrix)
+            {
+                upgradeName = "DNS Cache Slot";
             }
         }
         else

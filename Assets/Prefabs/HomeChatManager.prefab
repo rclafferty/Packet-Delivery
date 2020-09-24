@@ -49,3 +49,10 @@ MonoBehaviour:
   option1Text: {fileID: 0}
   option2Button: {fileID: 0}
   option2Text: {fileID: 0}
+  moneyParent: {fileID: 0}
+  moneySpriteObject: {fileID: 0}
+  npcSpriteRenderer: {fileID: 0}
+  npcMaleSprites: []
+  npcFemaleSprites: []
+  isMaleRecipientIndex: 01000001000101010001010100010101000101010101010001000000010101010100
+  fadeTransitionObject: {fileID: 0}

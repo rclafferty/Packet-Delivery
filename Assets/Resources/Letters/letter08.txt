@@ -1,8 +1,6 @@
 To: Carl Landry
-To: www.carl-landry.com
 From: Arnold Petry
-From: www.arnold-petry.net
-Class: Normal
+Prerequisite: None
 
 Mr. Landry:
 

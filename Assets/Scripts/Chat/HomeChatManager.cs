@@ -169,9 +169,9 @@ public class HomeChatManager : MonoBehaviour
     private void Success()
     {
         // Recipient: "Thank you for my package"
-        chatTextMessage = "Thank you very much!";
-        option1Message = "Enjoy!";
-        option2Message = "";
+        chatTextMessage = "Thank you very much! Here is your <b>$10</b>.";
+        option1Message = "";
+        option2Message = "Enjoy!";
 
         // "You're welcome" / "Enjoy!"
         option1Action = delegate
@@ -184,22 +184,13 @@ public class HomeChatManager : MonoBehaviour
 
             // Mark as delivered
             gameplayManager.CompleteTask();
-
+            
             // Money animation
             moneySpriteObject.GetComponent<Animator>().SetTrigger("Pay Money");
         };
-        // For redundancy in case the player is able to press the 2nd button
-        option2Action = delegate
-        {
-            // Say goodbye
-            DepartDialogue();
 
-            // Update UI
-            DisplayText();
-
-            // Mark as delivered
-            gameplayManager.CompleteTask();
-        };
+        // For redundancy -- They're both the same action, but only one should be enabled
+        option2Action = option1Action;
     }
 
     [System.Obsolete("Instead, change to UI notification BEFORE entering house.")]
@@ -207,8 +198,8 @@ public class HomeChatManager : MonoBehaviour
     {
         // Display some error message in chat
         chatTextMessage = "I wasn't expecting a package.";
-        option1Message = "Sorry. I must have the wrong house.";
-        option2Message = "";
+        option1Message = "";
+        option2Message = "Sorry. I must have the wrong house.";
 
         // "Sorry, wrong house"
         option1Action = delegate {
@@ -218,7 +209,7 @@ public class HomeChatManager : MonoBehaviour
             // Update UI
             DisplayText();
         };
-        // For redundancy in case the player is able to press the 2nd button
+        // For redundancy -- They're both the same action, but only one should be enabled
         option2Action = delegate {
             // Say goodbye
             DepartDialogue();
@@ -313,8 +304,8 @@ public class HomeChatManager : MonoBehaviour
     {
         // Say goodbye
         chatTextMessage = "Have a good day!";
-        option1Message = "Bye.";
-        option2Message = "";
+        option1Message = "";
+        option2Message = "Bye.";
 
         // Make both buttons redirect to town
         option1Action = delegate { GoToTown(); };

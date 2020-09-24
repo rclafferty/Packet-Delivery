@@ -1,8 +1,6 @@
 To: Parker Lan
-To: www.parker-lan.net
 From: Carter Xen
-From: www.carter-xen.net
-Class: Normal
+Prerequisite: 11
 
 Dear Parker,
 

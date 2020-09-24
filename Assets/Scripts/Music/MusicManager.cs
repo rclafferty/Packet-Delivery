@@ -80,13 +80,13 @@ public class MusicManager : MonoBehaviour
         get
         {
             float volume = musicSource.volume;
-            Debug.Log("Music at " + volume + "% volume");
+            // Debug.Log("Music at " + volume + "% volume");
             return volume;
         }
         set
         {
             musicSource.volume = value;
-            Debug.Log("Music now set to " + value + "% volume");
+            // Debug.Log("Music now set to " + value + "% volume");
         }
     }
 }

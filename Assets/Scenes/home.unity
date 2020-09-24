@@ -249,8 +249,8 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: b91857de4a480bb44a309b54be8c3816, type: 3}
-    m_FontSize: 28
+    m_Font: {fileID: 12800000, guid: 52428f930a0eaed4d9901fd9f50f98e0, type: 3}
+    m_FontSize: 35
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -453,8 +453,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 31.199951, y: 106.70001}
-  m_SizeDelta: {x: -526.9, y: 214.4}
+  m_AnchoredPosition: {x: 31.025024, y: 106.70001}
+  m_SizeDelta: {x: -487.95, y: 214.4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &344920235
 MonoBehaviour:
@@ -528,7 +528,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: -0.79999924, y: 24.2}
-  m_SizeDelta: {x: 1250.7, y: 51.6}
+  m_SizeDelta: {x: 1300.1, y: 51.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &496563282
 MonoBehaviour:
@@ -757,8 +757,8 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: b91857de4a480bb44a309b54be8c3816, type: 3}
-    m_FontSize: 28
+    m_Font: {fileID: 12800000, guid: 52428f930a0eaed4d9901fd9f50f98e0, type: 3}
+    m_FontSize: 35
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -1185,9 +1185,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fade Canvas
       objectReference: {fileID: 0}
-    - target: {fileID: 6326347056705145763, guid: ee1e15fc844ae7f48a4eaaaafcd4347e,
+    - target: {fileID: 6326347057699122904, guid: ee1e15fc844ae7f48a4eaaaafcd4347e,
         type: 3}
-      propertyPath: m_Enabled
+      propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6326347057699122908, guid: ee1e15fc844ae7f48a4eaaaafcd4347e,
@@ -1294,6 +1294,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6326347056705145763, guid: ee1e15fc844ae7f48a4eaaaafcd4347e,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ee1e15fc844ae7f48a4eaaaafcd4347e, type: 3}
@@ -1999,7 +2004,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: -0.79999924, y: -27.400002}
-  m_SizeDelta: {x: 1250.7, y: 51.6}
+  m_SizeDelta: {x: 1300.1, y: 51.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1511173989
 MonoBehaviour:
@@ -2230,8 +2235,8 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: b91857de4a480bb44a309b54be8c3816, type: 3}
-    m_FontSize: 28
+    m_Font: {fileID: 12800000, guid: 52428f930a0eaed4d9901fd9f50f98e0, type: 3}
+    m_FontSize: 35
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -2650,11 +2655,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
         type: 3}
-      propertyPath: isMaleRecipientIndex.Array.size
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
       propertyPath: eventSystem
       value: 
       objectReference: {fileID: 204124475}
@@ -2730,56 +2730,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300696, guid: 3aa47f09b7ba06d41b5fa8689b6f50c6,
         type: 3}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
-      propertyPath: isMaleRecipientIndex.Array.data[0]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
-      propertyPath: isMaleRecipientIndex.Array.data[3]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
-      propertyPath: isMaleRecipientIndex.Array.data[5]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
-      propertyPath: isMaleRecipientIndex.Array.data[6]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
-      propertyPath: isMaleRecipientIndex.Array.data[7]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
-      propertyPath: isMaleRecipientIndex.Array.data[9]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
-      propertyPath: isMaleRecipientIndex.Array.data[10]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
-      propertyPath: isMaleRecipientIndex.Array.data[11]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
-      propertyPath: isMaleRecipientIndex.Array.data[13]
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
-        type: 3}
-      propertyPath: isMaleRecipientIndex.Array.data[14]
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7803841393669974972, guid: c18b9f96a6e28e84ebded972e288c166,
         type: 3}
       propertyPath: npcSpriteRenderer

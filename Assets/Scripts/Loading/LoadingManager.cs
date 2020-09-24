@@ -70,7 +70,7 @@ public class LoadingManager : MonoBehaviour
         upgradeManager.AddUpgrade("Address Book", 20, isRepeatable: false);
         upgradeManager.AddUpgrade("Address Book Slot", 10, isRepeatable: true);
         upgradeManager.AddUpgrade("Exit the Matrix", 30, isRepeatable: false);
-        upgradeManager.AddUpgrade("Where Credit is Due", 20, isRepeatable: false);
+        upgradeManager.AddUpgrade("Where Credit is Due", 30, isRepeatable: false);
 
         // Add Start Scene Loader's method to list of scene change events
         SceneManager.sceneLoaded += startSceneLoader.OnSceneWasLoaded;

@@ -1,8 +1,6 @@
 To: Rebecca Lee
-To: www.rebecca-lee.com
 From: Carrie Lee
-From: www.carrie-lee.com
-Class: Normal
+Prerequisite: None
 
 Hi mom!
 

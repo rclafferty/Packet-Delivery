@@ -1,8 +1,6 @@
 To: Penny Cart
-To: www.penny-cart.net
 From: Aaron Den
-From: www.aaron-den.net
-Class: Normal
+Prerequisite: None
 
 Hi Neighbor!
 

@@ -1,8 +1,6 @@
 To: Doug Parsen
-To: www.doug-parsen.com
 From: Tanner Parsen
-From: www.tanner-parsen.com
-Class: Expedited
+Prerequisite: None
 
 Hi Uncle Doug,
 

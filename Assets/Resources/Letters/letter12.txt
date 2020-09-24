@@ -1,8 +1,6 @@
 To: Larry Sand
-To: www.larry-sand.net
 From: Barry Sand
-From: www.barry-sand.net
-Class: Normal
+Prerequisite: None
 
 Hi dad!
 

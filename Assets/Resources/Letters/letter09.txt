@@ -1,8 +1,6 @@
 To: Sally Atkins
-To: www.sally-atkins.org
 From: Patrick Lark
-From: www.patrick-lark.org
-Class: Normal
+Prerequisite: None
 
 Mrs. Atkins:
 

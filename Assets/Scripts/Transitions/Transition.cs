@@ -21,7 +21,7 @@ public class Transition : MonoBehaviour
     LevelManager levelManager;
 
     // Time to complete the fade
-    static readonly float FADE_DURATION = 0.25f;
+    static readonly float FADE_DURATION = 0.5f;
 
     // This residence's IP address (if applicable)
     [SerializeField] string ipAddress;
@@ -349,7 +349,7 @@ public class Transition : MonoBehaviour
     public void FadeMethod(string scene)
     {
         // Use the transition coroutine to fade
-        Debug.Log("Transitioning to " + scene);
+        // Debug.Log("Transitioning to " + scene);
         StartCoroutine(TransitionToScene(0, 1, FADE_DURATION, scene));
     }
 }

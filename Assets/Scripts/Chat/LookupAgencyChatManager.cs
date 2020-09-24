@@ -19,6 +19,7 @@ public class LookupAgencyChatManager : MonoBehaviour
     // Necessary manager references
     [SerializeField] GameplayManager gameplayManager;
     [SerializeField] LookupAgencyManager lookupAgencyManager;
+    UpgradeManager upgradeManager;
 
     // List of people in this lookup agency's domain
     public List<Person> listOfPeople;
@@ -81,7 +82,7 @@ public class LookupAgencyChatManager : MonoBehaviour
         StartDialogue();
 
         // Set greeting for first interaction
-        chatTextMessage = "Welcome to the " + lookupAgencyManager.GetNeighborhoodNameFromID(neighborhoodID) + " Lookup Agency. " + chatTextMessage;
+        chatTextMessage = "Welcome to the " + lookupAgencyManager.GetNeighborhoodNameFromID(neighborhoodID) + (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? " DNS Server" : " Lookup Agency") + ". " + chatTextMessage;
 
         // Update the UI
         DisplayText();
@@ -109,6 +110,7 @@ public class LookupAgencyChatManager : MonoBehaviour
         // Persistent objects -- must look up at runtime
         gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
         lookupAgencyManager = GameObject.Find("LookupAgencyManager").GetComponent<LookupAgencyManager>();
+        upgradeManager = GameObject.Find("UpgradeManager").GetComponent<UpgradeManager>();
     }
 
     public void GatherListOfPeople()
@@ -299,6 +301,7 @@ public class LookupAgencyChatManager : MonoBehaviour
         ToggleInputField(false);
         
         string targetName = "";
+        string targetDescription_Lives = "";
         string targetDescription = "";
         Person thisPersonProfile = null;
 
@@ -307,13 +310,15 @@ public class LookupAgencyChatManager : MonoBehaviour
         {
             // Reference the recipient's URL
             targetName = gameplayManager.CurrentMessage.Recipient.URL;
-            targetDescription = "website is";
+            targetDescription = "website";
+            targetDescription_Lives = "website is";
         }
         else
         {
             // Reference the recipient's name
             targetName = gameplayManager.CurrentMessage.Recipient.Name;
-            targetDescription = "person lives";
+            targetDescription = "person";
+            targetDescription_Lives = "person lives";
         }
 
         // If the input name matches the target message
@@ -326,7 +331,7 @@ public class LookupAgencyChatManager : MonoBehaviour
             if (thisPersonProfile == null)
             {
                 // Hint at possible cause for not finding the person
-                chatTextMessage = "Hmm... I don't know that person. Did you spell the name correctly?";
+                chatTextMessage = "Hmm... I don't know that " + targetDescription + ". Did you spell the name correctly?";
                 option1Message = "Let me try again.";
                 option2Message = "I'll check and come back.";
 
@@ -353,12 +358,13 @@ public class LookupAgencyChatManager : MonoBehaviour
                 if (neighborhoodID == 'X')
                 {
                     // Find next location
-                    string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID);
+                    string nextLocationForTaskTracker = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID);
+                    string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID, forcePreExit: true, forcePostExit: false);
 
                     // Tell the player where to go
-                    chatTextMessage = "It seems that " + targetDescription + " at <b>" + nextLocation + "</b>. Check with their Lookup Agency office for more specific details.";
-                    option1Message = "Thanks!";
-                    option2Message = "";
+                    chatTextMessage = "It seems that " + targetDescription_Lives + " at <b>" + nextLocation + "</b>. Check with their " + (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? "DNS Server" : "Lookup Agency office") + " for more specific details.";
+                    option1Message = "";
+                    option2Message = "Thanks!";
 
                     // "Thanks"
                     option1Action = delegate
@@ -375,7 +381,7 @@ public class LookupAgencyChatManager : MonoBehaviour
 
                     // Store next step instructions
                     GameplayManager.DeliveryInstructions nextInstructions;
-                    nextInstructions.nextStep = nextLocation + " Lookup Agency";
+                    nextInstructions.nextStep = nextLocationForTaskTracker + (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? " DNS Server" : " Lookup Agency");
                     nextInstructions.neighborhoodID = thisPersonProfile.NeighborhoodID;
 
                     // If the player has purchased the "Exit the Matrix" upgrade
@@ -400,9 +406,9 @@ public class LookupAgencyChatManager : MonoBehaviour
                     string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID);
 
                     // Tell the player the residence number
-                    chatTextMessage = "That person lives at <b>Residence #" + thisPersonProfile.HouseNumber + "</b>.";
-                    option1Message = "Thanks!";
-                    option2Message = "";
+                    chatTextMessage = "That " + targetDescription_Lives + " at <b>Residence #" + thisPersonProfile.HouseNumber + "</b>.";
+                    option1Message = "";
+                    option2Message = "Thanks!";
 
                     // "Thanks"
                     option1Action = delegate
@@ -431,7 +437,7 @@ public class LookupAgencyChatManager : MonoBehaviour
                         nextInstructions.nextStep = AddressManager.DetermineIPFromHouseInfo(thisPersonProfile.HouseNumber, thisPersonProfile.NeighborhoodID);
 
                         // Adjust the message to the player to reflect the IP instead of the house number
-                        chatTextMessage = "That person lives at <b>" + nextInstructions.nextStep + "</b>.";
+                        chatTextMessage = "That " + targetDescription_Lives + " at <b>" + nextInstructions.nextStep + "</b>.";
                     }
                     else
                     {
@@ -451,7 +457,7 @@ public class LookupAgencyChatManager : MonoBehaviour
         else
         {
             // Tell the player it doesn't match
-            chatTextMessage = "Hmm... That's not the person written on your package. Who is it again that you're looking for?";
+            chatTextMessage = "Hmm... That's not the " + targetDescription + " written on your package. Who is it again that you're looking for?";
             option1Message = "Let me try again.";
             option2Message = "I'll check and come back.";
 
@@ -486,9 +492,9 @@ public class LookupAgencyChatManager : MonoBehaviour
     {
         // Incorrect place
         string centralLookupLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X');
-        chatTextMessage = "Hmm... I'm not sure you're in the right spot. Check the Lookup Agency in <b>" + centralLookupLocation + "</b> for your next steps.";
-        option1Message = "I'll do that.";
-        option2Message = "";
+        chatTextMessage = "Hmm... I'm not sure you're in the right spot. Check the " + (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? "DNS Server" : "Lookup Agency") + " in <b>" + centralLookupLocation + "</b> for your next steps.";
+        option1Message = "";
+        option2Message = "I'll do that.";
 
         // "I'll go to the right place"
         option1Action = delegate
@@ -575,8 +581,8 @@ public class LookupAgencyChatManager : MonoBehaviour
     {
         // Say goodbye
         chatTextMessage = "Come back soon!";
-        option1Message = "Bye.";
-        option2Message = "";
+        option1Message = "";
+        option2Message = "Bye.";
 
         // Make both buttons redirect to twon
         option1Action = delegate { GoToTown(); };

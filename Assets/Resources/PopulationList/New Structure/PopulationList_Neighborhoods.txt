@@ -1,25 +1,50 @@
-Doug Parsen, www.doug-parsen.com, C, 401
-Rebecca Lee, www.rebecca-lee.com, C, 203
-Sarah House, www.sarah-house.com, C, 302
-Alex House, www.alex-house.com, C, 104
-Carl Landry, www.carl-landry.com, C, 101
-Mayor Clark, www.mayor-clark.org, O, 203
-Miss Daily, www.miss-daily.org, O, 301
-Dan Berry, www.dan-berry.org, O, 101
-Sally Atkins, www.sally-atkins.org, O, 304
-Alan Merr, www.alan-merr.org, O, 403
-Carter Xen, www.carter-xen.net, N, 102
-Larry Sand, www.larry-sand.net, N, 304
-Penny Cart, www.penny-cart.net, N, 401
-Parker Lan, www.parker-lan.net, N, 203
-Aaron Den, www.aaron-den.net, N, 302
-Tanner Parsen, www.tanner-parsen.com, X, 0
-Cindy Cook, www.cindy-cook.com, X, 0
-Carrie Lee, www.carrie-lee.com, X, 0
-A Concerned Citizen, www.concerned-citizen.com, X, 0
-Jack Stone, www.jack-stone.net, X, 0
-Banking International, www.banking-international.org, X, 0
-Arnold Petry, www.arnold-petry.net, X, 0
-Patrick Lark, www.patrick-lark.org, X, 0
-Arthur Penn, www.arthur-penn.com, X, 0
-Barry Sand, www.barry-sand.net, X, 0
+Carl Landry, C, 101
+Harvey Leblanc, C, 102
+Eliza Bonta, C, 103
+Alex House, C, 104
+Uzair Nixon, C, 202
+Rebecca Lee, C, 203
+Sommer Fulton, C, 204
+Stephen Tanner, C, 301
+Sarah House, C, 302
+Doug Parsen, C, 401
+Meadow Allman, C, 402
+Anayah Conway, C, 403
+Maha Fitzpatrick, C, 404
+Dan Berry, O, 101
+Efa Robins, O, 104
+Kelsea Monaghan, O, 201
+Joe Hayward, O, 202
+Mayor Clark, O, 203
+Sahar Calvert, O, 204
+Lisa Daily, O, 301
+Rudi Bloom, O, 302
+Dean Amos, O, 303
+Sally Atkins, O, 304
+Jason Thompson, O, 401
+Alan Merr, O, 403
+Tahla Fowler, O, 404
+Aqeel Webber, N, 101
+Carter Xen, N, 102
+Mikael Summers, N, 103
+Tyler Rodgers, N, 104
+Sylas Lerch, N, 202
+Parker Lan, N, 203
+Arjan Rodrigues, N, 204
+Aaron Den, N, 302
+Tony Edge, N, 303
+Larry Sand, N, 304
+Penny Cart, N, 401
+Wahleed Milner, N, 402
+Theia Neale, N, 403
+Brittany Barr, N, 404
+Tanner Parsen, C, 0
+Cindy Cook, C, 0
+Carrie Lee, C, 0
+A Concerned Citizen, C, 0
+Jack Stone, N, 0
+Banking International, O, 0
+Arnold Petry, N, 0
+Patrick Lark, O, 0
+Arthur Penn, C, 0
+Barry Sand, N, 0

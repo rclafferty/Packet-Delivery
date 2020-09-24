@@ -2,7 +2,7 @@ Speaker: Boss
 
 We've had an influx of delivery requests lately. I need you to focus on delivering as many of the letters as possible.
 Yes sir!
-However, the addresses on these letters are a little unclear. The Root Village Lookup Agency should be able to help you figure out where these people live.
+However, the addresses on these letters are a little unclear. The <b>Root Village Lookup Agency</b> should be able to help you figure out where these people live.
 Sounds like a plan.
 These delivery requests also need to be logged in the computers. That way you can look at the request status for hints if you get stuck. Go ahead and start the first one.
 Understood. I will do that.

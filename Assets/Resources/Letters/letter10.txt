@@ -1,8 +1,6 @@
 To: Alan Merr
-To: www.alan-merr.org
 From: Arthur Penn
-From: www.arthur-penn.com
-Class: Normal
+Prerequisite: None
 
 Dear Neighbor,
 

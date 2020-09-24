@@ -1,8 +1,6 @@
 To: Alex House
-To: www.alex-house.com
 From: Banking International
-From: www.banking-international.org
-Class: Normal
+Prerequisite: 5
 
 Mr. House:
 
