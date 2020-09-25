@@ -395,7 +395,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 3.503502, y: 5.3}
+  m_AnchoredPosition: {x: 3.503502, y: 5.2999}
   m_SizeDelta: {x: 911.1, y: 784.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &781549494
@@ -642,7 +642,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: 52428f930a0eaed4d9901fd9f50f98e0, type: 3}
-    m_FontSize: 23
+    m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -653,13 +653,56 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Credits:\n\nProgramming, design, gameplay, dialogue and computer UI art
-    were created by Casey Lafferty\n\nOffice art:\nhttps://www.kenney.nl/assets/roguelike-indoors\n\nLookup
-    Agency and Home art:\nhttps://opengameart.org/content/office-space-tileset\n\nOutdoor
-    art:\nhttps://www.kenney.nl/assets/roguelike-modern-city\nhttps://www.kenney.nl/assets/topdown-shooter\n\nUI
-    Art:\nhttps://opengameart.org/content/mini-pack-money\nhttps://opengameart.org/content/old-computer-monitor-screen\nhttps://opengameart.org/content/open-book-0\nhttps://icons8.com/icons/set/server\n\nFont:\nhttps://www.dafont.com/typewriter-condensed.font\n\nSpecial
-    thank you to the gameplay testers who \nhelped refine this game to its current
-    state and to you, the player, for participating in the study.\n"
+  m_Text: 'Credits:
+
+
+    Programming, design, gameplay, dialogue, and computer UI art were created by Casey
+    Lafferty
+
+
+    Office art:
+
+    https://www.kenney.nl/assets/roguelike-indoors
+
+
+    Lookup Agency and Home art:
+
+    https://opengameart.org/content/office-space-tileset
+
+
+    Outdoor art:
+
+    https://www.kenney.nl/assets/roguelike-modern-city
+
+    https://www.kenney.nl/assets/topdown-shooter
+
+
+    UI Art:
+
+    https://opengameart.org/content/mini-pack-money
+
+    https://opengameart.org/content/old-computer-monitor-screen
+
+    https://opengameart.org/content/open-book-0
+
+    https://icons8.com/icons/set/server
+
+
+    Font:
+
+    https://www.dafont.com/typewriter-condensed.font
+
+
+    Advisor: Dr. Shruti Bolman
+
+
+    I''d like to give a special thank you to Molly Lee, Alan Mason, Matt Rodriguez,
+    Justin Ayers, Ian Meister, Alisa Khieu, Tasha Ratzlaff, and Reggie Bolman for
+    their help in refining this game to its current state.
+
+
+    Also, I''d like to give a special thanks to you, the player, for participating
+    in the study.'
 --- !u!222 &1319272448
 CanvasRenderer:
   m_ObjectHideFlags: 0
