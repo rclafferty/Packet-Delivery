@@ -1,0 +1,5387 @@
+/* File: AddressManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using UnityEngine;
+using UnityEngine.UI;
+
+public class AddressManager : MonoBehaviour
+{
+    // Necessary manager references
+    GameplayManager gameplayManager;
+
+    // All house objects in the scene
+    [SerializeField] House[] houseObjects;
+
+    // All lookup agency labels in the scene
+    [SerializeField] Text rootLookupAgencyLabel;
+    [SerializeField] Text comLookupAgencyLabel;
+    [SerializeField] Text netLookupAgencyLabel;
+    [SerializeField] Text orgLookupAgencyLabel;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        // Find the Gameplay Manager
+        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+
+        // If the player has already purchased the "Exit the Matrix" upgrade
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            // Change all house to IP addresses
+            ExitTheMatrix();
+        }
+    }
+
+    public void ExitTheMatrix()
+    {
+        // Change all house numbers to IP addresses
+        for (int i = 0; i < houseObjects.Length; i++)
+        {
+            // If the ip address is missing
+            if (string.IsNullOrEmpty(houseObjects[i].ipAddress))
+            {
+                // Calculate it based on the name and neighborhood
+                string neighborhood = houseObjects[i].name.Split(' ')[1];
+
+                int index = 0;
+
+                // If in the COM neighborhood
+                if (neighborhood == "COM")
+                {
+                    // ASCII value for 'C' (for simplicity)
+                    index = 67;
+                }
+                // If in the NET neighborhood
+                else if (neighborhood == "NET")
+                {
+                    // ASCII value for 'N' (for simplicity)
+                    index = 78;
+                }
+                // If in the ORG neighborhood
+                else if (neighborhood == "ORG")
+                {
+                    // ASCII value for 'O' (for simplicity)
+                    index = 79;
+                }
+
+                // Calculate the IP from the house number and above neighborhood information
+                int residenceNumber = System.Convert.ToInt32(houseObjects[i].residenceNumber);
+                string ip = AddressManager.DetermineIPFromHouseInfo(residenceNumber, neighborhood[0]);
+
+                // Set the IP
+                houseObjects[i].ipAddress = ip;
+            }
+
+            // Display the house's IP
+            houseObjects[i].residenceText.text = houseObjects[i].ipAddress;
+        }
+
+        // Change the Lookup Agency names
+        rootLookupAgencyLabel.text = "Root DNS Server";
+        comLookupAgencyLabel.text = "COM Top-Level Domain DNS Server";
+        netLookupAgencyLabel.text = "NET Top-Level Domain DNS Server";
+        orgLookupAgencyLabel.text = "ORG Top-Level Domain DNS Server";
+    }
+
+    public static string DetermineIPFromHouseInfo(int houseNumber, char neighborhoodID)
+    {
+        int index = (char)neighborhoodID;
+
+        // If in House 102, in group 1. If in House 203, in group 2, etc.
+        int group = houseNumber / 100;
+
+        // Piece together arbitrary IP
+        string ip = "192." + index.ToString() + "." + group.ToString() + "." + houseNumber;
+
+        return ip;
+    }
+}
+
+using UnityEngine;
+using UnityEngine.UI;
+
+public class House : MonoBehaviour
+{
+    [SerializeField] public Text residenceText;
+    [SerializeField] public string residenceNumber;
+    [SerializeField] public string ipAddress;
+}
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class BillboardManager : MonoBehaviour
+{
+    [SerializeField] TextAsset billboardTipsTextAsset;
+    [SerializeField] Text[] billboards;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        Randomize();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    void Randomize()
+    {
+        // Assuming length of tips >= length of billboards
+
+        string[] billboardTips = billboardTipsTextAsset.text.Split('\n');
+        bool[] tipIsUsed = new bool[billboardTips.Length];
+        for (int i = 0; i < tipIsUsed.Length; i++)
+        {
+            tipIsUsed[i] = false;
+        }
+
+        foreach (Text billboard in billboards)
+        {
+            int randomTipIndex = -1;// Random.Range(0, billboardTips.Length);
+
+            do
+            {
+                randomTipIndex = Random.Range(0, billboardTips.Length);
+                if (tipIsUsed[randomTipIndex])
+                {
+                    randomTipIndex = -1;
+                    continue;
+                }
+            } while (randomTipIndex == -1);
+
+            tipIsUsed[randomTipIndex] = true;
+            billboard.text = billboardTips[randomTipIndex];
+        }
+    }
+}
+/* File: CacheManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using Assets.Scripts.Lookup_Agencies;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class CacheManager : MonoBehaviour
+{
+    // Cache Manager singleton instance
+    static CacheManager instance = null;
+
+    // Gameplay manager reference
+    [SerializeField] GameplayManager gameplayManager;
+
+    // List of people and their relative details
+    List<Person> listOfCachedDetails;
+
+    // Starting capacity = 3
+    public int maxCapacity = 3;
+
+    private void Awake()
+    {
+        // If not the first instance of CacheManager
+        if (instance != null)
+        {
+            // Only need one --> Delete
+            Destroy(gameObject);
+            return;
+        }
+
+        // Set the singleton as this instance
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+    
+    void Start()
+    {
+        listOfCachedDetails = new List<Person>();
+    }
+
+    public void AddAddress(Person resident)
+    {
+        // If person is NOT already cached
+        if (!IsPersonCached(resident))
+        {
+            // If the cache is at max capacity
+            if (listOfCachedDetails.Count == maxCapacity)
+            {
+                // Remove the oldest cached details
+                listOfCachedDetails.RemoveAt(0);
+            }
+
+            // Add the newest details to cache
+            listOfCachedDetails.Add(resident);
+
+            // Update the HUD
+            gameplayManager.ForceUpdateHUD();
+        }
+    }
+
+    public void AddOneSlot()
+    {
+        // Add one to the max capacity
+        maxCapacity++;
+    }
+
+    void DisplayCachedAddressesTogether(string heading1, string heading2, Text uiText1, Text uiText2)
+    {
+        // If the list of details is invalid
+        if (listOfCachedDetails == null)
+            return;
+
+        // Set address book header text
+        uiText1.text = heading1 + "\n\n";
+        uiText2.text = heading2 + "\n\n";
+
+        string name = "";
+        string neighborhood = "";
+        string address = "-1";
+
+        // Set default strings
+        string[] addressDisplayStrings = new string[maxCapacity];
+        for (int i = 0; i < maxCapacity; i++)
+        {
+            addressDisplayStrings[i] = (i + 1) + ") Empty\n\n";
+        }
+
+        // Fill in list of cached details
+        for (int i = 0; i < listOfCachedDetails.Count; i++)
+        {
+            neighborhood = listOfCachedDetails[i].Neighborhood;
+
+            // If the player has the Exit the Matrix upgrade
+            if (gameplayManager.HasUpgrade("Exit the Matrix"))
+            {
+                // Reference the recipient's URL
+                name = listOfCachedDetails[i].URL;
+
+                // Reference the recipient's IP address
+                address = AddressManager.DetermineIPFromHouseInfo(listOfCachedDetails[i].HouseNumber, listOfCachedDetails[i].NeighborhoodID);
+            }
+            else
+            {
+                // Reference the recipient's name
+                name = listOfCachedDetails[i].Name;
+
+                // Reference the recipient's house number
+                address = listOfCachedDetails[i].HouseNumber.ToString();
+            }
+
+            // Add this slot's details to the text
+            addressDisplayStrings[i] = (i + 1) + ") " + name + "\n" + neighborhood + "\n" + address;
+        }
+
+        for (int i = 0; i < addressDisplayStrings.Length && i < 3; i++)
+        {
+            uiText1.text += addressDisplayStrings[i] + "\n\n";
+        }
+
+        for (int i = 3; i < addressDisplayStrings.Length && i < 5; i++)
+        {
+            uiText2.text += addressDisplayStrings[i] + "\n\n";
+        }
+    }
+
+    /*
+    void DisplayCachedAddressesByPart(string heading, Text uiText, int startIndex, int endIndex)
+    {
+        // If the list of details is invalid
+        if (listOfCachedDetails == null)
+            return;
+        
+        // Set address book header text
+        uiText.text = heading;
+
+        string name = "";
+        string neighborhood = "";
+        string address = "-1";
+
+        int minIndex = Mathf.Min(listOfCachedDetails.Count, endIndex + 1);
+        
+        for (int i = startIndex; i < minIndex; i++)
+        {
+            uiText.text += "\n\n";
+
+            neighborhood = listOfCachedDetails[i].Neighborhood;
+
+            // If the player has the Exit the Matrix upgrade
+            if (gameplayManager.HasUpgrade("Exit the Matrix"))
+            {
+                // Reference the recipient's URL
+                name = listOfCachedDetails[i].URL;
+
+                // Reference the recipient's IP address
+                address = AddressManager.DetermineIPFromHouseInfo(listOfCachedDetails[i].HouseNumber, listOfCachedDetails[i].NeighborhoodID);
+            }
+            else
+            {
+                // Reference the recipient's name
+                name = listOfCachedDetails[i].Name;
+
+                // Reference the recipient's house number
+                address = listOfCachedDetails[i].HouseNumber.ToString();
+            }
+
+            // Add this slot's details to the text
+            uiText.text += (i + 1) + ") " + name + "\n" + neighborhood + "\n" + address;
+        }
+
+        int minEmptyIndex = Mathf.Min(maxCapacity, endIndex + 1);
+
+        // For any empty slots
+        for (int i = startIndex; i < minEmptyIndex; i++)
+        {
+            // Display "Empty"
+            uiText.text += "\n\n" + (i + 1) + ") Empty";
+        }
+    }
+    */
+
+    public void DisplayCachedAddressesInTwoParts(Text uiText1, Text uiText2)
+    {
+        // DisplayCachedAddressesByPart("Cached Addresses:", uiText1, 0, 2);
+        // DisplayCachedAddressesByPart("", uiText2, 3, 4);
+        DisplayCachedAddressesTogether("Cached Addresses:", "", uiText1, uiText2);
+    }
+
+    /*
+    public void DisplayCachedAddresses(Text uiText)
+    {
+        // If the list of details is invalid
+        if (listOfCachedDetails == null)
+            return;
+        
+        // Set address book header text
+        uiText.text = "Cached Addresses:";
+
+        string name = "";
+        string neighborhood = "";
+        string address = "-1";
+
+        // Display all cached details
+        for (int i = 0; i < listOfCachedDetails.Count; i++)
+        {
+            uiText.text += "\n\n";
+            
+            neighborhood = listOfCachedDetails[i].Neighborhood;
+
+            // If the player has the Exit the Matrix upgrade
+            if (gameplayManager.HasUpgrade("Exit the Matrix"))
+            {
+                // Reference the recipient's URL
+                name = listOfCachedDetails[i].URL;
+
+                // Reference the recipient's IP address
+                address = AddressManager.DetermineIPFromHouseInfo(listOfCachedDetails[i].HouseNumber, listOfCachedDetails[i].NeighborhoodID);
+            }
+            else
+            {
+                // Reference the recipient's name
+                name = listOfCachedDetails[i].Name;
+
+                // Reference the recipient's house number
+                address = listOfCachedDetails[i].HouseNumber.ToString();
+            }
+
+            // Add this slot's details to the text
+            uiText.text += (i + 1) + ") " + name + "\n" + neighborhood + "\n" + address;
+        }
+
+        // For any empty slots
+        for (int i = listOfCachedDetails.Count; i < maxCapacity; i++)
+        {
+            // Display "Empty"
+            uiText.text += "\n\n" + (i + 1) + ") Empty";
+        }
+    }
+    */
+
+    public bool IsPersonCached(string name, out Person targetPerson)
+    {
+        targetPerson = null;
+
+        // Check if the player has purchased the "exit the matrix" upgrade
+        bool hasExitedTheMatrix = gameplayManager.HasUpgrade("Exit the Matrix");
+
+        // Find the requested person
+        foreach (Person thisPerson in listOfCachedDetails)
+        {
+            // If the player has purchased the upgrade
+            if (hasExitedTheMatrix)
+            {
+                // If the URL matches
+                if (thisPerson.URL == name)
+                {
+                    // Found the requested person in cache
+                    targetPerson = thisPerson;
+                    return true;
+                }
+            }
+            // If the player has NOT purchased the upgrade
+            else
+            {
+                // If the name matches
+                if (thisPerson.Name == name)
+                {
+                    // Found the requested person in cache
+                    targetPerson = thisPerson;
+                    return true;
+                }
+            }
+        }
+
+        // Did not find the requested person in cache
+        return false;
+    }
+
+    public bool IsPersonCached(Person target)
+    {
+        // Find the requested person
+        foreach (Person thisPerson in listOfCachedDetails)
+        {
+            // If the references match
+            if (thisPerson == target)
+            {
+                // Found the requested person in cache
+                return true;
+            }
+        }
+
+        // Did not find the requested person in cache
+        return false;
+    }
+}
+/* File: GameplayManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using Assets.Scripts.Behind_The_Scenes;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class GameplayManager : MonoBehaviour
+{
+    // Gameplay Manager singleton reference
+    static GameplayManager instance = null;
+
+    // Payment for delivery --> Equivalent to 10 dollars
+    const int DELIVERY_PAYMENT = 10;
+
+    // Instructions for the next step in the delivery process
+    public struct DeliveryInstructions
+    {
+        public string recipient;
+        public char neighborhoodID;
+        public string nextStep;
+    };
+
+    // Necessary managers to store
+    [SerializeField] LookupAgencyManager lookupAgencyManager;
+    [SerializeField] LetterManager letterManager;
+    [SerializeField] HUDManager hudManager;
+    [SerializeField] UpgradeManager upgradeManager;
+    [SerializeField] CacheManager cacheManager;
+
+    // Store the current indoor location (if applicable)
+    [SerializeField] public string indoorLocation;
+
+    // Store the last outdoor position -- used for spawning in the right spot in town
+    public Vector2 lastOutdoorPosition;
+
+    // Address the player is currently attempting to visit
+    public string currentAddress = "";
+
+    // Address the player is delivering to
+    public string deliveryAddress = "";
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        HasStartingLetter = false;
+
+        // Start with no money -- only get money from deliveries
+        Money = 0;
+
+#if UNITY_EDITOR
+        Money = 200;
+#endif
+
+        // First outdoor spawn point is outside the office
+        lastOutdoorPosition = new Vector2(265, -21.5f);
+    }
+
+    void Start()
+    {
+        ResetDeliveryDetails();
+
+        // Add event to call OnSceneLoad() every time a scene is changed
+        SceneManager.sceneLoaded += OnSceneLoad;
+    }
+
+    void OnSceneLoad(Scene thisScene, LoadSceneMode loadSceneMode)
+    {
+        // If the player is outdoor in the town
+        if (thisScene.name == "town")
+        {
+            // Find the player object
+            GameObject player = GameObject.Find("Player");
+
+            // Set the player's position and adjust to avoid trigger
+            player.transform.position = lastOutdoorPosition + (Vector2.down * 1);
+
+            // If the player has purchased the "Exit the Matrix" upgrade
+            if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
+            {
+                // Find the address manager object
+                GameObject addressManagerObject = GameObject.Find("AddressManager");
+
+                // If the address manager exists
+                if (addressManagerObject != null)
+                {
+                    // Exit the matrix
+                    Debug.Log("Enabling exit the matrix mode");
+                    AddressManager addressManager = addressManagerObject.GetComponent<AddressManager>();
+                    // addressManager.EnableExitTheMatrix();
+                }
+            }
+        }
+        // If the current scene is the instructions screen
+        else if (thisScene.name == "instructions")
+        {
+            // Hide HUD
+            hudManager.ToggleDisplay(true);
+        }
+    }
+
+    public void ExitTheMatrix()
+    {
+        // Purchase the "Exit the Matrix" upgrade
+        upgradeManager.AttemptPurchase("Exit the Matrix");
+
+        // Update the HUD
+        hudManager.DisplayText();
+    }
+
+    public bool HasUpgrade(string title)
+    {
+        // If the string is valid, check if the player has purchased the upgrade.
+        // If it's invalid, unable to check -- automatic "no"
+        return !string.IsNullOrEmpty(title) ? upgradeManager.HasPurchasedUpgrade(title) : false;
+    }
+
+    public bool HasCurrentTarget()
+    {
+        // If the current message is null, there's no target. Else, there is a target
+        return CurrentMessage != null;
+    }
+
+    public void CompleteTask()
+    {
+        // If there is a current delivery
+        if (HasCurrentTarget())
+        {
+            // Mark current delivery as completed
+            letterManager.MarkDelivered(CurrentMessage.ID - 1); // IDs are 1 based
+
+            // If this is the first delivery
+            if (HasStartingLetter)
+            {
+                // Mark the first-letter flag as false
+                HasStartingLetter = false;
+            }
+
+            // Give the player their reward
+            Money += DELIVERY_PAYMENT;
+
+            // If the player hass the address book upgrade
+            if (HasUpgrade("Address Book"))
+            {
+                // Cache the completed delivery
+                cacheManager.AddAddress(CurrentMessage.Recipient);
+            }
+        }
+
+        // Set all delivery instructions to starting instructions
+        ResetDeliveryDetails();
+    }
+
+    public void ResetDeliveryDetails()
+    {
+        // Remove the current message reference
+        CurrentMessage = null;
+
+        // Reset the current recipient reference name
+        CurrentTarget = "";
+
+        // Set the next step instructions
+        DeliveryInstructions instructions;
+        instructions.recipient = "None";
+        instructions.neighborhoodID = 'X';
+        instructions.nextStep = "Packet Delivery Office";
+        NextStep = instructions;
+
+        // Reset and update the HUD
+        hudManager.ClearCurrentTask();
+        hudManager.DisplayText();
+    }
+
+    public void GetNextMessage()
+    {
+        // Get the next delivery letter
+        CurrentMessage = letterManager.GetNextLetter();
+
+        // Lookup the next lookup agency name
+        string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X') + (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? " Server" : " Lookup Agency");
+
+        DeliveryInstructions instructions;
+
+        // If the player has unlocked "Exit the Matrix"
+        if (HasUpgrade("Exit the Matrix"))
+        {
+            // Reference the recipient's URL
+            instructions.recipient = CurrentMessage.Recipient.URL;
+        }
+        // If the player has not unlocked it
+        else
+        {
+            // Reference the recipient's name
+            instructions.recipient = CurrentMessage.Recipient.Name;
+        }
+
+        instructions.neighborhoodID = 'X';
+        instructions.nextStep = nextLocation;
+
+        // Set instructions and update appropriate components
+        SetNextSteps(instructions);
+    }
+
+    public void SetNextSteps(DeliveryInstructions instructions)
+    {
+        // Store the instructions globaly
+        NextStep = instructions;
+
+        // Update the HUD with the instructions
+        hudManager.DisplayText();
+    }
+
+    public void ForceUpdateHUD()
+    {
+        // If there is an active delivery
+        if (CurrentMessage != null)
+        {
+            DeliveryInstructions instructions = NextStep;
+
+            // If the player has unlocked "Exit the Matrix"
+            if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
+            {
+                // Reference the recipient's URL
+                instructions.recipient = CurrentMessage.Recipient.URL;
+            }
+            else
+            {
+                // Reference the recipient's name
+                instructions.recipient = CurrentMessage.Recipient.Name;
+            }
+
+            instructions.nextStep = lookupAgencyManager.GetNeighborhoodNameFromID(instructions.neighborhoodID);
+
+            // Check if the next step is a lookup agency
+            bool isNextStepLookupAgency = !(instructions.nextStep.Contains("Office") || instructions.nextStep.Contains("Residence"));
+
+            // If it is a lookup agency
+            if (isNextStepLookupAgency)
+            {
+                // Adjust the displayed next step text 
+                instructions.nextStep += (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? " Server" : " Lookup Agency");
+            }
+
+            // Store the next delivery steps globaly
+            NextStep = instructions;
+        }
+
+        // Update the HUD
+        hudManager.DisplayText();
+    }
+
+    public void CompleteGameAndReset()
+    {
+        // Reset Money
+        Money = 0;
+
+        // Reset Upgrades
+        upgradeManager.ResetUpgrades();
+
+        // Hide HUD
+        hudManager.ToggleDisplay(false);
+    }
+
+    public bool HasRemainingTasks
+    {
+        get
+        {
+            // Count the number of remaining letters to deliver
+            RemainingTasks = letterManager.RemainingLetterCount;
+
+            // If the number of letters is nonzero, return true. Else, false
+            return (RemainingTasks > 0);
+        }
+    }
+
+    // Auto property
+    public Vector3 CurrentSpawnLocation { get; set; }
+    public bool HasStartingLetter { get; set; }
+    public string CurrentLocation { get; set; }
+    public int RemainingTasks { get; set; }
+    public string CurrentTarget { get; private set; }
+    public DeliveryInstructions NextStep { get; set; }
+    public string NextDeliveryLocation { get; set; }
+    public int Money { get; set; }
+
+    public Letter CurrentMessage { get; private set; }
+    public char CurrentNeighborhoodID { get; set; }
+}
+/* File: HUDManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class HUDManager : MonoBehaviour
+{
+    // HUDManager singleton reference
+    static HUDManager instance = null;
+
+    // Manager references
+    [SerializeField] GameplayManager gameplayManager;
+    [SerializeField] CacheManager cacheManager;
+
+    // Money text and related objects
+    [SerializeField] GameObject moneyBackdrop;
+    [SerializeField] Text moneyText;
+
+    // Task tracker text and related objects
+    [SerializeField] GameObject taskTrackerObject;
+    [SerializeField] Text taskTrackerText;
+
+    // Address book text and related objects
+    [SerializeField] GameObject addressBookObject;
+    [SerializeField] Text addressBookText;
+    [SerializeField] Text addressBookTextPt2;
+
+    // "No one seems to be home" notice object
+    [SerializeField] GameObject noOneHomeObject;
+
+    public static readonly string TASK_TRACKER_KEY = "1";
+    public static readonly string ADDRESS_BOOK_KEY = "2";
+
+    private void Awake()
+    {
+        // If not the first instance of HUDManager
+        if (instance != null)
+        {
+            // Only need one --> delete
+            Destroy(gameObject);
+            return;
+        }
+
+        // Set this as the HUD Manager instance
+        instance = this;
+
+        // Persist across scenes
+        DontDestroyOnLoad(gameObject);
+
+        // Set default empty text
+        ClearCurrentTask();
+
+        // Hide no one home text
+        noOneHomeObject.SetActive(false);
+    }
+    
+    void Start()
+    {
+        // Disable all HUD elements to start -- will enable them later
+        ToggleDisplay(false);
+    }
+    
+    void Update()
+    {
+        // If the user presses Tab
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            bool isCurrentlyActive = taskTrackerObject.activeInHierarchy;
+
+            // Show or hide the task tracker
+            ToggleTaskTracker(!isCurrentlyActive);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            bool isCurrentlyActive = addressBookObject.activeInHierarchy;
+
+            // Show or hide the address book
+            ToggleAddressBook(!isCurrentlyActive);
+        }
+    }
+
+    public void ToggleDisplay(bool isShown)
+    {
+        // Toggle scene objects
+        moneyBackdrop.SetActive(isShown);
+        ToggleTaskTracker(isShown);
+        ToggleAddressBook(isShown);
+
+        // Update the text
+        DisplayText();
+    }
+
+    void DisplayMoney(int money)
+    {
+        // Format the money display
+        moneyText.text = "$" + money;
+    }
+
+    public void ToggleTaskTracker(bool isShown)
+    {
+        // If the player has purchased the task tracker
+        if (gameplayManager.HasUpgrade("Task Tracker"))
+        {
+            // Get the active scene name
+            string sceneName = SceneManager.GetActiveScene().name;
+
+            // If it's not a restricted scene
+            if (sceneName != "loading" && sceneName != "title" && sceneName != "start_town")
+            {
+                // Toggle the task tracker
+                taskTrackerObject.SetActive(isShown);
+
+                // Update the text
+                DisplayText();
+            }
+        }
+        // If the player has NOT purchased the task tracker
+        else
+        {
+            // Hide it
+            taskTrackerObject.SetActive(false);
+        }
+    }
+
+    public void ToggleAddressBook(bool isShown)
+    {
+        // If the player has purchased the address book
+        if (gameplayManager.HasUpgrade("Address Book"))
+        {
+            // Get the active scene name
+            string sceneName = SceneManager.GetActiveScene().name;
+
+            // If it's not a restricted scene
+            if (sceneName != "loading" && sceneName != "title" && sceneName != "start_town")
+            {
+                // Toggle the address book
+                addressBookObject.SetActive(isShown);
+
+                // Update the text
+                DisplayText();
+            }
+        }
+        // If the player has NOT purchased the address book
+        else
+        {
+            // Hide it
+            addressBookObject.SetActive(false);
+        }
+    }
+
+    public void DisplayText()
+    {
+        // Display the player's money
+        DisplayMoney(gameplayManager.Money);
+        
+        // Display the task tracker
+        DisplayTaskTrackerInformation();
+
+        // Display cached addresses from the local DNS cache
+        cacheManager.DisplayCachedAddressesInTwoParts(addressBookText, addressBookTextPt2);
+    }
+
+    private void DisplayTaskTrackerInformation()
+    {
+        string textToDisplay = "Recipient: ";
+
+        // If there is NOT an active delivery
+        if (string.IsNullOrEmpty(gameplayManager.NextStep.recipient))
+        {
+            textToDisplay += "None";
+        }
+        // If there IS an active delivery
+        else
+        {
+            // Display the recipient's name
+            textToDisplay += gameplayManager.NextStep.recipient;
+        }
+
+        textToDisplay += "\nNext: ";
+
+        // If the To-Do list is empty
+        if (string.IsNullOrEmpty(gameplayManager.NextStep.nextStep))
+        {
+            textToDisplay += "None";
+        }
+        // If the todo list is NOT empty
+        else
+        {
+            // Display the last item on the To-Do list
+            textToDisplay += gameplayManager.NextStep.nextStep;
+        }
+
+        // Display the formatted text
+        // taskTrackerText.text = displayText;
+        taskTrackerText.text = textToDisplay;
+    }
+
+    public void ClearCurrentTask()
+    {
+        // Reset to default values
+        CurrentTask = "None";
+
+        // Update the HUD
+        DisplayText();
+    }
+
+    public void NoOneHome()
+    {
+        // Display notification that no one is home
+        StartCoroutine(DisplayNoOneHome());
+    }
+
+    IEnumerator DisplayNoOneHome()
+    {
+        // Display notice
+        noOneHomeObject.SetActive(true);
+        
+        // Wait 3 seconds
+        yield return new WaitForSeconds(3);
+
+        // Hide notice
+        noOneHomeObject.SetActive(false);
+    }
+
+    public string CurrentTask { get; private set; }
+}
+
+/* File: Letter.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System;
+using System.Text;
+using Assets.Scripts.Lookup_Agencies;
+
+namespace Assets.Scripts.Behind_The_Scenes
+{
+    [Serializable]
+    public class Letter
+    {
+        public Letter(int i, Person s, Person r, Letter p, string b)
+        {
+            ID = i;
+            Sender = s;
+            Recipient = r;
+            Body = b;
+            Prerequisite = p;
+            IsDelivered = false;
+        }
+
+        public void MarkDelivered(bool isDelivered)
+        {
+            UnityEngine.Debug.Log("Delivered ? " + isDelivered);
+            IsDelivered = isDelivered;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("Letter Details:\n");
+            sb.Append("ID: ");
+            sb.Append(ID);
+            sb.Append("\nIsDelivered: ");
+            sb.Append(IsDelivered);
+            sb.Append("\nSender: ");
+            sb.Append(Sender != null);
+            sb.Append("\nRecipient: ");
+            sb.Append(Recipient != null);
+            sb.Append("\nBody: ");
+            sb.Append(Body);
+            return sb.ToString();
+        }
+        
+        public int ID { get; private set; }
+        public Person Sender { get; private set; }
+        public Person Recipient { get; private set; }
+        public string Body { get; private set; }
+        public Letter Prerequisite { get; set; }
+        public bool IsDelivered { get; private set; }
+    }
+}
+
+/* File: LetterManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using Assets.Scripts.Behind_The_Scenes;
+using Assets.Scripts.Lookup_Agencies;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+
+/// <summary>
+/// Manages the overall concept of letters to deliver, including loading them, storing them, and randomizing which ones the player sees at what time.
+/// </summary>
+public class LetterManager : MonoBehaviour
+{
+    // Singleton reference
+    static LetterManager instance = null;
+
+    // Necessary manager references
+    [SerializeField] LookupAgencyManager lookupAgencyManager;
+
+    // Letters to be delivered -- Text assets (to be parsed into objects)
+    [SerializeField] TextAsset[] letterTextFiles;
+
+    // Letters to be delivered -- List of letter objects
+    List<Letter> lettersToDeliver;
+
+    // Previous letter -- To prevent duplicates
+    Letter previousLetter;
+
+    void Awake()
+    {
+        // If there is already a Letter Manager -- Only need one
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        // Set this as the Letter Manager instance
+        instance = this;
+
+        // Persist across scenes
+        DontDestroyOnLoad(gameObject);
+
+        // Initialize the list of letters
+        lettersToDeliver = new List<Letter>();
+
+        // Initialize the previous letter -- Null means first delivery
+        previousLetter = null;
+
+        // No current letters loaded
+        RemainingLetterCount = 0;
+    }
+    
+    void Start()
+    {
+        lookupAgencyManager.LoadListOfPeople();
+        LoadLettersFromTextAsset();
+    }
+
+    public void AddLetter(Person s, Person r, Letter p, string b)
+    {
+        // Determine letter ID
+        int id = lettersToDeliver.Count + 1;
+
+        // Make a new letter object and add it to the list
+        Letter newLetter = new Letter(id, s, r, p, b);
+        lettersToDeliver.Add(newLetter);
+    }
+
+    public Letter GetNextLetter()
+    {
+        Debug.Log("Retrieving next message");
+
+        // List is not initialized -- ERROR
+        if (lettersToDeliver == null)
+        {
+            Debug.Log("List of letters is null");
+            return null;
+        }
+
+        // No letters are loaded -- ERROR
+        if (lettersToDeliver.Count == 0)
+        {
+            Debug.Log("No letters are loaded from file");
+            return null;
+        }
+
+        // Check how many letters there are left to deliver
+        int remaining = 0;
+        foreach (Letter l in lettersToDeliver)
+        {
+            if (!l.IsDelivered)
+            {
+                remaining++;
+            }
+        }
+
+        Debug.Log("Remaining letters: " + (remaining - 1));
+
+        // If no more
+        if (remaining == 0)
+        {
+            Debug.Log("No more letters to deliver -- Recycling all letters");
+
+            // Recycle all letters
+            for (int i = 0; i < lettersToDeliver.Count; i++)
+            {
+                lettersToDeliver[i].MarkDelivered(false);
+            }
+        }
+
+        if (previousLetter != null)
+        {
+            Debug.Log("Prev Delivered ? " + previousLetter.IsDelivered + ", Prev ID Delivered ? " + lettersToDeliver[previousLetter.ID - 1].IsDelivered);
+        }
+        else
+        {
+            Debug.Log("Prev Letter is null");
+        }
+
+        // Get next random undelivered letter
+        Letter nextLetter = null;
+        do
+        {
+            // Determine random index
+            int id = Random.Range(0, lettersToDeliver.Count);
+            if (previousLetter != null)
+            {
+                if (id == previousLetter.ID)
+                {
+                    continue;
+                }
+            }
+            // Get letter at that index
+            nextLetter = lettersToDeliver[id];
+
+            if (nextLetter.Prerequisite != null)
+            {
+                if (!nextLetter.Prerequisite.IsDelivered)
+                {
+                    nextLetter = FindUndeliveredPrereq(nextLetter);
+                }
+            }
+        } while (nextLetter == null || nextLetter.IsDelivered); // If isDelivered, find next letter
+        
+        Debug.Log(nextLetter.ToString());
+
+        // Return the random letter
+        return nextLetter;
+    }
+
+    Letter FindUndeliveredPrereq(Letter thisLetter)
+    {
+        if (thisLetter.Prerequisite != null)
+        {
+            if (thisLetter.Prerequisite.IsDelivered)
+            {
+                return thisLetter;
+            }
+            else
+            {
+                return FindUndeliveredPrereq(thisLetter.Prerequisite);
+            }
+        }
+        else
+        {
+            return thisLetter;
+        }
+    }
+
+    public void MarkDelivered(int id)
+    {
+        // If list is not initialized -- ERROR
+        if (lettersToDeliver == null)
+            return;
+
+        // If ID is not valid -- ERROR
+        if (id < 0 || id >= lettersToDeliver.Count)
+            return;
+
+        // Mark letter at given ID as delivered
+        lettersToDeliver[id].MarkDelivered(true);
+
+        // List that letter as previous letter
+        previousLetter = lettersToDeliver[id];
+    }
+
+    public void MarkAllUndelivered()
+    {
+        // If list is not initialized -- ERROR
+        if (lettersToDeliver == null)
+            return;
+
+        // Mark all letters as undelivered
+        for (int i = 0; i < lettersToDeliver.Count; i++)
+        {
+            lettersToDeliver[i].MarkDelivered(false);
+        }
+    }
+
+    public void ParseAndAddLetter(string to, string from, int prereqID, string body)
+    {
+        // Parse recipient
+        string[] toParts = to.Split(':');
+        string recipient = toParts[1].Trim();
+
+        // Parse sender
+        string[] fromParts = from.Split(':');
+        string sender = fromParts[1].Trim();
+
+        // Lookup sender and recipient objects
+        Person senderProfile = lookupAgencyManager.FindPersonProfileByName(sender);
+        Person recipientProfile = lookupAgencyManager.FindPersonProfileByName(recipient);
+
+        if (senderProfile == null || recipientProfile == null)
+        {
+            Debug.Log("Found " + sender + " ? " + (senderProfile != null));
+            Debug.Log("Found " + recipient + " ? " + (recipientProfile != null));
+        }
+
+        // Get prerequisite letter
+        Letter prereqLetter = null; // Null means no prerequisite
+        if (prereqID != -1)
+        {
+            prereqLetter = lettersToDeliver[prereqID];
+        }
+
+        // Add letter to the list to be delivered
+        AddLetter(senderProfile, recipientProfile, prereqLetter, body);
+    }
+
+    void LoadLettersFromTextAsset()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        // For all letter files
+        foreach (TextAsset letter in letterTextFiles)
+        {
+            // Separate content by line
+            string[] parts = letter.text.Split('\n');
+
+            // Get message header parts
+            string to = parts[0].Trim();
+            string from = parts[1].Trim();
+
+            // Prerequisite is part 3
+            string prerequisiteLetter = parts[2].Trim();
+            int prerequisiteLetterID = -1;
+            string prereqIDString = prerequisiteLetter.Split(':')[1].Trim();
+            if (prereqIDString.ToLower() != "none")
+            {
+                // Debug.Log(prerequisiteLetter + ", " + prereqIDString);
+                prerequisiteLetterID = System.Convert.ToInt32(prereqIDString) - 1; // 0 based, not 1 based
+            }
+
+            // Body
+            sb.Clear();
+
+            // Read the letter body line-by-line and add it to the list of letters
+            for (int i = 4; i < parts.Length; i++)
+            {
+                // Add each line to the stored body
+                sb.Append(parts[i].Trim());
+                sb.Append("\n");
+            }
+            
+            string message = sb.ToString();
+
+            // Send parts for parsing and then add to list of letters
+            ParseAndAddLetter(to, from, prerequisiteLetterID, message);
+        }
+
+        // Update number of remaining letters
+        RemainingLetterCount = lettersToDeliver.Count;
+    }
+
+    public void ResetMessages()
+    {
+        // Mark all letters as NOT delivered
+        for (int i = 0; i < lettersToDeliver.Count; i++)
+        {
+            lettersToDeliver[i].MarkDelivered(false);
+        }
+    }
+
+    public int RemainingLetterCount { get; private set; }
+}
+
+/* File: LevelManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class LevelManager : MonoBehaviour
+{
+    // Level Manager singleton reference
+    static LevelManager instance = null;
+    
+    void Start()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        // Claim this object as the singleton
+        instance = this;
+
+        // Keep this object between scenes
+        DontDestroyOnLoad(gameObject);
+
+        // Call OnSceneLoaded() every time a new scene loads
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    public void OnSceneLoaded(Scene newScene, LoadSceneMode loadSceneMode)
+    {
+        if (newScene.name == "instructions")
+        {
+            // No longer need this method being called for every scene change
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+
+            /* // Find the "continue" button
+            Button continueButton = GameObject.Find("Continue Button").GetComponent<Button>();
+
+            // Remove any unnecessary listeners
+            continueButton.onClick.RemoveAllListeners();
+
+            // Get the Fade Canvas object and components
+            Transition fadeTransition = GameObject.Find("Fade Canvas").GetComponent<Transition>();
+
+            // Construct the UnityAction to be called on button press
+            UnityAction continueToOfficeEvent = delegate { fadeTransition.FadeMethod("office"); };
+
+            // Add the UnityAction to the "continue" button press event
+            continueButton.onClick.AddListener(continueToOfficeEvent); */
+        }
+    }
+
+    /// <summary>
+    /// Load level by index
+    /// </summary>
+    /// <param name="index"></param>
+    public void LoadLevel(int index)
+    {
+        SceneManager.LoadScene(index);
+    }
+
+    /// <summary>
+    /// Load level by name
+    /// </summary>
+    /// <param name="name"></param>
+    public void LoadLevel(string name)
+    {
+        SceneManager.LoadScene(name);
+    }
+    
+    /// <summary>
+    /// Quit the game
+    /// </summary>
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+}
+
+/* File: LookupAgencyManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using Assets.Scripts.Lookup_Agencies;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class LookupAgencyManager : MonoBehaviour
+{
+    // Lookup Agency Manager singleton reference
+    static LookupAgencyManager instance = null;
+
+    [SerializeField] UpgradeManager upgradeManager;
+
+    // All text assets to be loaded from file
+    [SerializeField] TextAsset listOfPeopleTextAsset;
+
+    // All people in all neighborhoods
+    List<Person> listOfAllPeople;
+
+    // Lookup tables to convert neighbhorhood IDs to names
+    Dictionary<char, string> idLookupTable;
+    Dictionary<char, string> idLookupTableExitMatrix;
+
+    private void Awake()
+    {
+        // If there is already a Lookup Agency Manager
+        if (instance != null)
+        {
+            // Only need one --> Delete
+            Destroy(gameObject);
+            return;
+        }
+
+        // Set singleton instance
+        DontDestroyOnLoad(gameObject);
+        instance = this;
+
+        // Load values into the ID lookup table
+        idLookupTable = new Dictionary<char, string>();
+        idLookupTable.Add('X', "Root Village");
+        idLookupTable.Add('C', "COM Hills");
+        idLookupTable.Add('O', "ORG Park");
+        idLookupTable.Add('N', "NET Heights");
+
+        // Load values into the ID lookup table
+        idLookupTableExitMatrix = new Dictionary<char, string>();
+        idLookupTableExitMatrix.Add('X', "Root DNS");
+        idLookupTableExitMatrix.Add('C', "COM Top-Level Domain");
+        idLookupTableExitMatrix.Add('O', "ORG Top-Level Domain");
+        idLookupTableExitMatrix.Add('N', "NET Top-Level Domain");
+
+        listOfAllPeople = new List<Person>();
+
+        // Load people, addresses, etc from the TextAssets
+        // LoadListOfPeople();
+    }
+
+    public void LoadListOfPeople()
+    {
+        // Split text asset by line
+        string[] linesOfPeople = listOfPeopleTextAsset.text.Split('\n');
+
+        // For each line in the text asset
+        foreach (string line in linesOfPeople)
+        {
+            // Get name, URL, neighborhood ID, neighborhood name, and house number
+            string[] parts = line.Split(',');
+            string name = parts[0].Trim();
+            char neighborhoodID = parts[1].Trim()[0];
+            string url = ConstructURLFromName(name, neighborhoodID);
+            // Debug.Log(url);
+            string neighborhood = "";
+            idLookupTable.TryGetValue(neighborhoodID, out neighborhood);
+            int houseNumber = System.Convert.ToInt32(parts[2].Trim());
+
+            Person thisPerson = new Person(name, url, neighborhood, neighborhoodID, houseNumber);
+
+            // Store this person's profile in the list
+            listOfAllPeople.Add(thisPerson);
+        }
+    }
+
+    string ConstructURLFromName(string name, char neighborhoodID)
+    {
+        string domain = "";
+        switch (neighborhoodID)
+        {
+            case 'C':
+                domain = "com";
+                break;
+            case 'O':
+                domain = "org";
+                break;
+            case 'N':
+                domain = "net";
+                break;
+            default:
+                Debug.Log("No domain found for name " + name + " at code " + neighborhoodID);
+                break;
+        }
+
+        string lowercaseName = name.ToLower().Replace(' ', '-');
+        string url = "www." + lowercaseName + "." + domain;
+        return url;
+    }
+
+    public Person FindPersonProfileByName(string personName)
+    {
+        Person targetPerson = null;
+
+        // Find the person by name in the list -- unsorted
+        foreach (Person thisPerson in listOfAllPeople)
+        {
+            // Compare each name by lowercase
+            if (thisPerson.Name.ToLower() == personName.ToLower())
+            {
+                // Matches -- Return this profile
+                targetPerson = thisPerson;
+                break;
+            }
+        }
+
+        return targetPerson;
+    }
+
+    public Person FindPersonProfileByURL(string url)
+    {
+        Person targetPerson = null;
+
+        // Find the person by URL in the list -- unsorted
+        foreach (Person thisPerson in listOfAllPeople)
+        {
+            // Compare each URL by lowercase
+            if (thisPerson.URL.ToLower() == url.ToLower())
+            {
+                // Matches -- Return this profile
+                targetPerson = thisPerson;
+                break;
+            }
+        }
+
+        return targetPerson;
+    }
+
+    public List<Person> GetListOfPeopleByNeighborhood(char id)
+    {
+        List<Person> neighborhoodPeople = new List<Person>();
+
+        // If in Root Village
+        if (id == 'X')
+        {
+            // Return the whole list of people
+            neighborhoodPeople = listOfAllPeople;
+        }
+        // If at a local lookup agency
+        else if (idLookupTable.ContainsKey(id))
+        {
+            // Find all people within that neighborhood
+            foreach (Person thisPerson in listOfAllPeople)
+            {
+                if (thisPerson.NeighborhoodID == id)
+                {
+                    neighborhoodPeople.Add(thisPerson);
+                }
+            }
+        }
+        
+        return neighborhoodPeople;
+    }
+
+    public string GetNeighborhoodNameFromID(char id)
+    {
+        string name = "";
+        if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
+        {
+            idLookupTableExitMatrix.TryGetValue(id, out name);
+        }
+        else
+        {
+            idLookupTable.TryGetValue(id, out name);
+        }
+        return name;
+    }
+
+    public string GetNeighborhoodNameFromID(char id, bool forcePreExit = true, bool forcePostExit = false)
+    {
+        string name = "";
+        if (forcePreExit)
+        {
+            idLookupTable.TryGetValue(id, out name);
+        }
+        else if (forcePostExit)
+        {
+            idLookupTableExitMatrix.TryGetValue(id, out name);
+        }
+        else
+        {
+            return GetNeighborhoodNameFromID(id);
+        }
+        return name;
+    }
+}
+
+/* File: HomeChatManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System.Collections;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class HomeChatManager : MonoBehaviour
+{
+    // Manager references
+    GameplayManager gameplayManager;
+    LevelManager levelManager;
+    CacheManager cacheManager;
+
+    // Event system reference to release pressed buttons -- also plays into controller support
+    [SerializeField] EventSystem eventSystem;
+
+    // Primary text chat (recipient's dialogue)
+    [SerializeField] Text chatText;
+
+    // Option button and text references
+    [SerializeField] Button option1Button;
+    [SerializeField] Text option1Text;
+    [SerializeField] Button option2Button;
+    [SerializeField] Text option2Text;
+
+    // Other UI Components
+    [SerializeField] Transform moneyParent;
+    [SerializeField] GameObject moneySpriteObject;
+
+    // NPC Sprites
+    [SerializeField] SpriteRenderer npcSpriteRenderer;
+    [SerializeField] Sprite[] npcMaleSprites;
+    [SerializeField] Sprite[] npcFemaleSprites;
+
+    [SerializeField] bool[] isMaleRecipientIndex;
+    
+    // Global strings to format before placing them in the text objects
+    string chatTextMessage;
+    string option1Message;
+    string option2Message;
+
+    // Events to invoke when option buttons are pressed
+    UnityAction option1Action;
+    UnityAction option2Action;
+
+    // Fade in/out object reference
+    [SerializeField] Transition fadeTransitionObject;
+    
+    // Delay between each character when showing dialogue
+    readonly float CHAT_DELAY = 0.005f;
+
+    // Only one coroutine should run at a time
+    Coroutine currentCoroutine;
+    
+    void Start()
+    {
+        // Find objects that persist across scenes
+        FindObjectsForScene();
+
+        // Set up the starting dialogue
+        StartDialogue();
+
+        // Display text to UI
+        DisplayText();
+    }
+
+    void FindObjectsForScene()
+    {
+        // Find necessary persistent managers in scene
+        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+        levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        cacheManager = GameObject.Find("CacheManager").GetComponent<CacheManager>();
+    }
+
+    void StartDialogue()
+    {
+        int messageID = gameplayManager.CurrentMessage.ID - 1; // Letters are 1 indexed, array is 0 indexed
+        if (isMaleRecipientIndex[messageID])
+        {
+            // Set sprite as random male sprite
+            int randomMaleSpriteIndex = Random.Range(0, npcMaleSprites.Length);
+            Sprite randomMaleSprite = npcMaleSprites[randomMaleSpriteIndex];
+            npcSpriteRenderer.sprite = randomMaleSprite;
+        }
+        else
+        {
+            // Set sprite as random female sprite
+            int randomFemaleSpriteIndex = Random.Range(0, npcFemaleSprites.Length);
+            Sprite randomFemaleSprite = npcFemaleSprites[randomFemaleSpriteIndex];
+            npcSpriteRenderer.sprite = randomFemaleSprite;
+        }
+
+        // Set chat text
+        chatTextMessage = "Are you the one with my package?";
+        option1Message = "I am!";
+        option2Message = "I'm sorry. I think I am at the wrong house.";
+
+        // Set event actions to invoke on button press
+
+        // "I am the one with your package"
+        option1Action = delegate {
+            // Attempt to deliver package
+            DeliverPackage();
+
+            // Update the UI
+            DisplayText();
+        };
+        // "I am not the one with your package"
+        option2Action = delegate {
+            // Leave the residence
+            DepartDialogue();
+
+            // Update the UI
+            DisplayText();
+        };
+    }
+
+    void DeliverPackage()
+    {
+        // If the recipient is cached in the address book -- If the player was able to skip straight to the residence
+        bool isCached = cacheManager.IsPersonCached(gameplayManager.CurrentMessage.Recipient);
+
+        // If the player has purchased the "Exit the Matrix" upgrade
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            // Reference the recipient's IP
+            string ipAddress = AddressManager.DetermineIPFromHouseInfo(gameplayManager.CurrentMessage.Recipient.HouseNumber, gameplayManager.CurrentMessage.Recipient.NeighborhoodID);
+
+            // Check if this is the next step in the delivery process
+            bool isNextStep = gameplayManager.NextStep.nextStep == ipAddress;
+
+            // If the recipient is cached in the address book or went through all prerequisite steps
+            if (isCached || isNextStep)
+            {
+                // Deliver the package
+                Success();
+            }
+            else
+            {
+                // Incorrect location -- Leads to depart dialogue
+                WrongLocation();
+            }
+        }
+        // If the resident was not cached in the address book
+        else
+        {
+            // Check if this is the next step in the delivery process
+            bool isNextStep = gameplayManager.NextStep.nextStep == "Residence #" + gameplayManager.CurrentMessage.Recipient.HouseNumber;
+
+            // If the recipient is cached in the address book or went through all prerequisite steps
+            if (isCached || isNextStep)
+            {
+                // Deliver the package
+                Success();
+            }
+            else
+            {
+                // Incorrect location -- Leads to depart dialogue
+                WrongLocation();
+            }
+        }
+    }
+
+    private void Success()
+    {
+        // Recipient: "Thank you for my package"
+        chatTextMessage = "Thank you very much! Here is your <b>$10</b>.";
+        option1Message = "";
+        option2Message = "Enjoy!";
+
+        // "You're welcome" / "Enjoy!"
+        option1Action = delegate
+        {
+            // Say goodbye
+            DepartDialogue();
+
+            // Update UI
+            DisplayText();
+
+            // Mark as delivered
+            gameplayManager.CompleteTask();
+            
+            // Money animation
+            moneySpriteObject.GetComponent<Animator>().SetTrigger("Pay Money");
+        };
+
+        // For redundancy -- They're both the same action, but only one should be enabled
+        option2Action = option1Action;
+    }
+
+    [System.Obsolete("Instead, change to UI notification BEFORE entering house.")]
+    void WrongLocation()
+    {
+        // Display some error message in chat
+        chatTextMessage = "I wasn't expecting a package.";
+        option1Message = "";
+        option2Message = "Sorry. I must have the wrong house.";
+
+        // "Sorry, wrong house"
+        option1Action = delegate {
+            // Say goodbye
+            DepartDialogue();
+
+            // Update UI
+            DisplayText();
+        };
+        // For redundancy -- They're both the same action, but only one should be enabled
+        option2Action = delegate {
+            // Say goodbye
+            DepartDialogue();
+
+            // Update UI
+            DisplayText();
+        };
+    }
+
+    void DisplayText()
+    {
+        // If the player clicked through the dialogue before it was finished
+        if (currentCoroutine != null)
+        {
+            // Stop the previous coroutine so we can start a new one
+            StopCoroutine(currentCoroutine);
+        }
+
+        // Start new coroutine to write text to UI
+        currentCoroutine = StartCoroutine(WriteTextToUI(chatTextMessage, option1Message, option2Message));
+
+        // Add event listeners to invoke dialogue option events
+        AddEventListeners(option1Action, option2Action);
+    }
+
+    IEnumerator WriteTextToUI(string chat, string option1, string option2)
+    {
+        // Clear displayed text
+        chatText.text = "";
+        option1Text.text = "";
+        option2Text.text = "";
+
+        // Deselect all buttons
+        eventSystem.SetSelectedGameObject(null);
+
+        // If either option is null or "", disable it
+        option1Button.interactable = !string.IsNullOrEmpty(option1);
+        option2Button.interactable = !string.IsNullOrEmpty(option2);
+
+        // Display the person's name
+        string name = gameplayManager.CurrentMessage.Recipient.Name;
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            name = gameplayManager.CurrentMessage.Recipient.URL;
+        }
+
+        chatText.text = "<b>" + name + "</b>:\n";
+
+        // Write to chat prompt
+        for (int i = 0; i < chat.Length; i++)
+        {
+            // Delay between characters
+            yield return new WaitForSeconds(CHAT_DELAY);
+
+            // Write next character
+            chatText.text += chat[i];
+        }
+
+        // Write option 1 button text
+        for (int i = 0; i < option1.Length; i++)
+        {
+            // Delay between characters
+            yield return new WaitForSeconds(CHAT_DELAY);
+
+            // Write next character
+            option1Text.text += option1[i];
+        }
+
+        // Write option 2 button text
+        for (int i = 0; i < option2.Length; i++)
+        {
+            // Delay between characters
+            yield return new WaitForSeconds(CHAT_DELAY);
+
+            // Write next character
+            option2Text.text += option2[i];
+        }
+    }
+
+    void AddEventListeners(UnityAction a1, UnityAction a2)
+    {
+        // Add option 1 listener
+        option1Button.onClick.RemoveAllListeners();
+        option1Button.onClick.AddListener(a1);
+
+        // Add option 2 listener
+        option2Button.onClick.RemoveAllListeners();
+        option2Button.onClick.AddListener(a2);
+    }
+
+    public void DepartDialogue()
+    {
+        // Say goodbye
+        chatTextMessage = "Have a good day!";
+        option1Message = "";
+        option2Message = "Bye.";
+
+        // Make both buttons redirect to town
+        option1Action = delegate { GoToTown(); };
+        option2Action = delegate { GoToTown(); };
+    }
+
+    public void GoToTown()
+    {
+        // Fade out, transition to town
+        fadeTransitionObject.FadeMethod("town");
+    }
+}
+
+/* File: LookupAgencyChatManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using Assets.Scripts.Lookup_Agencies;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class LookupAgencyChatManager : MonoBehaviour
+{
+    public readonly float CHAT_DELAY = 0.005f;
+
+    // Necessary manager references
+    [SerializeField] GameplayManager gameplayManager;
+    [SerializeField] LookupAgencyManager lookupAgencyManager;
+    UpgradeManager upgradeManager;
+
+    // List of people in this lookup agency's domain
+    public List<Person> listOfPeople;
+
+    // Current neighborhood ID
+    [SerializeField] char neighborhoodID;
+
+    // Event system reference to release pressed buttons -- also plays into controller support
+    [SerializeField] EventSystem eventSystem;
+
+    // Primary text chat (agent's dialogue)
+    [SerializeField] Text chatPromptText;
+
+    // Option button and text references
+    [SerializeField] Text option1Text;
+    [SerializeField] Text option2Text;
+    [SerializeField] Button option1Button;
+    [SerializeField] Button option2Button;
+
+    // Input field for "Who are you looking for?"
+    [SerializeField] InputField inputField;
+
+    // Global strings to format before placing them in the text objects
+    string chatTextMessage;
+    string option1Message;
+    string option2Message;
+
+    // Events to invoke when option buttons are pressed
+    UnityAction option1Action;
+    UnityAction option2Action;
+
+    // Fade in/out object reference
+    [SerializeField] Transition fadeTransitionObject;
+
+    // Only one coroutine should run at a time
+    Coroutine currentCoroutine;
+
+    private void Awake()
+    {
+        // Indicate the input field is disabled until needed
+        IsInputFieldActive = false;
+
+        // If this is a local lookup agency
+        if (SceneManager.GetActiveScene().name == "localLookupAgency")
+        {
+            // Figure out which local lookup agency it is by neighborhood ID
+            neighborhoodID = GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CurrentNeighborhoodID;
+        }
+    }
+    
+    void Start()
+    {
+        // Find managers needed for scene
+        FindObjectsForScene();
+
+        // Get list of people within this lookup agency's domain
+        GatherListOfPeople();
+
+        // Set up the start dialogue
+        StartDialogue();
+
+        // Set greeting for first interaction
+        chatTextMessage = "Welcome to the " + lookupAgencyManager.GetNeighborhoodNameFromID(neighborhoodID) + (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? " DNS Server" : " Lookup Agency") + ". " + chatTextMessage;
+
+        // Update the UI
+        DisplayText();
+
+        // Disable the input field until needed
+        ToggleInputField(false);
+    }
+
+    private void Update()
+    {
+        // If showing the input field
+        if (IsInputFieldActive)
+        {
+            // Allow enter key to submit input text
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                // Submit text in input field
+                option2Button.onClick.Invoke();
+            }
+        }
+    }
+
+    void FindObjectsForScene()
+    {
+        // Persistent objects -- must look up at runtime
+        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+        lookupAgencyManager = GameObject.Find("LookupAgencyManager").GetComponent<LookupAgencyManager>();
+        upgradeManager = GameObject.Find("UpgradeManager").GetComponent<UpgradeManager>();
+    }
+
+    public void GatherListOfPeople()
+    {
+        // Get list of people within this lookup agency's domain
+        listOfPeople = lookupAgencyManager.GetListOfPeopleByNeighborhood(neighborhoodID);
+    }
+
+    public bool LookupPerson(string name, out Person thisPerson)
+    {
+        thisPerson = null;
+
+        // Find the requested person
+        foreach (Person p in listOfPeople)
+        {
+            // If the names match
+            if (p.Name.ToLower() == name.ToLower())
+            {
+                // Return the person reference
+                thisPerson = p;
+                
+                // Indicate success
+                return true;
+            }
+        }
+
+        // Could not find the person
+        return false;
+    }
+
+    void StartDialogue()
+    {
+        // Disable the input field
+        ToggleInputField(false);
+
+        // Set greeting and options
+        chatTextMessage = "How may we assist you?";
+        option1Message = "I'm looking for someone.";
+        option2Message = "I can't figure out where to go from here.";
+
+        // "I'm looking for someone"
+        option1Action = delegate
+        {
+            // Show input for lookup
+            ToggleInputField(true);
+
+            // Update the UI
+            DisplayText();
+        };
+        // "I can't figure out where to go from here."
+        option2Action = delegate
+        {
+            // Hint at player's next step
+            WhereToGo();
+
+            // Update the UI
+            DisplayText();
+        };
+    }
+
+    public void WhereToGo()
+    {
+        // If there is no active delivery
+        if (gameplayManager.CurrentMessage == null)
+        {
+            // Suggest they return to office to start one
+            NoLetterDialogue();
+        }
+        // If they're in the correct location
+        else if (neighborhoodID == gameplayManager.NextStep.neighborhoodID)
+        {
+            // "I can help you"
+            CorrectLocationDialogue();
+        }
+        // If they're in the wrong location
+        else
+        {
+            // Hint at their next step
+            IncorrectLocationDialogue();
+        }
+    }
+
+    private void CorrectLocationDialogue()
+    {
+        // "I can help you"
+        chatTextMessage = "You're in the right spot! I can help you.";
+        option1Message = "Okay!";
+        option2Message = "On second thought, I'll come back later.";
+
+        // "Okay!"
+        option1Action = delegate
+        {
+            // Restart dialogue
+            StartDialogue();
+
+            // Update the UI
+            DisplayText();
+        };
+        // "I'll come back later"
+        option2Action = delegate
+        {
+            // Say goodbye and update the UI
+            DepartAndUpdateUI();
+        };
+    }
+
+    private void NoLetterDialogue()
+    {
+        // Hint at where to get a letter
+        chatTextMessage = "You don't seem to have a letter with you. Start by getting one from <b>your office</b>."; 
+        option1Message = "Whoops. I'll come back when I have one.";
+        option2Message = "I have something else.";
+
+        // "I'll come back"
+        option1Action = delegate
+        {
+            // Say goodbye and update the UI
+            DepartAndUpdateUI();
+        };
+        // "I have another request"
+        option2Action = delegate
+        {
+            // Say goodbye and update the UI
+            DepartAndUpdateUI();
+        };
+    }
+
+    void ToggleInputField(bool isActive)
+    {
+        // Disable the input field first
+        IsInputFieldActive = false;
+        inputField.gameObject.SetActive(false);
+
+        // If they're at the right lookup agency
+        if (neighborhoodID == gameplayManager.NextStep.neighborhoodID)
+        {
+            // If there is NOT an active delivery
+            if (gameplayManager.CurrentMessage == null)
+            {
+                // Hint at getting a letter first
+                NoLetterDialogue();
+                return;
+            }
+            // If there IS an active delivery
+            else
+            {
+                // Enable the input field
+                IsInputFieldActive = isActive;
+                inputField.gameObject.SetActive(isActive);
+
+                // Enable/disable the appropriate buttons
+                option1Button.gameObject.SetActive(!isActive);
+                option2Button.gameObject.SetActive(true);
+
+                // Set up prompts
+                chatTextMessage = "Who are you looking for?";
+                option1Message = "";
+                option2Message = "This person.";
+
+                // Redundant in case option1Button is not properly disabled
+                option1Action = delegate
+                {
+                    // Re-update the UI
+                    DisplayText();
+                };
+                // "This person"
+                option2Action = delegate
+                {
+                    // Lookup the requested person
+                    LookupPerson();
+
+                    // Update the UI
+                    DisplayText();
+                };
+            }
+        }
+        // If they're NOT at the right lookup agency
+        else
+        {
+            // Hint at the correct lookup agency
+            IncorrectLocationDialogue();
+        }
+    }
+
+    void LookupPerson()
+    {
+        // Disable the input field
+        ToggleInputField(false);
+        
+        string targetName = "";
+        string targetDescription_Lives = "";
+        string targetDescription = "";
+        Person thisPersonProfile = null;
+
+        // If the player has purchased the "Exit the Matrix" upgrade
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            // Reference the recipient's URL
+            targetName = gameplayManager.CurrentMessage.Recipient.URL;
+            targetDescription = "website";
+            targetDescription_Lives = "website is";
+        }
+        else
+        {
+            // Reference the recipient's name
+            targetName = gameplayManager.CurrentMessage.Recipient.Name;
+            targetDescription = "person";
+            targetDescription_Lives = "person lives";
+        }
+
+        // If the input name matches the target message
+        if (inputField.text.ToLower().Trim() == targetName.ToLower().Trim())
+        {
+            // Find the person's profile
+            thisPersonProfile = gameplayManager.CurrentMessage.Recipient;
+
+            // If this person doesn't exist -- ERROR
+            if (thisPersonProfile == null)
+            {
+                // Hint at possible cause for not finding the person
+                chatTextMessage = "Hmm... I don't know that " + targetDescription + ". Did you spell the name correctly?";
+                option1Message = "Let me try again.";
+                option2Message = "I'll check and come back.";
+
+                // "Let me try again"
+                option1Action = delegate
+                {
+                    // Re-display the input field
+                    ToggleInputField(true);
+                    
+                    // Update the UI
+                    DisplayText();
+                };
+                // "I'll check and come back"
+                option2Action = delegate
+                {
+                    // Say goodbye and update the UI
+                    DepartAndUpdateUI();
+                };
+            }
+            // If the person DOES exist -- expected
+            else
+            {
+                // If currently at CLA
+                if (neighborhoodID == 'X')
+                {
+                    // Find next location
+                    string nextLocationForTaskTracker = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID);
+                    string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID, forcePreExit: true, forcePostExit: false);
+
+                    // Tell the player where to go
+                    chatTextMessage = "It seems that " + targetDescription_Lives + " at <b>" + nextLocation + "</b>. Check with their " + (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? "DNS Server" : "Lookup Agency office") + " for more specific details.";
+                    option1Message = "";
+                    option2Message = "Thanks!";
+
+                    // "Thanks"
+                    option1Action = delegate
+                    {
+                        // Say goodbye and update the UI
+                        DepartAndUpdateUI();
+                    };
+                    // Redundant in case the option2Button did not get disabled properly
+                    option2Action = delegate
+                    {
+                        // Say goodbye and update the UI
+                        DepartAndUpdateUI();
+                    };
+
+                    // Store next step instructions
+                    GameplayManager.DeliveryInstructions nextInstructions;
+                    nextInstructions.nextStep = nextLocationForTaskTracker + (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? " DNS Server" : " Lookup Agency");
+                    nextInstructions.neighborhoodID = thisPersonProfile.NeighborhoodID;
+
+                    // If the player has purchased the "Exit the Matrix" upgrade
+                    if (gameplayManager.HasUpgrade("Exit the Matrix"))
+                    {
+                        // Reference the recipient's URL
+                        nextInstructions.recipient = thisPersonProfile.URL;
+                    }
+                    else
+                    {
+                        // Reference the recipient's name
+                        nextInstructions.recipient = thisPersonProfile.Name;
+                    }
+
+                    // Store next step instructions
+                    gameplayManager.SetNextSteps(nextInstructions);
+                }
+                // If currently at local lookup agency
+                else
+                {
+                    // Find next location
+                    string nextLocation = lookupAgencyManager.GetNeighborhoodNameFromID(thisPersonProfile.NeighborhoodID);
+
+                    // Tell the player the residence number
+                    chatTextMessage = "That " + targetDescription_Lives + " at <b>Residence #" + thisPersonProfile.HouseNumber + "</b>.";
+                    option1Message = "";
+                    option2Message = "Thanks!";
+
+                    // "Thanks"
+                    option1Action = delegate
+                    {
+                        // Say goodbye and update the UI
+                        DepartAndUpdateUI();
+                    };
+                    // Redundant in case the option2Button did not get disabled properly
+                    option2Action = delegate
+                    {
+                        // Say goodbye and update the UI
+                        DepartAndUpdateUI();
+                    };
+
+                    // Store the next step instructions
+                    GameplayManager.DeliveryInstructions nextInstructions;
+                    nextInstructions.neighborhoodID = thisPersonProfile.NeighborhoodID;
+
+                    // If the player has purchased the "Exit the Matrix" upgrade
+                    if (gameplayManager.HasUpgrade("Exit the Matrix"))
+                    {
+                        // Reference the recipient's URL
+                        nextInstructions.recipient = thisPersonProfile.URL;
+
+                        // Determine the recipient's IP
+                        nextInstructions.nextStep = AddressManager.DetermineIPFromHouseInfo(thisPersonProfile.HouseNumber, thisPersonProfile.NeighborhoodID);
+
+                        // Adjust the message to the player to reflect the IP instead of the house number
+                        chatTextMessage = "That " + targetDescription_Lives + " at <b>" + nextInstructions.nextStep + "</b>.";
+                    }
+                    else
+                    {
+                        // Reference the recipient's name
+                        nextInstructions.recipient = thisPersonProfile.Name;
+
+                        // Use the recipient's house number
+                        nextInstructions.nextStep = "Residence #" + thisPersonProfile.HouseNumber;
+                    }
+
+                    // Store the next step instructions
+                    gameplayManager.SetNextSteps(nextInstructions);
+                }
+            }
+        }
+        // Does NOT match the name on the package
+        else
+        {
+            // Tell the player it doesn't match
+            chatTextMessage = "Hmm... That's not the " + targetDescription + " written on your package. Who is it again that you're looking for?";
+            option1Message = "Let me try again.";
+            option2Message = "I'll check and come back.";
+
+            // "Let me try again"
+            option1Action = delegate
+            {
+                // Re-show the input field
+                ToggleInputField(true);
+                
+                // Update the UI
+                DisplayText();
+            };
+            // "I'll come back"
+            option2Action = delegate
+            {
+                // Say goodbye and update the UI
+                DepartAndUpdateUI();
+            };
+        }
+    }
+
+    private void DepartAndUpdateUI()
+    {
+        // Say goodbye
+        DepartDialogue();
+
+        // Update the UI
+        DisplayText();
+    }
+
+    private void IncorrectLocationDialogue()
+    {
+        // Incorrect place
+        string centralLookupLocation = lookupAgencyManager.GetNeighborhoodNameFromID('X');
+        chatTextMessage = "Hmm... I'm not sure you're in the right spot. Check the " + (upgradeManager.HasPurchasedUpgrade("Exit the Matrix") ? "DNS Server" : "Lookup Agency") + " in <b>" + centralLookupLocation + "</b> for your next steps.";
+        option1Message = "";
+        option2Message = "I'll do that.";
+
+        // "I'll go to the right place"
+        option1Action = delegate
+        {
+            // Say goodbye and update the UI
+            DepartAndUpdateUI();
+        };
+        // Redundant in case the option2Button did not get disabled properly
+        option2Action = delegate
+        {
+            // Say goodbye and update the UI
+            DepartAndUpdateUI();
+        };
+    }
+
+    void DisplayText()
+    {
+        if (currentCoroutine != null)
+            StopCoroutine(currentCoroutine);
+
+        currentCoroutine = StartCoroutine(WriteTextToUI(chatTextMessage, option1Message, option2Message));
+        AddEventListeners(option1Action, option2Action);
+    }
+
+    IEnumerator WriteTextToUI(string chat, string option1, string option2)
+    {
+        // Clear displayed text
+        chatPromptText.text = "";
+        option1Text.text = "";
+        option2Text.text = "";
+
+        // Deselect all buttons
+        eventSystem.SetSelectedGameObject(null);
+        
+        option1Button.interactable = !string.IsNullOrEmpty(option1);
+        option2Button.interactable = !string.IsNullOrEmpty(option2);
+
+        // Start with "Lookup Agency Worker" -- Just print, don't do letter-by-letter
+        chatPromptText.text = "<b>Lookup Agency Worker</b>:\n";
+
+        // Write to chat prompt
+        for (int i = 0; i < chat.Length; i++)
+        {
+            // Delay between characters
+            yield return new WaitForSeconds(CHAT_DELAY);
+
+            // Write next character
+            chatPromptText.text += chat[i];
+        }
+
+        // Write option 1 button text
+        for (int i = 0; i < option1.Length; i++)
+        {
+            // Delay between characters
+            yield return new WaitForSeconds(CHAT_DELAY);
+
+            // Write next character
+            option1Text.text += option1[i];
+        }
+
+        // Write option 2 button text
+        for (int i = 0; i < option2.Length; i++)
+        {
+            // Delay between characters
+            yield return new WaitForSeconds(CHAT_DELAY);
+
+            // Write next character
+            option2Text.text += option2[i];
+        }
+    }
+
+    void AddEventListeners(UnityAction a1, UnityAction a2)
+    {
+        // Add option 1 listener
+        option1Button.onClick.RemoveAllListeners();
+        option1Button.onClick.AddListener(a1);
+
+        // Add option 2 listener
+        option2Button.onClick.RemoveAllListeners();
+        option2Button.onClick.AddListener(a2);
+    }
+
+    public void DepartDialogue()
+    {
+        // Say goodbye
+        chatTextMessage = "Come back soon!";
+        option1Message = "";
+        option2Message = "Bye.";
+
+        // Make both buttons redirect to twon
+        option1Action = delegate { GoToTown(); };
+        option2Action = delegate { GoToTown(); };
+    }
+
+    public char DetermineNextLocation(Person p)
+    {
+        // If the current neighborhood is Root Village ('X'), go to the appropriate
+        // local lookup agency (p.NeighborhoodID). If the player is at a local lookup agency
+        // (not 'X'), then the next step is go to the residence ('H')
+        return neighborhoodID == 'X' ? p.NeighborhoodID : 'H';
+    }
+
+    public void GoToTown()
+    {
+        // Fade out and transition to town
+        fadeTransitionObject.FadeMethod("town");
+    }
+    
+    public bool IsInputFieldActive { get; private set; }
+}
+
+/* File: StartingNPCChatManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class StartingNPCChatManager : MonoBehaviour
+{
+    public readonly float CHAT_DELAY = 0.005f;
+
+    [SerializeField] EventSystem eventSystem;
+    [SerializeField] Text chatText;
+    [SerializeField] Text option1Text;
+    [SerializeField] Text option2Text;
+    [SerializeField] Button option1Button;
+    [SerializeField] Button option2Button;
+
+    [SerializeField] string nextSceneName;
+
+    [SerializeField] TextAsset introDialogueText;
+
+    string chatString;
+    string option1String;
+    string option2String;
+
+    UnityAction option1Action;
+    UnityAction option2Action;
+
+    Coroutine currentCoroutine;
+
+    struct DialogueLine
+    {
+        public string speaker;
+        public string line;
+        public string response;
+    }
+
+    List<DialogueLine> dialogueLines;
+
+    int dialogueIndex;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        dialogueIndex = 0;
+
+        if (string.IsNullOrEmpty(nextSceneName))
+        {
+            nextSceneName = "office";
+        }
+
+        // Set scene objects using the parent class
+        // SetSceneObjects(eventSystem, chatText, option1Text, option1Button, option2Text, option2Button);
+
+        ParseDialogueText();
+
+        // Add event listeners using parent class
+        AddEventListeners(Dialogue, null /* truly null */);
+    }
+
+    void ParseDialogueText()
+    {
+        string[] dialogueParts = introDialogueText.text.Split('\n');
+        string[] speakerParts = dialogueParts[0].Split(':');
+        string speaker = speakerParts[1].Trim();
+
+        dialogueLines = new List<DialogueLine>();
+
+        DialogueLine dialogueLine;
+        dialogueLine.speaker = speaker;
+
+        // line 1 is blank
+        for (int i = 2; i < dialogueParts.Length; i += 2)
+        {
+            dialogueLine.line = dialogueParts[i].Trim();
+            dialogueLine.response = dialogueParts[i + 1].Trim();
+            dialogueLines.Add(dialogueLine);
+        }
+    }
+
+    void Dialogue()
+    {
+        if (dialogueIndex >= dialogueLines.Count)
+        {
+            SceneManager.LoadScene(nextSceneName);
+            return;
+        }
+
+        DialogueLine thisLine = dialogueLines[dialogueIndex];
+        if (thisLine.line == "Thanks! I've got to run now!")
+        {
+            Destroy(gameObject.GetComponent<SpriteRenderer>());
+        }
+
+        if (currentCoroutine != null)
+            StopCoroutine(currentCoroutine);
+
+        // Write text using parent class
+        currentCoroutine = StartCoroutine(WriteTextToUI(thisLine.speaker, thisLine.line, thisLine.response));
+
+        dialogueIndex++;
+    }
+
+    IEnumerator WriteTextToUI(string chat, string option1, string option2)
+    {
+        // Clear displayed text
+        chatText.text = "";
+        option1Text.text = "";
+        option2Text.text = "";
+
+        // Deselect all buttons
+        eventSystem.SetSelectedGameObject(null);
+
+        option1Button.interactable = !string.IsNullOrEmpty(option1);
+        option2Button.interactable = !string.IsNullOrEmpty(option2);
+
+        // Write to chat prompt
+        for (int i = 0; i < chat.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            chatText.text += chat[i];
+        }
+
+        // Write option 1 button text
+        for (int i = 0; i < option1.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option1Text.text += option1[i];
+        }
+
+        // Write option 2 button text
+        for (int i = 0; i < option2.Length; i++)
+        {
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option2Text.text += option2[i];
+        }
+    }
+
+    void AddEventListeners(UnityAction a1, UnityAction a2)
+    {
+        // Add option 1 listener
+        option1Button.onClick.RemoveAllListeners();
+        option1Button.onClick.AddListener(a1);
+
+        // Add option 2 listener
+        option2Button.onClick.RemoveAllListeners();
+        option2Button.onClick.AddListener(a2);
+    }
+}
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CreditsMenu : MonoBehaviour
+{
+    [SerializeField] Transition fadeManager;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void TitleScreenButtonClicked()
+    {
+        fadeManager.FadeMethod("title");
+    }
+}
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class CheatManager : MonoBehaviour
+{
+    static CheatManager instance = null;
+
+    LevelManager levelManager;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+#if UNITY_EDITOR
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        else
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+#else
+        // Don't need cheats on full game
+        Destroy(gameObject);
+#endif
+    }
+
+    public void SetLevelManager(LevelManager l)
+    {
+        levelManager = l;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+#if UNITY_EDITOR
+        /*if (Input.GetKeyDown(KeyCode.F1))
+        {
+            levelManager.LoadLevel("office");
+        }
+        else if (Input.GetKeyDown(KeyCode.F2))
+        {
+            levelManager.LoadLevel("centralLookupAgency");
+        }
+        else*/ if (Input.GetKeyDown(KeyCode.F3))
+        {
+            GameObject.Find("GameplayManager").GetComponent<GameplayManager>().CompleteTask();
+        }
+        /* else if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            GameObject.Find("GameplayManager").GetComponent<GameplayManager>().DebugChangePlayerPosition(0);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            GameObject.Find("GameplayManager").GetComponent<GameplayManager>().DebugChangePlayerPosition(1);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            GameObject.Find("GameplayManager").GetComponent<GameplayManager>().DebugChangePlayerPosition(2);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            GameObject.Find("GameplayManager").GetComponent<GameplayManager>().DebugChangePlayerPosition(3);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            GameObject.Find("GameplayManager").GetComponent<GameplayManager>().DebugChangePlayerPosition(4);
+        } */
+#endif
+    }
+}
+
+/* File: LoadingManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class LoadingManager : MonoBehaviour
+{
+    // Necessary manager references
+    [SerializeField] GameplayManager gameplayManager;
+    [SerializeField] LetterManager letterManager;
+    [SerializeField] LevelManager levelManager;
+    [SerializeField] MusicManager musicManager;
+    [SerializeField] StartSceneLoader startSceneLoader;
+    [SerializeField] LookupAgencyManager lookupAgencyManager;
+    [SerializeField] UpgradeManager upgradeManager;
+
+    // Background music file
+    [SerializeField] AudioClip music;
+
+    // NPC and player sprites for starting dialogue
+    [SerializeField] Sprite sprite_PlayerRight;
+    [SerializeField] Sprite sprite_PlayerDown;
+    [SerializeField] Sprite sprite_NPCLeft;
+    
+    void Start()
+    {
+        // Load and connect all necessary values and references
+        LinkManagersAndInitializeValues();
+        AssignInstantiatedObjectNames();
+
+        // Once all is loaded, change to title scene
+        levelManager.LoadLevel("title");
+    }
+
+    void AssignInstantiatedObjectNames()
+    {
+        // Change names of objects for consistency
+        gameplayManager.name = "GameplayManager";
+        letterManager.name = "LetterManager";
+        levelManager.name = "LevelManager";
+        musicManager.name = "MusicManager";
+        startSceneLoader.name = "StartSceneLoader";
+        lookupAgencyManager.name = "LookupAgencyManager";
+    }
+
+    void LinkManagersAndInitializeValues()
+    {
+        /* ORDER SENSITIVE */
+
+        // Set music clip and play
+        musicManager.SetAudioClip(music);
+        musicManager.Play();
+
+        // Set default delivery values
+        gameplayManager.ResetDeliveryDetails();
+
+        /* NOT order sensitive */
+        
+        // Set starting dialogue sprites
+        startSceneLoader.sprite_PlayerDown = sprite_PlayerDown;
+        startSceneLoader.sprite_PlayerRight = sprite_PlayerRight;
+        startSceneLoader.sprite_NPCLeft = sprite_NPCLeft;
+
+        // Populate upgrades and values
+        upgradeManager.AddUpgrade("Task Tracker", 10, isRepeatable: false);
+        upgradeManager.AddUpgrade("Company Running Shoes", 10, isRepeatable: false);
+        upgradeManager.AddUpgrade("Address Book", 20, isRepeatable: false);
+        upgradeManager.AddUpgrade("Address Book Slot", 10, isRepeatable: true);
+        upgradeManager.AddUpgrade("Exit the Matrix", 30, isRepeatable: false);
+        upgradeManager.AddUpgrade("Where Credit is Due", 30, isRepeatable: false);
+
+        // Add Start Scene Loader's method to list of scene change events
+        SceneManager.sceneLoaded += startSceneLoader.OnSceneWasLoaded;
+    }
+}
+
+/* File: Person.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Assets.Scripts.Lookup_Agencies
+{
+    [Serializable]
+    public class Person
+    {
+        public Person(string n, string u, string ne, char ni, int h)
+        {
+            Name = n;
+            URL = u;
+            Neighborhood = ne;
+            NeighborhoodID = ni;
+            HouseNumber = h;
+        }
+
+        public string Name { get; private set; }
+        public string URL { get; private set; }
+        public string Neighborhood { get; private set; } // Full expanded neighborhood name
+        public char NeighborhoodID { get; private set; } // ID to lookup the neighborhood name if needed
+        public int HouseNumber { get; private set; }
+    }
+}
+
+/* File: MusicManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using UnityEngine;
+
+public class MusicManager : MonoBehaviour
+{
+    // Music Manager singleton reference
+    static MusicManager instance = null;
+
+    // Store the object playing the music in the scene(s)
+    [SerializeField] AudioSource musicSource;
+
+    // Store the .wav file being played in the background
+    AudioClip musicClip;
+
+    private void Awake()
+    {
+        // Only use one music manager at a time
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+    
+    void Start()
+    {
+        musicSource = GameObject.Find("MusicSource").GetComponent<AudioSource>();
+        musicSource.volume = 0.35f;
+    }
+    
+    public void SetAudioClip(AudioClip ac)
+    {
+        // Save music clip
+        musicClip = ac;
+
+        // Set music clip in AudioSource
+        musicSource.clip = musicClip;
+
+        // Loop the clip
+        musicSource.loop = true;
+    }
+
+    public void Play()
+    {
+        // Play via the audio source
+        musicSource.Play();
+    }
+
+    public void Pause()
+    {
+        // Pause via the audio source
+        musicSource.Pause();
+    }
+
+    public void Stop()
+    {
+        // Stop via the audio source
+        musicSource.Stop();
+    }
+
+    public void ToggleMute()
+    {
+        musicSource.mute = !musicSource.mute;
+    }
+
+    public void SetVolume(float volume)
+    {
+        musicSource.volume = volume;
+    }
+
+    public float Volume
+    {
+        get
+        {
+            float volume = musicSource.volume;
+            // Debug.Log("Music at " + volume + "% volume");
+            return volume;
+        }
+        set
+        {
+            musicSource.volume = value;
+            // Debug.Log("Music now set to " + value + "% volume");
+        }
+    }
+}
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class OfficeComputerLessonManager : MonoBehaviour
+{
+    HUDManager hudManager;
+    UpgradeManager upgradeManager;
+
+    [SerializeField] GameObject[] uiObjectsToToggle;
+    [SerializeField] GameObject addressBookLesson;
+    [SerializeField] GameObject addressBookLessonButton;
+    [SerializeField] GameObject exitTheMatrixLesson;
+    [SerializeField] GameObject exitTheMatrixLessonPage2;
+    [SerializeField] GameObject exitTheMatrixLessonPage3;
+    [SerializeField] GameObject exitTheMatrixLessonButton;
+    [SerializeField] GameObject exitTheMatrixNextLessonButton;
+    [SerializeField] GameObject exitTheMatrixPreviousLessonButton;
+
+    static bool hasShownExitTheMatrixLesson = false;
+    static bool hasShownAddressBookLesson = false;
+    static bool firstAddressBookLesson = true;
+
+    enum Lesson { None, ExitTheMatrixP1, ExitTheMatrixP2, ExitTheMatrixP3, AddressBook };
+    Lesson currentLesson;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        ReturnToComputer();
+
+        hudManager = GameObject.Find("HUD").GetComponent<HUDManager>();
+        upgradeManager = GameObject.Find("UpgradeManager").GetComponent<UpgradeManager>();
+
+        currentLesson = Lesson.None;
+    }
+
+    public void ToggleUIObjects(bool isShown)
+    {
+        foreach (GameObject g in uiObjectsToToggle)
+        {
+            g.SetActive(isShown);
+        }
+
+        bool isAddressBookButtonShown = isShown && hasShownAddressBookLesson;
+        addressBookLessonButton.SetActive(isAddressBookButtonShown);
+
+        bool isExitTheMatrixButtonShown = isShown && hasShownExitTheMatrixLesson;
+        exitTheMatrixLessonButton.SetActive(isExitTheMatrixButtonShown);
+    }
+
+    public void ReturnToComputer()
+    {
+        ToggleUIObjects(isShown: true);
+        exitTheMatrixLesson.SetActive(false);
+        exitTheMatrixLessonPage2.SetActive(false);
+        exitTheMatrixLessonPage3.SetActive(false);
+        addressBookLesson.SetActive(false);
+
+        exitTheMatrixNextLessonButton.SetActive(false);
+        exitTheMatrixPreviousLessonButton.SetActive(false);
+
+        if (currentLesson == Lesson.AddressBook && firstAddressBookLesson)
+        {
+            firstAddressBookLesson = false;
+
+            // Show address book
+            hudManager.ToggleAddressBook(isShown: true);
+        }
+
+        currentLesson = Lesson.None;
+    }
+
+    void ShowETM()
+    {
+        exitTheMatrixLesson.SetActive(true);
+    }
+
+    void ShowETMPage(int page)
+    {
+        switch (page)
+        {
+            case 1:
+                Debug.Log("Showing Page 1");
+                currentLesson = Lesson.ExitTheMatrixP1;
+
+                // Show first lesson
+                exitTheMatrixLesson.SetActive(true);
+
+                // Hide other lessons
+                exitTheMatrixLessonPage2.SetActive(false);
+                exitTheMatrixLessonPage3.SetActive(false);
+
+                // Show next button
+                exitTheMatrixNextLessonButton.SetActive(true);
+
+                // Hide previous button
+                exitTheMatrixPreviousLessonButton.SetActive(false);
+                break;
+            case 2:
+                Debug.Log("Showing Page 2");
+                currentLesson = Lesson.ExitTheMatrixP2;
+
+                // Show second lesson
+                exitTheMatrixLessonPage2.SetActive(true);
+
+                // Hide other lessons
+                exitTheMatrixLesson.SetActive(false);
+                exitTheMatrixLessonPage3.SetActive(false);
+
+                // Show next button and previous button
+                exitTheMatrixNextLessonButton.SetActive(true);
+                exitTheMatrixPreviousLessonButton.SetActive(true);
+                
+                break;
+            case 3:
+                Debug.Log("Showing Page 3");
+                currentLesson = Lesson.ExitTheMatrixP3;
+
+                // Show third lesson
+                exitTheMatrixLessonPage3.SetActive(true);
+
+                // Hide other lessons
+                exitTheMatrixLesson.SetActive(false);
+                exitTheMatrixLessonPage2.SetActive(false);
+
+                // Hide next button
+                exitTheMatrixNextLessonButton.SetActive(false);
+
+                // Show previous button
+                exitTheMatrixPreviousLessonButton.SetActive(true);
+                break;
+            default:
+                Debug.Log("Incorrect page -- " + page);
+                break;
+        }
+    }
+
+    public void ShowPreviousExitTheMatrixLesson()
+    {
+        ToggleUIObjects(isShown: false);
+
+        switch (currentLesson)
+        {
+            case Lesson.ExitTheMatrixP2:
+                ShowETMPage(page: 1);
+                break;
+
+            case Lesson.ExitTheMatrixP3:
+                ShowETMPage(page: 2);
+                break;
+
+            default:
+                Debug.Log("Incorrect lesson -- Lesson." + currentLesson);
+                break;
+        }
+    }
+
+    public void ShowNextExitTheMatrixLesson()
+    {
+        ToggleUIObjects(isShown: false);
+
+        Debug.Log(currentLesson);
+        switch (currentLesson)
+        {
+            case Lesson.None:
+                ShowETMPage(page: 1);
+                break;
+
+            case Lesson.ExitTheMatrixP1:
+                ShowETMPage(page: 2);
+                break;
+
+            case Lesson.ExitTheMatrixP2:
+                ShowETMPage(page: 3);
+                break;
+
+            default:
+                Debug.Log("Incorrect lesson -- Lesson." + currentLesson);
+                break;
+        }
+    }
+
+    public void ShowAddressBookLesson()
+    {
+        ToggleUIObjects(isShown: false);
+        addressBookLesson.SetActive(true);
+
+        currentLesson = Lesson.AddressBook;
+    }
+
+    public void PurchaseExitTheMatrix()
+    {
+        if (upgradeManager.HasPurchasedUpgrade("Exit the Matrix"))
+        {
+            Debug.Log(hasShownExitTheMatrixLesson);
+            if (!hasShownExitTheMatrixLesson)
+            {
+                ShowNextExitTheMatrixLesson();
+                hasShownExitTheMatrixLesson = true;
+            }
+        }
+    }
+
+    public void PurchaseAddressBook()
+    {
+        if (upgradeManager.HasPurchasedUpgrade("Address Book"))
+        {
+            if (!hasShownAddressBookLesson)
+            {
+                ShowAddressBookLesson();
+                hasShownAddressBookLesson = true;
+            }
+        }
+    }
+}
+
+/* File: OfficeComputerManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using UnityEngine;
+using UnityEngine.UI;
+using Assets.Scripts.Behind_The_Scenes;
+
+public class OfficeComputerManager : MonoBehaviour
+{
+    // Reference to the player object in the scene
+    [SerializeField] PlayerController player;
+
+    // Reference to the computer UI
+    [SerializeField] GameObject officeComputerCanvas;
+
+    // Reference to computer UI text for displaying various details
+    [SerializeField] Text screenText;
+
+    // Buttons on the logistic menu
+    [SerializeField] Button[] logisticsButtons;
+
+    // Price text for task tracker upgrade
+    [SerializeField] Text taskTrackerPriceText;
+
+    // Price text for company running shoes upgrade
+    [SerializeField] Text companyRunningShoesPriceText;
+
+    // Address Book upgrade text objects
+    [SerializeField] Text addressBookNameText;
+    [SerializeField] Text addressBookSlotNameText;
+    [SerializeField] Text addressBookPriceText;
+    [SerializeField] Text addressBookSlotPriceText;
+    [SerializeField] Text addressBookSlotDescriptionText;
+
+    // Price text for Exit the Matrix upgrade
+    [SerializeField] Text exitMatrixPriceText;
+
+    // Description text for Where Credit is Due
+    [SerializeField] Text whereCreditIsDueDescriptionText;
+    [SerializeField] Text whereCreditIsDuePriceText;
+
+    // Fade Canvas -- for transitioning to the credits
+    [SerializeField] Transition fadeManager;
+
+    [SerializeField] Button addressBookLessonButton;
+    [SerializeField] Button exitTheMatrixLessonButton;
+
+    // Flag to indicate if the computer UI is shown
+    bool isComputerShown;
+
+    // Manager references
+    GameplayManager gameplayManager;
+    UpgradeManager upgradeManager;
+    CacheManager cacheManager;
+    HUDManager hudManager;
+
+    // Flag to indicate if the player is close enough to the computer to interact with it
+    bool isAtComputer;
+    
+    void Start()
+    {
+        // Remove the details from the text object
+        screenText.text = "";
+
+        // Set manager references
+        FindManagersInScene();
+
+        // Display upgrades price
+        taskTrackerPriceText.text = "$" + upgradeManager.GetUpgradeCost("Task Tracker");
+        companyRunningShoesPriceText.text = "$" + upgradeManager.GetUpgradeCost("Company Running Shoes");
+        addressBookPriceText.text = "$" + upgradeManager.GetUpgradeCost("Address Book");
+        addressBookSlotPriceText.text = "$" + upgradeManager.GetUpgradeCost("Address Book Slot");
+        exitMatrixPriceText.text = "$" + upgradeManager.GetUpgradeCost("Exit the Matrix");
+        whereCreditIsDuePriceText.text = "$" + upgradeManager.GetUpgradeCost("Where Credit is Due");
+
+        // The player starts away from the computer
+        isAtComputer = false;
+
+        // Hide computer and logistics buttons
+        ToggleDisplayLogisticsButtons(false);
+        ToggleComputerCanvas(false);
+
+        // If the player has already purchased the limit
+        if (upgradeManager.GetQuantity("Address Book Slot") == 2)
+        {
+            // Make sure price is marked as "Maxed out" and italicized
+            addressBookSlotPriceText.text = "Maxed Out";
+            addressBookSlotPriceText.fontStyle = FontStyle.Italic;
+
+            // Show on-screen message
+            screenText.gameObject.SetActive(true);
+        }
+    }
+
+    private void FindManagersInScene()
+    {
+        // Find the GameplayManager in scene
+        GameObject gameplayManagerObject = GameObject.Find("GameplayManager");
+
+        // If the gameplay manager object is valid (not null)
+        if (gameplayManagerObject != null)
+        {
+            // Get the gameplay manager component from the object
+            gameplayManager = gameplayManagerObject.GetComponent<GameplayManager>();
+
+            // Adjust Address Book and Add Address Book Slot names
+            if (gameplayManager.HasUpgrade("Exit the Matrix"))
+            {
+                addressBookNameText.text = "DNS Cache";
+                addressBookSlotNameText.text = "Add DNS Cache Slot";
+
+            }
+
+            whereCreditIsDueDescriptionText.text = "End of the Game\nRequires: Task Tracker, " + addressBookNameText.text + ", Exit the Matrix";
+        }
+
+        // Find the UpgradeManager in scene
+        GameObject upgradeManagerObject = GameObject.Find("UpgradeManager");
+
+        // If the upgrade manager object is valid (not null)
+        if (upgradeManagerObject != null)
+        {
+            // Get the upgrade manager component from the object
+            upgradeManager = upgradeManagerObject.GetComponent<UpgradeManager>();
+        }
+
+        // Find the CacheManager in scene
+        GameObject cacheManagerObject = GameObject.Find("CacheManager");
+
+        // If the cache manager object is valid (not null)
+        if (cacheManagerObject != null)
+        {
+            // Get the cache manager component from the object
+            cacheManager = cacheManagerObject.GetComponent<CacheManager>();
+        }
+
+        // Find the HUDManager in scene
+        GameObject hudManagerObject = GameObject.Find("HUD");
+
+        // If the cache manager object is valid (not null)
+        if (hudManagerObject != null)
+        {
+            // Get the cache manager component from the object
+            hudManager = hudManagerObject.GetComponent<HUDManager>();
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        // If computer is hidden and player is within trigger
+        if (!isComputerShown && isAtComputer)
+        {
+            // If pressing space bar
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                // Show computer
+                ToggleComputerCanvas(true);
+            }
+        }
+    }
+
+    void ToggleComputerCanvas(bool isShown)
+    {
+        // Set default text as empty
+        screenText.text = "";
+
+        // Store isShown value for reference in other methods
+        isComputerShown = isShown;
+
+        // Display or hide the computer UI
+        officeComputerCanvas.gameObject.SetActive(isShown);
+
+        // Freeze player if at computer
+        player.IsWalkingEnabled = !isShown;
+
+        // Force the computer UI to update
+        ForceUpdateGUI();
+    }
+    
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        // If player is activating the trigger, they're at the computer
+        isAtComputer = true;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        // If player is activating the trigger, they're at the computer
+        isAtComputer = true;
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        // If player is done activating the trigger, they left the computer
+        isAtComputer = false;
+    }
+
+    public void TurnOffComputer()
+    {
+        // Hide the canvas
+        ToggleComputerCanvas(false);
+    }
+
+    bool HasValidActiveDelivery()
+    {
+        // If Gameplay Manager is invalid
+        if (gameplayManager == null)
+            return false;
+
+        // Force update the HUD
+        gameplayManager.ForceUpdateHUD();
+
+        // Check if the player has an active delivery and return the result
+        return gameplayManager.HasCurrentTarget();
+    }
+
+    public void NewDeliveryRequest()
+    {
+        // If Gameplay Manager is valid
+        if (gameplayManager != null)
+        {
+            string systemMessage = "";
+
+            // If there is already an active delivery
+            if (gameplayManager.HasCurrentTarget())
+            {
+                // Display error message reminding the user of the active delivery
+                systemMessage = "Please <b>complete your current delivery</b> before initiating another.\n";
+            }
+            // If there is not an active delivery
+            else
+            {
+                // Start a delivery and tell the user
+                systemMessage = "Success! You've successfully setup a new delivery. Try heading towards the <b>Root Village Lookup Agency</b> for your next step.\n";
+
+                gameplayManager.GetNextMessage();
+            }
+
+            // Display the message details on screen with system message
+            DisplayDetails(systemMessage);
+        }
+
+        // Hide the logistics screen
+        ToggleDisplayLogisticsButtons(false);
+
+        // Show the text
+        screenText.gameObject.SetActive(true);
+
+        // Update the HUD
+        gameplayManager.ForceUpdateHUD();
+    }
+
+    void DisplayDetails(in string systemMessage)
+    {
+        // Get the current message details
+        Letter currentMessage = gameplayManager.CurrentMessage;
+        string sender = currentMessage.Sender.Name;
+        string recipient = currentMessage.Recipient.Name;
+
+        // If the player has purchased the exit the matrix upgrade
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            // Use the URLs instead of the names
+            sender = currentMessage.Sender.URL;
+            recipient = currentMessage.Recipient.URL;
+        }
+        
+        // Format the text to be displayed on screen
+        string senderLine = "Sender: " + sender;
+        string receiverLine = "Recipient: " + recipient;
+        string bodyLine = "\n" + currentMessage.Body;
+
+        string displayText = "";
+        
+        // If there is a system message
+        if (!string.IsNullOrEmpty(systemMessage))
+        {
+            // Put it before the message details
+            displayText = systemMessage + "\n";
+        }
+
+        // Add the message details
+        displayText += senderLine + "\n" + receiverLine + "\n" + bodyLine;
+
+        // Show the text
+        screenText.text = displayText;
+        screenText.gameObject.SetActive(true);
+
+        // Update the HUD
+        gameplayManager.ForceUpdateHUD();
+    }
+
+    void DisplayNoActiveDeliveryError()
+    {
+        // Display error message
+        screenText.text = "You don't currently have an active delivery. Try <b>starting a new request</b>.";
+
+        // Update the HUD
+        gameplayManager.ForceUpdateHUD();
+    }
+
+    public void ViewDeliveryDetails()
+    {
+        // If the player has an active delivery
+        if (HasValidActiveDelivery())
+        {
+            // Display delivery details
+            DisplayDetails("");
+        }
+        // If the player does not have a delivery
+        else
+        {
+            // Display an error
+            DisplayNoActiveDeliveryError();
+        }
+        
+        // Hide logistics
+        ToggleDisplayLogisticsButtons(false);
+
+        // Show the text on-screen
+        screenText.gameObject.SetActive(true);
+    }
+
+    public void NextDestination()
+    {
+        // If valid Gameplay Manager and if there is an active delivery
+        if (HasValidActiveDelivery())
+        {
+            // Check if the lookup details are not null
+            bool isValidAbbreviation = !string.IsNullOrEmpty(gameplayManager.NextStep.nextStep) && !string.IsNullOrEmpty(gameplayManager.NextStep.recipient);
+
+            // Reference the stored next step
+            string nextDisplayDestination = gameplayManager.NextStep.nextStep;
+                
+            // Display next location
+            screenText.text = "You should try stopping by the <b>" + nextDisplayDestination + "</b> next";
+        }
+        else
+        {
+            // Display error
+           DisplayNoActiveDeliveryError();
+        }
+
+        // Hide the logistics buttons
+        ToggleDisplayLogisticsButtons(false);
+
+        // Show the on-screen text
+        screenText.gameObject.SetActive(true);
+
+        // Update the HUD
+        gameplayManager.ForceUpdateHUD();
+    }
+
+    public void Logistics()
+    {
+        // If the Gameplay Manager is valid
+        if (gameplayManager != null)
+        {
+            // Display the logistics menu
+            ToggleDisplayLogisticsButtons(true);
+        }
+
+        // Update the HUD
+        gameplayManager.ForceUpdateHUD();
+    }
+
+    void ToggleDisplayLogisticsButtons(bool isShown)
+    {
+        // Enable/Disable each logistics button
+        foreach (Button b in logisticsButtons)
+        {
+            // Enable/disable all buttons
+            b.gameObject.SetActive(isShown);
+        }
+
+        if (upgradeManager.HasPurchasedUpgrade("Exit The Matrix"))
+        {
+            exitTheMatrixLessonButton.gameObject.SetActive(isShown);
+        }
+
+        if (upgradeManager.HasPurchasedUpgrade("Address Book"))
+        {
+            addressBookLessonButton.gameObject.SetActive(isShown);
+        }
+
+        // If showing the logistics screen
+        if (isShown)
+        {
+            // Hide the message text
+            screenText.gameObject.SetActive(false);
+        }
+    }
+
+    public void PurchaseTaskTracker()
+    {
+        // Task Tracker instructions to display on purchase
+        string instructions = "To use the Task Tracker, <b>press " + HUDManager.TASK_TRACKER_KEY + "</b> to display your current target and your next delivery location.";
+
+        // Attempt to purchase the task tracker
+        string upgradeTitle = "Task Tracker";
+
+        // If successful
+        if (AttemptPurchaseUpgrade(upgradeTitle, instructions))
+        {
+            // Display the task tracker
+            hudManager.ToggleTaskTracker(true);
+        }
+    }
+
+    public void PurchaseCompanyRunningShoes()
+    {
+        // Exit the Matrix instructions to display on purchase
+        string instructions = "Boss bought you some running shoes! Hold <b>Left Shift</b> to run faster.";
+
+        string upgradeTitle = "Company Running Shoes";
+
+        // Attempt to purchase the exit the matrix upgrade
+        AttemptPurchaseUpgrade(upgradeTitle, instructions);
+    }
+
+    public void PurchaseExitTheMatrix()
+    {
+        // Exit the Matrix instructions to display on purchase
+        string instructions = "Now all addresses will be IP addresses and all lookup agencies will be based on real domain lookups.";
+
+        string upgradeTitle = "Exit the Matrix";
+
+        // Attempt to purchase the exit the matrix upgrade
+        if (AttemptPurchaseUpgrade(upgradeTitle, instructions))
+        {
+            // Adjust Address Book and Add Address Book Slot names
+            addressBookNameText.text = "DNS Cache";
+            addressBookSlotNameText.text = "Add DNS Cache Slot";
+            
+            // Change description text
+            whereCreditIsDueDescriptionText.text = "End of the Game\nRequires: Task Tracker, " + addressBookNameText.text + ", Exit the Matrix";
+        }
+    }
+
+    public void PurchaseAddressBook()
+    {
+        string addressBookDisplayTitle = "Address Book";
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            addressBookDisplayTitle = "DNS Cache";
+        }
+
+        // Address Book instructions to display on purchase
+        string instructions = "To use the " + addressBookDisplayTitle + ", <b>press " + HUDManager.ADDRESS_BOOK_KEY + "</b> to display the previous delivery locations.";
+
+        // Attempt to purchase the task tracker
+        string upgradeTitle = "Address Book";
+
+        // If successful
+        if (AttemptPurchaseUpgrade(upgradeTitle, instructions))
+        {
+            // Display the address book
+            // hudManager.ToggleAddressBook(true);
+        }
+    }
+
+    public void PurchaseAddressBookSlot()
+    {
+        string upgradeTitle = "Address Book Slot";
+        const int BASE_SLOT_QUANTITY = 3;
+        const int PURCHASE_QUANTITY_LIMIT = 2;
+
+        bool hasExitedTheMatrix = gameplayManager.HasUpgrade("Exit the Matrix");
+        string requiredUpgrade = "Address Book";
+        if (hasExitedTheMatrix)
+        {
+            requiredUpgrade = "DNS Cache";
+        }
+
+        // If the player has already purchased the limit
+        if (upgradeManager.GetQuantity(upgradeTitle) == PURCHASE_QUANTITY_LIMIT)
+        {
+            // Set error message
+            screenText.text = "You cannot add any more slots to your " + requiredUpgrade + ".";
+
+            // Make sure price is marked as "Maxed out" and italicized
+            addressBookSlotPriceText.text = "Maxed Out";
+            addressBookSlotPriceText.fontStyle = FontStyle.Italic;
+
+            // Show on-screen message
+            screenText.gameObject.SetActive(true);
+        }
+        // If the player has the address book upgrade and is under the limit
+        else if (gameplayManager.HasUpgrade("Address Book"))
+        {
+            // Address Book instructions to display on purchase
+            string instructions = "1 slot has been added to your " + requiredUpgrade;
+
+            // If purchase is successful
+            if (AttemptPurchaseUpgrade(upgradeTitle, instructions))
+            {
+                // Update the address book slot capacity for cacheManager
+                cacheManager.maxCapacity = BASE_SLOT_QUANTITY + upgradeManager.GetQuantity(upgradeTitle);
+
+                // If the player has purchased the limit
+                if (upgradeManager.GetQuantity(upgradeTitle) == PURCHASE_QUANTITY_LIMIT)
+                {
+                    // Set price text as "Maxed out" and italicized
+                    addressBookSlotPriceText.text = "Maxed Out";
+                    addressBookSlotPriceText.fontStyle = FontStyle.Italic;
+
+                    // show on-screen message
+                    screenText.gameObject.SetActive(true);
+                }
+
+                // Update the HUD
+                gameplayManager.ForceUpdateHUD();
+            }
+        }
+        else
+        {
+            // Set error message
+            screenText.text = "You need the <b>" + requiredUpgrade + "</b> upgrade first."; 
+
+            // Show on-screen message
+            screenText.gameObject.SetActive(true);
+        }
+    }
+
+    public void PurchaseWhereCreditIsDue()
+    {
+        // Address Book instructions to display on purchase
+        string instructions = "Congratulations!";
+
+        // Attempt to purchase the task tracker
+        string upgradeTitle = "Where Credit is Due";
+
+        // Check if the player has the prereqs
+        bool hasTaskTracker = upgradeManager.HasPurchasedUpgrade("Task Tracker");
+        bool hasAddressBook = upgradeManager.HasPurchasedUpgrade("Address Book");
+        bool hasExitTheMatrix = upgradeManager.HasPurchasedUpgrade("Exit the Matrix");
+        if (hasTaskTracker && hasAddressBook && hasExitTheMatrix)
+        {
+            // Attempt to purchase Where Credit is Due
+            if (AttemptPurchaseUpgrade(upgradeTitle, instructions))
+            {
+                // Navigate to credits then loop back to main menu
+                gameplayManager.CompleteGameAndReset();
+                fadeManager.FadeMethod("credits");
+            }
+        }
+        else
+        {
+            string requiredCacheUpgradeName = "Address Book";
+            if (gameplayManager.HasUpgrade("Exit the Matrix"))
+            {
+                requiredCacheUpgradeName = "DNS Cache";
+            }
+
+            screenText.text = "You must first purchase the <b>Task Tracker</b>, the <b>" + requiredCacheUpgradeName + "</b>, and the <b>Exit the Matrix</b> upgrades.";
+
+            // Show on-screen message
+            screenText.gameObject.SetActive(true);
+        }
+    }
+
+    public bool AttemptPurchaseUpgrade(string upgradeTitle, string instructions)
+    {
+        bool isSuccessful = false;
+
+        string upgradeName = "";
+
+        if (upgradeTitle.ToLower() == "address book")
+        {
+            bool hasExitedTheMatrix = gameplayManager.HasUpgrade("Exit the Matrix");
+            upgradeName = "Address Book";
+            if (hasExitedTheMatrix)
+            {
+                upgradeName = "DNS Cache";
+            }
+        }
+        else if (upgradeTitle.ToLower() == "address book slot")
+        {
+            bool hasExitedTheMatrix = gameplayManager.HasUpgrade("Exit the Matrix");
+            upgradeName = "Address Book";
+            if (hasExitedTheMatrix)
+            {
+                upgradeName = "DNS Cache Slot";
+            }
+        }
+        else
+        {
+            upgradeName = upgradeTitle;
+        }
+
+        // If the requested upgrade can only be purchased once
+        if (!upgradeManager.IsRepeatable(upgradeTitle))
+        {
+            // If the player has already purchased the upgrade
+            if (upgradeManager.HasPurchasedUpgrade(upgradeTitle))
+            {
+                // Set error message
+                screenText.text = "You've already purchased the " + upgradeName + " upgrade.\n" + instructions; // TODO: Add some snarky "No need to buy the same thing twice, right?" comment
+
+                // Show on-screen message
+                screenText.gameObject.SetActive(true);
+                isSuccessful = false;
+            }
+            // If the player successfully purchases the upgrade
+            else if(upgradeManager.AttemptPurchase(upgradeTitle))
+            {
+                // Set success message
+                screenText.text = "You successfully purchased the " + upgradeName + " upgrade.\n" + instructions;
+
+                // Show on-screen message
+                screenText.gameObject.SetActive(true);
+
+                isSuccessful = true;
+            }
+            // If the purchase was unsuccessful
+            else
+            {
+                // Set error message
+                screenText.text = "You need $" + upgradeManager.GetUpgradeCost(upgradeTitle) + " to purchase the " + upgradeName + " upgrade.";
+
+                // Show on-screen message
+                screenText.gameObject.SetActive(true);
+
+                isSuccessful = false;
+            }
+        }
+        // If the upgrade can be purchased multiple times
+        else
+        {
+            // If successfully purchased again
+            if (upgradeManager.AttemptPurchase(upgradeTitle))
+            {
+                // Set success message
+                screenText.text = "You successfully purchased the " + upgradeName + " upgrade.\n" + instructions;
+
+                // Show on-screen message
+                screenText.gameObject.SetActive(true);
+
+                isSuccessful = true;
+            }
+            // If purchase was unsuccessful
+            else
+            {
+                // Set error message
+                screenText.text = "You need $" + upgradeManager.GetUpgradeCost(upgradeTitle) + " to purchase the " + upgradeName + " upgrade.";
+
+                // Show on-screen message
+                screenText.gameObject.SetActive(true);
+
+                isSuccessful = false;
+            }
+        }
+
+        // Update computer UI
+        ForceUpdateGUI();
+
+        // Update HUD
+        gameplayManager.ForceUpdateHUD();
+
+        return isSuccessful;
+    }
+
+    void ForceUpdateGUI()
+    {
+        string requiredUpgrade = "Address Book";
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            requiredUpgrade = "DNS Cache";
+        }
+
+        // Check if player already purchased the task tracker
+        if (gameplayManager.HasUpgrade("Task Tracker"))
+        {
+            taskTrackerPriceText.text = "Purchased";
+            taskTrackerPriceText.fontStyle = FontStyle.Italic;
+        }
+
+        // Check if player already purchased the company running shoes
+        if (gameplayManager.HasUpgrade("Company Running Shoes"))
+        {
+            companyRunningShoesPriceText.text = "Purchased";
+            companyRunningShoesPriceText.fontStyle = FontStyle.Italic;
+        }
+
+        // Check if player already purchased the address book
+        if (gameplayManager.HasUpgrade("Address Book"))
+        {
+            addressBookPriceText.text = "Purchased";
+            addressBookPriceText.fontStyle = FontStyle.Italic;
+
+            // Display current number of slot upgrades purchased
+            addressBookSlotDescriptionText.text = "Adds 1 spot to " + requiredUpgrade + ".\n Current: " + upgradeManager.GetQuantity("Address Book Slot");
+        }
+        else
+        {
+            // Display note that the slot upgrades require the address book upgrade first
+            addressBookSlotDescriptionText.text = "Adds 1 spot to " + requiredUpgrade + ".\n Requires " + requiredUpgrade + " upgrade.";
+        }
+
+        // Check if player already purchased the exit the matrix upgrade
+        if (gameplayManager.HasUpgrade("Exit the Matrix"))
+        {
+            exitMatrixPriceText.text = "Purchased";
+            exitMatrixPriceText.fontStyle = FontStyle.Italic;
+        }
+
+        // Update the HUD
+        gameplayManager.ForceUpdateHUD();
+    }
+}
+
+/* File: PlayerController.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+ using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class PlayerController : MonoBehaviour
+{
+    // Button press threshold
+    const float DEAD_VALUE = 0.4f;
+
+    // Walking speed
+    public static readonly float SPEED = 5f;
+
+    GameplayManager gameplayManager;
+
+    // Reference to the rigidbody (for physics and movement)
+    Rigidbody2D thisRigidbody;
+
+    // Flag indicating if the player is "running"
+    bool activateSpeedModifier;
+
+    // Speed modifier to allow running faster
+    float speedModifier;
+
+    // Reference to the animator (for walking animation)
+    [SerializeField] Animator playerAnimator;
+
+    // Animator parameter values for assisting in walking animations
+    string horizontalFloatName = "HorizontalValue";
+    string verticalFloatName = "VerticalValue";
+
+    // Object and image that show the whole map
+    [SerializeField] GameObject bigMap;
+    
+    // Mobile-specific variables
+    Vector2 touchOrigin = -Vector2.one;
+
+    public static readonly string MAP_KEY = "TAB";
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        // Find necessary managers
+        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+
+        // Get necessary component values
+        thisRigidbody = GetComponent<Rigidbody2D>();
+        playerAnimator = GetComponent<Animator>();
+
+        // By default, walk normal
+        activateSpeedModifier = false;
+        speedModifier = 1;
+        
+        // Allow walking (can be set to false to freeze walking)
+        IsWalkingEnabled = true;
+
+        // Disable town map (if in town scene)
+        if (bigMap != null)
+            bigMap.SetActive(false);
+    }
+    
+    void Update()
+    {
+        float xMovement = 0;
+        float yMovement = 0;
+
+        // If walking is allowed
+        if (IsWalkingEnabled)
+        {
+            // If the application is an executable for PC/Mac/Linux or WebGL or in-editor
+#if UNITY_STANDALONE || UNITY_WEBGL || UNITY_EDITOR
+            // Get the movement from the Horizontal/Vertical axis
+            xMovement = Input.GetAxisRaw("Horizontal");
+            yMovement = Input.GetAxisRaw("Vertical");
+
+            // If the application is on mobile/tablet
+#else
+            // If the player is touching the screen
+            if (Input.touchCount > 0)
+            {
+                // Get the first touch
+                Touch myTouch = Input.touches[0];
+
+                // If the phase is "Begin" -- player put finger down
+                if (myTouch.phase == TouchPhase.Began)
+                {
+                    // Get starting position
+                    touchOrigin = myTouch.position;
+                }
+                // If the phase is "Ended" -- player took finger off
+                else if (myTouch.phase == TouchPhase.Ended)
+                {
+                    // Reset position
+                    touchOrigin = -Vector2.one;
+                }
+                // If the player has moved their finger or is stationary
+                else if (myTouch.phase == TouchPhase.Moved || myTouch.phase == TouchPhase.Stationary)
+                {
+                    // Inside the bounds of the screen
+                    Vector2 touchEnd = myTouch.position;
+                    float x = touchEnd.x - touchOrigin.x;
+                    float y = touchEnd.y - touchOrigin.y;
+                
+                    // Determine if movement was in the x direction
+                    if (Mathf.Abs(x) > Mathf.Abs(y))
+                    {
+                        // Movement was right
+                        if (x > 0)
+                        {
+                            xMovement = 1;
+                        }
+                        // Movement was left
+                        else
+                        {
+                            xMovement = -1;
+                        }
+                    }
+                    // Movement was in the y direction
+                    else
+                    {
+                        // Movement was up
+                        if (y > 0)
+                        {
+                            yMovement = 1;
+                        }
+                        // Movement was down
+                        else
+                        {
+                            yMovement = -1;
+                        }
+                    }
+                }
+            }
+#endif
+
+            // If the running button(s) is/are pressed
+            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+            {
+                // If the player has the company running shoes upgrade
+                if (gameplayManager.HasUpgrade("Company Running Shoes"))
+                {
+                    // Running speed
+                    speedModifier = 3;
+                }
+            }
+            // Shift is not pressed
+            else
+            {
+                // Normal walking speed
+                speedModifier = 1;
+            }
+
+            // Calculate velocity in each direction
+            float xVelocity = xMovement * SPEED * speedModifier;
+            float yVelocity = yMovement * SPEED * speedModifier;
+            
+            // Move in the calculated direction
+            thisRigidbody.velocity = new Vector2(xVelocity, yVelocity);
+
+            // Animate based on calculated velocity
+            Animate(thisRigidbody.velocity);
+
+            // If the map button is pressed
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                // If town map reference is valid
+                if (bigMap != null)
+                {
+                    // Toggle the town map
+                    bigMap.SetActive(!bigMap.activeInHierarchy);
+                }
+            }
+        }
+        else
+        {
+            // No animation -- stand still
+            Animate(Vector2.zero);
+        }
+    }
+
+    public void Animate(Vector2 direction)
+    {
+        // Set animation parameters on the Animator
+        playerAnimator.SetFloat(horizontalFloatName, direction.x);
+        playerAnimator.SetFloat(verticalFloatName, direction.y);
+    }
+    
+    // Flag to determine if walking is allowed
+    public bool IsWalkingEnabled { get; set; }
+}
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class InGameOptionsMenu : MonoBehaviour
+{
+    InGameOptionsMenu instance = null;
+
+    // Necessary Managers
+    [SerializeField] MusicManager musicManager;
+    [SerializeField] LevelManager levelManager;
+    [SerializeField] Transition fade;
+
+    // Necessary UI Components
+    [SerializeField] GameObject[] audioComponents;
+    [SerializeField] GameObject[] instructionComponents;
+    [SerializeField] GameObject[] quitComponents;
+    [SerializeField] GameObject parentImage;
+
+    [SerializeField] Slider volumeSlider;
+
+    [SerializeField] Image fullScreenImage;
+
+    string currentSceneName = "";
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        volumeSlider.value = musicManager.Volume;
+
+        // Hide all except audio controls
+        ToggleOptions(isAudio: false, isInstructions: false, isQuit: false);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            // If correct scene
+            currentSceneName = SceneManager.GetActiveScene().name;
+
+            if (currentSceneName != "loading" && currentSceneName != "title" && currentSceneName != "start_town" && currentSceneName != "credits")
+            {
+                if (parentImage.activeInHierarchy)
+                {
+                    // Disable
+                    parentImage.SetActive(false);
+                }
+                else
+                {
+                    // Enable
+                    parentImage.SetActive(true);
+
+                    // Toggle -- Show audio by default
+                    ToggleOptions(isAudio: true, isInstructions: false, isQuit: false);
+                }
+            }
+        }
+    }
+
+    public void MusicVolumeChanged()
+    {
+        musicManager.Volume = volumeSlider.value;
+    }
+
+    public void ToggleMuteVolume()
+    {
+        musicManager.ToggleMute();
+    }
+
+    public void ToggleOptionsByString(string name)
+    {
+        if (name.ToLower() == "audio")
+        {
+            ToggleOptions(isAudio: true, isInstructions: false, isQuit: false);
+        }
+        else if (name.ToLower() == "instructions")
+        {
+            ToggleOptions(isAudio: false, isInstructions: true, isQuit: false);
+        }
+        else if (name.ToLower() == "quit")
+        {
+            ToggleOptions(isAudio: false, isInstructions: false, isQuit: true);
+        }
+        else if (name == "none")
+        {
+            parentImage.SetActive(false);
+        }
+    }
+
+    void ToggleOptions(bool isAudio, bool isInstructions, bool isQuit)
+    {
+        if (isAudio == isInstructions == isQuit == false)
+        {
+            // hide
+            parentImage.SetActive(false);
+            return;
+        }
+
+        // If multiple are true, choose the first one
+        if (isAudio && isInstructions)
+        {
+            isInstructions = false;
+        }
+        else if ((isAudio && isQuit) || (isInstructions && isQuit))
+        {
+            isQuit = false;
+        }
+
+        ToggleAudioControls(isAudio);
+        ToggleInstructions(isInstructions);
+        ToggleQuitMenu(isQuit);
+    }
+
+    void ToggleAudioControls(bool isShown)
+    {
+        // if isShown, show. Else, hide
+        foreach (GameObject g in audioComponents)
+        {
+            g.SetActive(isShown);
+        }
+    }
+
+    void ToggleInstructions(bool isShown)
+    {
+        // if isShown, show. Else, hide
+        foreach (GameObject g in instructionComponents)
+        {
+            g.SetActive(isShown);
+        }
+    }
+
+    void ToggleQuitMenu(bool isShown)
+    {
+        // if isShown, show. Else, hide
+        foreach (GameObject g in quitComponents)
+        {
+            g.SetActive(isShown);
+        }
+    }
+
+    public void InstructionImageClicked(Image image)
+    {
+        // Set fullscreen image to image
+        fullScreenImage.sprite = image.sprite;
+
+        // Show fullscreen image
+        fullScreenImage.gameObject.SetActive(true);
+    }
+
+    public void HideFullScreenImage()
+    {
+        fullScreenImage.gameObject.SetActive(false);
+    }
+
+    public void QuitToTitleScreen()
+    {
+        GameObject.Find("Fade Canvas").GetComponent<Transition>().FadeMethod("title");
+    }
+}
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class OptionsMenu : MonoBehaviour
+{
+    // Necessary Managers
+    [SerializeField] MusicManager musicManager;
+
+    // Necessary UI Components
+    [SerializeField] GameObject[] menuComponents;
+    [SerializeField] Slider volumeSlider;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        musicManager = GameObject.Find("MusicManager").GetComponent<MusicManager>();
+        volumeSlider.value = musicManager.Volume;
+    }
+
+    public void MusicVolumeChanged()
+    {
+        musicManager.Volume = volumeSlider.value;
+    }
+
+    public void ToggleMuteVolume()
+    {
+        musicManager.ToggleMute();
+    }
+
+    public void ToggleMenuItems(bool isShown)
+    {
+        foreach (GameObject g in menuComponents)
+        {
+            g.SetActive(isShown);
+        }
+    }
+}
+
+using UnityEngine;
+
+public class TitleScreenSetup : MonoBehaviour
+{
+    // Necessary manager references
+    LevelManager levelManager;
+
+    // Necessary UI components
+    [SerializeField] GameObject optionsCanvas;
+    [SerializeField] OptionsMenu optionsMenu;
+    [SerializeField] GameObject[] startScreenButtons;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        // Find managers in scene
+        levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        optionsCanvas.SetActive(false);
+    }
+
+    public void StartButtonAction()
+    {
+        // Move on to the starting dialogue scene
+        levelManager.LoadLevel("start_town");
+    }
+
+    public void QuitButtonAction()
+    {
+        // Quit the game via the level manager
+        levelManager.QuitGame();
+    }
+
+    public void ToggleOptions(bool isOptionsShown)
+    {
+        optionsCanvas.SetActive(isOptionsShown);
+
+        foreach (GameObject g in startScreenButtons)
+        {
+            g.SetActive(!isOptionsShown);
+        }
+
+        // optionsCanvas.GetComponent<OptionsMenu>().ToggleMenuItems(isOptionsShown);
+    }
+}
+
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class ContinueButton : MonoBehaviour
+{
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void Continue()
+    {
+        SceneManager.LoadScene("office");
+    }
+}
+
+/* File: StartingNPCManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System.Collections;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class StartingNPCManager : MonoBehaviour
+{
+    // Event System reference for clearing clicked buttons
+    [SerializeField] EventSystem eventSystem;
+
+    // Chat text and button references
+    [SerializeField] Text chatText;
+    [SerializeField] Button option1Button;
+    [SerializeField] Text option1Text;
+
+    // Next scene to navigate to after dialogue
+    [SerializeField] string nextSceneName;
+
+    // Dialogue text to be loaded from file
+    [SerializeField] TextAsset introDialogueText;
+    
+    // Delay between each character when writing text to UI
+    const float CHAT_DELAY = 0.005f;
+
+    // Which step in the dialogue sequence is currently shown
+    int dialogueIndex;
+
+    // Only one coroutine should run at a time
+    Coroutine currentCoroutine;
+
+    // List of dialogue lines
+    ArrayList dialogueLines;
+
+    // Information about each dialogue line
+    struct DialogueLine
+    {
+        // Who is speaking
+        public string speaker;
+
+        // The sentence(s) being spoken
+        public string line; 
+
+        // The response from the player to the dialogue
+        public string response;
+    }
+
+    // Global strings to format before placing them in the text objects
+    string message_ChatText;
+    string message_Option1Text;
+
+    // Player sprite to display after dialogue
+    public Sprite sprite_PlayerDown;
+    
+    void Start()
+    {
+        // Set a default scene to transition to after dialogue
+        if (string.IsNullOrEmpty(nextSceneName))
+        {
+            // By default, go to office
+            nextSceneName = "office";
+        }
+
+        // Load/parse dialogue text
+        ParseDialogueText();
+
+        // Set all appropriate button events
+        option1Button.onClick.RemoveAllListeners();
+        option1Button.onClick.AddListener(ModifiedDialogue);
+
+        // Start the dialogue
+        dialogueIndex = 0;
+        ModifiedDialogue();
+    }
+
+    private void ParseDialogueText()
+    {
+        // Get dialogue information from text file split by line
+        string[] parts = introDialogueText.text.Split('\n');
+        string[] speakerParts = parts[0].Split(':');
+        string speaker = speakerParts[1].Trim();
+        
+        dialogueLines = new ArrayList();
+        
+        DialogueLine dialogueLine;
+        
+        // Same speaker throughout
+        dialogueLine.speaker = speaker;
+        
+        // For all lines in the dialogue
+        for (int i = 2 /* line 1 is blank */; i < parts.Length; i += 2)
+        {
+            // Get the line and response
+            dialogueLine.line = parts[i].Trim();
+            dialogueLine.response = parts[i + 1].Trim();
+            dialogueLines.Add(dialogueLine);
+        }
+    }
+    
+    public void ModifiedDialogue()
+    {
+        // If the dialogue has ended
+        if (dialogueIndex >= dialogueLines.Count)
+        {
+            // Load next scene
+            SceneManager.LoadScene(nextSceneName);
+            return;
+        }
+
+        // Deselect all buttons
+        eventSystem.SetSelectedGameObject(null);
+
+        // Get this current dialogue line and response
+        DialogueLine thisLine = (DialogueLine)dialogueLines[dialogueIndex];
+        string nextSpeakerLine = "<b>" + thisLine.speaker + "</b>:\n" + thisLine.line;
+        string nextResponseLine = thisLine.response;
+        
+        // If there is a currently running coroutine
+        if (currentCoroutine != null)
+        {
+            // Stop the previous action
+            StopCoroutine(currentCoroutine);
+        }
+
+        // Display dialogue to UI
+        currentCoroutine = StartCoroutine(WriteText(nextSpeakerLine, nextResponseLine));
+
+        // Increment index to next dialogue line
+        dialogueIndex++;
+    }
+
+    IEnumerator WriteText(string chat, string option1)
+    {
+        chatText.text = "";
+        option1Text.text = "";
+        
+        // Disable button 1 if null or ""
+        option1Button.interactable = !string.IsNullOrEmpty(option1);
+
+        // Skip the name of the person
+        int startingIndex = chat.IndexOf("</b>") + "</b>".Length;
+        chatText.text = chat.Substring(0, startingIndex);
+
+        // Write chat text
+        for (int i = startingIndex; i < chat.Length; i++)
+        {
+            // Wait for CHAT_DELAY seconds before writing the next letter
+            yield return new WaitForSeconds(CHAT_DELAY);
+            chatText.text += chat[i];
+        }
+
+        // Write option 1 text
+        for (int i = 0; i < option1.Length; i++)
+        {
+            // Wait for CHAT_DELAY seconds before writing the next letter
+            yield return new WaitForSeconds(CHAT_DELAY);
+            option1Text.text += option1[i];
+        }
+    }
+}
+
+/* File: StartSceneLoader.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class StartSceneLoader : MonoBehaviour
+{
+    // The NPC the player is talking to
+    [SerializeField] GameObject startNPC;
+
+    // NPC and player sprites
+    public Sprite sprite_PlayerRight;
+    public Sprite sprite_PlayerDown;
+    public Sprite sprite_NPCLeft;
+    
+    public void OnSceneWasLoaded(Scene scene, LoadSceneMode lsm)
+    {
+        // If the current scene is the starting dialogue
+        if (scene.name == "start_town")
+        {
+            // Find the player and set the sprite
+            GameObject player = GameObject.Find("Player");
+            player.GetComponent<SpriteRenderer>().sprite = sprite_PlayerRight;
+
+            // Find the NPC and set the sprite
+            startNPC = GameObject.Find("Starting NPC");
+            startNPC.GetComponent<SpriteRenderer>().sprite = sprite_NPCLeft;
+
+            // Set the player sprite for end of dialogue
+            StartingNPCManager npcManager = startNPC.GetComponent<StartingNPCManager>();
+            npcManager.sprite_PlayerDown = sprite_PlayerDown;
+
+            // Remove this method from the scene change events
+            SceneManager.sceneLoaded -= OnSceneWasLoaded;
+        }
+    }
+}
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CentralLookupAgencyTransition : MonoBehaviour
+{
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.name == "Player")
+        {
+            GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("centralLookupAgency");
+        }
+    }
+}
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class LocalLookupAgencyNETransition : MonoBehaviour
+{
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.name == "Player")
+        {
+            GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("localLookupAgencyNE");
+        }
+    }
+}
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class LocalLookupAgencyTransition : MonoBehaviour
+{
+    // Start is called before the first frame update
+    void Start()
+    {
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.name == "Player")
+        {
+            GameObject.Find("LevelManager").GetComponent<LevelManager>().LoadLevel("localLookupAgency");
+        }
+    }
+}
+
+/* File: NeighborhoodTransition.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class NeighborhoodTransition : MonoBehaviour
+{
+    // Black fade image to use in transitioning
+    [SerializeField] Image fadeImage;
+
+    // Necessary player and component references
+    PlayerController player;
+    Rigidbody2D playerRigidbody;
+
+    // In-game marker to transition towards
+    [SerializeField] GameObject transitionMarker;
+
+    // Flags to indicate which X and Y values will be affected
+    [SerializeField] bool transitionX = true;
+    [SerializeField] bool transitionY = true;
+    
+    public IEnumerator Fade(float start, float end, float timeToFade)
+    {
+        // Ensure transition image is enabled
+        fadeImage.enabled = true;
+        fadeImage.gameObject.SetActive(true);
+        Color currentFadeColor = fadeImage.color;
+
+        // Set starting alpha
+        currentFadeColor.a = start;
+        fadeImage.color = currentFadeColor;
+        
+        // Interpolate transition in/out over timeToFade seconds
+        for (float currentFadeTime = 0.0f; currentFadeColor.a != end; currentFadeTime += Time.deltaTime)
+        {
+            // Calculate what the alpha should be at this point in the interpolation
+            float fadeAlpha = Mathf.Lerp(start, end, currentFadeTime / timeToFade);
+
+            // Set alpha in color
+            currentFadeColor.a = fadeAlpha;
+            fadeImage.color = currentFadeColor;
+
+            // Wait for the frame to update
+            yield return new WaitForEndOfFrame();
+        }
+
+        // If the image is transparent at the end
+        if (end == 0.0f)
+        {
+            // Disable to avoid UI issues
+            fadeImage.enabled = false;
+        }
+    }
+
+    public IEnumerator Transition()
+    {
+        // Fade out to black
+        yield return Fade(0, 1, 0.5f);
+
+        // Calculate the new position
+        Vector3 newPosition = playerRigidbody.position;
+        Vector3 targetPosition = transitionMarker.transform.position;
+
+        // If X will be affected
+        if (transitionX)
+        {
+            // Set new X value
+            newPosition.x = targetPosition.x;
+        }
+
+        // If Y will be affected
+        if (transitionY)
+        {
+            // Set new Y value
+            newPosition.y = targetPosition.y;
+        }
+
+        // Set the new position
+        playerRigidbody.position = newPosition;
+
+        // Fade in
+        yield return Fade(1, 0, 0.5f);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        // Get the player and component references
+        player = collision.GetComponent<PlayerController>();
+        playerRigidbody = collision.GetComponent<Rigidbody2D>();
+
+        // Start the transition
+        StartCoroutine(Transition());
+    }
+}
+
+using Assets.Scripts.Behind_The_Scenes;
+using Assets.Scripts.Lookup_Agencies;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class Transition : MonoBehaviour
+{
+    // Black overlay image to use in fading in/out
+    [SerializeField] Image fadeImage;
+
+    // Flags to know if the scene needs to fade in and out -- both true by default
+    [SerializeField] bool fadeIn = true;
+    [SerializeField] bool fadeOut = true;
+
+    // Manager references
+    GameplayManager gameplayManager;
+    CacheManager cacheManager;
+    [SerializeField] HUDManager hudManager;
+    LevelManager levelManager;
+
+    // Time to complete the fade
+    static readonly float FADE_DURATION = 0.5f;
+
+    // This residence's IP address (if applicable)
+    [SerializeField] string ipAddress;
+    
+    void Start()
+    {
+        // If the scene is flagged to fade in
+        if (fadeIn)
+        {
+            // Fade in
+            StartCoroutine(Fade(1, 0, FADE_DURATION));
+        }
+        // If the scene is not flagged to fade in
+        else
+        {
+            // Set fade image as transparent
+            Color c = fadeImage.color;
+            c.a = 0.0f;
+            fadeImage.color = c;
+
+            // Disable the fade image to avoid any interaction issues
+            fadeImage.enabled = false;
+        }
+        
+        string[] houseParts = name.Split('-');
+
+        // If this is a transition to a residence
+        if (houseParts.Length > 2)
+        {
+            // Determine IP address from name of transition
+            int residenceNumber = System.Convert.ToInt32(houseParts[1].Trim());
+            char neighborhoodID = houseParts[2].Trim()[0];
+            ipAddress = AddressManager.DetermineIPFromHouseInfo(residenceNumber, neighborhoodID);
+        }
+        
+        // Find managers
+        gameplayManager = GameObject.Find("GameplayManager").GetComponent<GameplayManager>();
+        cacheManager = GameObject.Find("CacheManager").GetComponent<CacheManager>();
+        hudManager = GameObject.Find("HUD").GetComponent<HUDManager>();
+        levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+    }
+    
+    string FormatSceneName(in string text)
+    {
+        string stringToReturn = text;
+
+        // Check if the name needs to be changed
+        bool isUpperCase = (stringToReturn[0] >= 'A' && stringToReturn[0] <= 'Z');
+
+        // If the name starts with an uppercase letter
+        if (isUpperCase)
+        {
+            // Adjust the first character
+            char firstCharacter = stringToReturn[0];
+            int index = firstCharacter - 'A';
+            firstCharacter = (char)('a' + index);
+            
+            stringToReturn = firstCharacter + stringToReturn.Substring(1);
+        }
+
+        // Return the (potentially) adjusted string
+        return stringToReturn;
+    }
+
+    void LookupAgencyTransition(string sceneName, out string newSceneName)
+    {
+        newSceneName = "";
+
+        // If the player is going to a local lookup agency
+        if (sceneName.Contains("localLookup"))
+        {
+            // Get the scene details
+            string[] newSceneDetails = sceneName.Split('-');
+            newSceneName = "localLookupAgency";
+
+            // Check if there's enough details in the name
+            if (newSceneDetails.Length == 1)
+            {
+                // Output error
+                Debug.Log("Not enough parts in the name");
+            }
+            // If there are enough details in the name
+            else
+            {
+                // Get the neighborhood ID from the name
+                string neighborhoodIDString = newSceneDetails[1].Trim(); // 2nd part of the name
+                char neighborhoodIDChar = neighborhoodIDString[0]; // 1st character
+
+                // Store the current neighborhood id
+                gameplayManager.CurrentNeighborhoodID = neighborhoodIDChar;
+            }
+        }
+        // Player is going to a central lookup agency
+        else
+        {
+            // Set the neighborhood ID to root village
+            gameplayManager.CurrentNeighborhoodID = 'X';
+            newSceneName = sceneName;
+        }
+    }
+
+    bool IsCorrectHouse(string[] details, Letter message, bool hasExitedMatrix)
+    {
+        // If the player has purchased the Exit the Matrix upgrade
+        if (hasExitedMatrix)
+        {
+            // Reference the residence IP address
+            string residentIP = AddressManager.DetermineIPFromHouseInfo(message.Recipient.HouseNumber, message.Recipient.NeighborhoodID);
+
+            // If the ip addresses match, then it's the correct house. Else, it's not.
+            return ipAddress == residentIP;
+        }
+        else
+        {
+            // Reference the residence house number
+            int currentHouseNumber = System.Convert.ToInt32(details[1]);
+
+            // If the house numbers match, then it's the correct house. Else, it's not
+            return currentHouseNumber == message.Recipient.HouseNumber;
+        }
+    }
+
+    bool HasCompletedAllPrerequisiteSteps(Letter message, bool hasExitedMatrix)
+    {
+        // If the player has purchased the "Exit the Matrix" upgrade
+        if (hasExitedMatrix)
+        {
+            // If the player's next step is the current IP address, then they can enter. Else, there's more steps
+            return gameplayManager.NextStep.nextStep == ipAddress;
+        }
+        else
+        {
+            // If the player's next step is the current house number, then they can enter. Else, there's more steps
+            return gameplayManager.NextStep.nextStep == "Residence #" + message.Recipient.HouseNumber;
+        }
+    }
+
+    bool HomeTransition(string thisSceneName)
+    {
+        string[] newSceneDetails = thisSceneName.Split('-');
+        if (newSceneDetails.Length < 3)
+            return false;
+
+        int houseNumber = System.Convert.ToInt32(newSceneDetails[1]);
+        char neighborhoodID = newSceneDetails[2].Trim()[0];
+
+        bool hasExitedTheMatrix = gameplayManager.HasUpgrade("Exit the Matrix");
+
+        Letter message = gameplayManager.CurrentMessage;
+
+        // If letter is null
+        if (message == null)
+        {
+            // No one is home
+            return false; 
+        }
+        // Else if house is correct
+        else if (IsCorrectHouse(newSceneDetails, message, hasExitedTheMatrix))
+        {
+            // If recipient is cached
+            if (cacheManager.IsPersonCached(message.Recipient))
+            {
+                // Go to the residence
+                return true;
+            }
+            // Else if in right spot (gone through all steps)
+            else if (HasCompletedAllPrerequisiteSteps(message, hasExitedTheMatrix))
+            {
+                // Go to the residence
+                return true;
+            }
+            // Missing some steps
+            else
+            {
+                // No one is home
+                return false;
+            }
+        }
+        // Error in location
+        else
+        {
+            // No one is home
+            return false;
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        // Only concerned with the player
+        if (collision.name != "Player")
+        {
+            return;
+        }
+        
+        // Find player
+        GameObject player = GameObject.Find("Player");
+
+        // Get scene name
+        string thisSceneName = FormatSceneName(gameObject.name);
+        string nextScene = thisSceneName;
+
+        // By default, flag as correct house
+        bool isSuccessful = false;
+
+        // Check if the player is at a lookup agency or residence
+        bool isLookupAgencyOrResidence = thisSceneName != "town" && thisSceneName != "office";
+
+        // If they are at one of those locations
+        if (isLookupAgencyOrResidence)
+        {
+            // If it's a lookup agency
+            if (thisSceneName.Contains("Lookup"))
+            {
+                // Transition to the respective lookup agency
+                LookupAgencyTransition(thisSceneName, out nextScene);
+
+                // Successful transition
+                isSuccessful = true;
+            }
+            // If it's a residence
+            else if (thisSceneName.Contains("home"))
+            {
+                // Transition to the residence
+                isSuccessful = HomeTransition(thisSceneName);
+                nextScene = "home";
+            }
+
+            // Store the indoor location for reference
+            gameplayManager.indoorLocation = nextScene;
+
+            // Store the current outdoor location for spawning in the town
+            gameplayManager.lastOutdoorPosition = this.transform.position;
+        }
+        else
+        {
+            // Town and office don't need special formatting
+            isSuccessful = true;
+        }
+
+        if (thisSceneName != "town")
+        {
+
+            // Store the indoor location for reference
+            gameplayManager.indoorLocation = nextScene;
+
+            // Store the current outdoor location for spawning in the town
+            gameplayManager.lastOutdoorPosition = this.transform.position;
+        }
+
+        // If it was a successful transition
+        if (isSuccessful)
+        {
+            // Adjust the player's position to avoid triggers
+            Vector3 playerPosition = player.transform.position;
+            playerPosition.y -= 1.0f;
+
+            // Store the adjusted position
+            gameplayManager.CurrentSpawnLocation = playerPosition;
+
+            // Fade out and transition
+            StartCoroutine(TransitionToScene(0, 1, FADE_DURATION, nextScene));
+        }
+        // If it was NOT a successful transition -- residence
+        else
+        {
+            // Display a notice saying "no one seems to be home"
+            NoOneHome();
+        }
+    }
+
+    void NoOneHome()
+    {
+        // Use the HUD manager to display a notice
+        hudManager.NoOneHome();
+    }
+
+    private IEnumerator TransitionToScene(float start, float end, float timeToFade, string newScene)
+    {
+        // If the scene fades out
+        if (fadeOut)
+        {
+            // Wait for fade transition
+            yield return Fade(start, end, timeToFade);
+        }
+
+        // Use the level manager to load new scene
+        levelManager.LoadLevel(newScene);
+    }
+
+    public IEnumerator Fade(float start, float end, float timeToFade)
+    {
+        // Enable the overlay black image, the component, and it's parent
+        fadeImage.enabled = true; // Component
+        fadeImage.gameObject.SetActive(true); // Object
+        fadeImage.transform.parent.gameObject.SetActive(true); // Parent
+        
+        Color currentFadeColor = fadeImage.color;
+
+        // Set starting alpha
+        currentFadeColor.a = start;
+        fadeImage.color = currentFadeColor;
+
+        // Interpolate from start alpha to end alpha over timeToFade seconds
+        for (float currentFadeTime = 0.0f; currentFadeColor.a != end; currentFadeTime += Time.deltaTime)
+        {
+            // Using interpolation, find the alpha value for that point in time
+            float fadeAlpha = Mathf.Lerp(start, end, currentFadeTime / timeToFade);
+
+            // Set the color's alpha value
+            currentFadeColor.a = fadeAlpha;
+            fadeImage.color = currentFadeColor;
+
+            // Wait for the frame to update
+            yield return new WaitForEndOfFrame();
+        }
+
+        // If it faded out
+        if (end <= 0.01f)
+        {
+            // Disable the fade image
+            fadeImage.enabled = false;
+        }
+    }
+
+    public void FadeMethod(string scene)
+    {
+        // Use the transition coroutine to fade
+        // Debug.Log("Transitioning to " + scene);
+        StartCoroutine(TransitionToScene(0, 1, FADE_DURATION, scene));
+    }
+}
+
+/* File: Upgrade.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+ 
+namespace Assets.Scripts
+{
+    public class Upgrade
+    {
+        public Upgrade(string t, int c, bool r)
+        {
+            Title = t;
+            Cost = c;
+            IsUnlocked = false;
+            IsRepeatable = r;
+        }
+
+        public void Purchase()
+        {
+            IsUnlocked = true;
+            Quantity++;
+        }
+
+        public void Reset()
+        {
+            IsUnlocked = false;
+            Quantity = 0;
+        }
+        
+        public string Title { get; private set; }
+        public int Cost { get; private set; }
+        public bool IsUnlocked { get; private set; }
+        public bool IsRepeatable { get; private set; }
+        public int Quantity { get; private set; }
+    }
+}
+
+/* File: UpgradeManager.cs
+ * Author: Casey Lafferty
+ * Project: Packet Delivery
+ */
+
+ using Assets.Scripts;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class UpgradeManager : MonoBehaviour
+{
+    // Upgrade Manager singleton reference
+    static UpgradeManager instance = null;
+
+    // Necessary manager references
+    [SerializeField] GameplayManager gameplayManager;
+
+    // List of all possible upgrades
+    List<Upgrade> listOfUpgrades;
+
+    private void Awake()
+    {
+        // If there is already an Upgrade Manager reference
+        if (instance != null)
+        {
+            // Only need one --> Delete
+            Destroy(gameObject);
+            return;
+        }
+
+        // Set this as the singleton reference
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // Initialize list of upgrades
+        listOfUpgrades = new List<Upgrade>();
+    }
+
+    public void AddUpgrade(string title, int cost, bool isRepeatable)
+    {
+        // Create a new upgrade based on the given parameters
+        Upgrade newUpgrade = new Upgrade(title, cost, isRepeatable);
+
+        // Add the upgrade to the list
+        listOfUpgrades.Add(newUpgrade);
+    }
+
+    Upgrade FindUpgrade(string title)
+    {
+        // Search through the list for the requested upgrade
+        foreach (Upgrade thisUpgrade in listOfUpgrades)
+        {
+            // If the titles match
+            if (thisUpgrade.Title.ToLower() == title.ToLower())
+            {
+                // Return this upgrade profile
+                return thisUpgrade;
+            }
+        }
+
+        return null;
+    }
+
+    public bool HasPurchasedUpgrade(string title)
+    {
+        // Search through the list for the requested upgrade
+        Upgrade thisUpgrade = FindUpgrade(title);
+
+        // If this upgrade was found
+        if (thisUpgrade != null)
+        {
+            // If it is repeatable, it can be purchased again
+            if (thisUpgrade.IsRepeatable)
+                return false;
+            // It is not repeatable -- check if it's been purchased once or not
+            else
+                return thisUpgrade.IsUnlocked;
+        }
+        else
+        {
+            // Did not find it -- Did not purchase
+            return false;
+        }
+    }
+
+    public int GetQuantity(string title)
+    {
+        // Search through the list for the requested upgrade
+        Upgrade thisUpgrade = FindUpgrade(title);
+
+        // If found, return the number of times this upgrade has been purchased
+        // Else, return -1 --> error
+        return thisUpgrade != null ? thisUpgrade.Quantity : -1;
+    }
+    
+    public bool IsRepeatable(string title)
+    {
+        // Search through the list for the requested upgrade
+        Upgrade thisUpgrade = FindUpgrade(title);
+
+        // If found, check if it is repeatable
+        // Else, not repeatable by default -- false (error)
+        return thisUpgrade != null ? thisUpgrade.IsRepeatable : false;
+    }
+
+    public int GetUpgradeCost(string title)
+    {
+        // Search through the list for the requested upgrade
+        Upgrade thisUpgrade = FindUpgrade(title);
+
+        // If found, return the cost of this upgrade
+        // Else, return -1 --> error
+        return thisUpgrade != null ? thisUpgrade.Cost : -1;
+    }
+
+    public bool AttemptPurchase(string title)
+    {
+        bool isSuccessful = false;
+
+        // Search through the list for the requested upgrade
+        for (int i = 0; i < listOfUpgrades.Count; i++)
+        {
+            // If the titles match
+            if (listOfUpgrades[i].Title.ToLower() == title.ToLower())
+            {
+                // If the upgrade was already purchased and NOT repeatable
+                if (listOfUpgrades[i].IsUnlocked && !listOfUpgrades[i].IsRepeatable)
+                {
+                    // Previous success
+                    isSuccessful = true;
+                }
+                // If the player has enough money to purchase it
+                else if (gameplayManager.Money >= listOfUpgrades[i].Cost)
+                {
+                    // Subtract the amount of money required
+                    gameplayManager.Money -= listOfUpgrades[i].Cost;
+
+                    // Mark as purchased
+                    listOfUpgrades[i].Purchase();
+
+                    // Success!
+                    isSuccessful = true;
+                }
+                // If the player does not have enough money
+                else
+                {
+                    // Not successful
+                    isSuccessful = false;
+                }
+
+                break;
+            }
+        }
+
+        // Update the HUD
+        gameplayManager.ForceUpdateHUD();
+
+        // Notify if the purchase was successful
+        return isSuccessful;
+    }
+
+    public void ResetUpgrades()
+    {
+        // Reset each upgrade via their Reset() method
+        foreach (Upgrade u in listOfUpgrades)
+        {
+            u.Reset();
+        }
+    }
+}

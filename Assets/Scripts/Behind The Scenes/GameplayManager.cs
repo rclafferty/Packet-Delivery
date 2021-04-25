@@ -59,6 +59,7 @@ public class GameplayManager : MonoBehaviour
         Money = 0;
 
 #if UNITY_EDITOR
+        Money = 200;
 #endif
 
         // First outdoor spawn point is outside the office
